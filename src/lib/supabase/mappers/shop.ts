@@ -1,0 +1,58 @@
+import { defaultShopSettings } from "@/lib/shop/defaults";
+import type { ShopCategory, ShopSettings } from "@/lib/shop/types";
+import type { Category } from "@/types/catalog";
+import type { Database } from "@/types/database";
+
+type ShopSettingsRow = Database["public"]["Tables"]["shop_settings"]["Row"];
+
+export function mapShopCategory(category: Category): ShopCategory {
+  return {
+    slug: category.slug,
+    label: category.name,
+    href: `/categorie/${category.slug}`,
+    description: category.description ?? undefined,
+  };
+}
+
+export function mapShopSettings(
+  row: ShopSettingsRow | null,
+  categories: ShopCategory[],
+): ShopSettings {
+  const envPrimary = process.env.NEXT_PUBLIC_SHOP_PRIMARY_COLOR;
+  const envName = process.env.NEXT_PUBLIC_SHOP_NAME;
+  const envEmail = process.env.NEXT_PUBLIC_SHOP_CONTACT_EMAIL;
+
+  if (!row) {
+    return {
+      ...defaultShopSettings,
+      categories: categories.length > 0 ? categories : defaultShopSettings.categories,
+      ...(envName ? { name: envName } : {}),
+      ...(envPrimary ? { primaryColor: envPrimary } : {}),
+      ...(envEmail ? { contactEmail: envEmail } : {}),
+    };
+  }
+
+  return {
+    id: row.id,
+    name: envName ?? row.shop_name,
+    tagline: defaultShopSettings.tagline,
+    description: defaultShopSettings.description,
+    legalName: row.legal_name,
+    legalStatus: row.legal_status,
+    siret: row.siret,
+    address: row.address,
+    contactEmail: envEmail ?? row.email ?? defaultShopSettings.contactEmail,
+    phone: row.phone,
+    vatEnabled: row.vat_enabled,
+    vatRate: Number(row.vat_rate),
+    vatNotice: row.vat_notice,
+    currency: row.currency,
+    mediationUrl: row.mediation_url,
+    repIdu: row.rep_idu,
+    hostName: row.host_name,
+    hostAddress: row.host_address,
+    hostPhone: row.host_phone,
+    primaryColor: envPrimary ?? defaultShopSettings.primaryColor,
+    categories: categories.length > 0 ? categories : defaultShopSettings.categories,
+  };
+}

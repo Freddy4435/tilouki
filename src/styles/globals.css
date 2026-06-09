@@ -1,0 +1,147 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./tilouki-theme.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-tilouki-white: var(--tilouki-white);
+  --color-tilouki-cream: var(--tilouki-cream);
+  --color-tilouki-beige: var(--tilouki-beige);
+  --color-tilouki-sand: var(--tilouki-sand);
+  --color-tilouki-rose: var(--tilouki-rose);
+  --color-tilouki-rose-soft: var(--tilouki-rose-soft);
+  --color-tilouki-blue: var(--tilouki-blue);
+  --color-tilouki-blue-soft: var(--tilouki-blue-soft);
+  --color-tilouki-sage: var(--tilouki-sage);
+  --color-tilouki-sage-light: var(--tilouki-sage-light);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: var(--tilouki-cream);
+  --foreground: var(--tilouki-ink);
+  --card: var(--tilouki-white);
+  --card-foreground: var(--tilouki-ink);
+  --popover: var(--tilouki-white);
+  --popover-foreground: var(--tilouki-ink);
+  --primary: var(--shop-primary);
+  --primary-foreground: var(--shop-primary-foreground);
+  --secondary: var(--tilouki-sage-light);
+  --secondary-foreground: var(--tilouki-sage-dark);
+  --muted: var(--tilouki-beige);
+  --muted-foreground: var(--tilouki-ink-muted);
+  --accent: var(--tilouki-rose-soft);
+  --accent-foreground: var(--tilouki-ink);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.9 0.015 85);
+  --input: oklch(0.94 0.012 85);
+  --ring: var(--shop-primary-light);
+  --chart-1: var(--shop-primary);
+  --chart-2: var(--tilouki-sage);
+  --chart-3: var(--tilouki-blue);
+  --chart-4: var(--tilouki-rose);
+  --chart-5: var(--tilouki-beige);
+  --radius: 0.75rem;
+  --sidebar: var(--tilouki-white);
+  --sidebar-foreground: var(--tilouki-ink);
+  --sidebar-primary: var(--shop-primary);
+  --sidebar-primary-foreground: var(--shop-primary-foreground);
+  --sidebar-accent: var(--tilouki-beige);
+  --sidebar-accent-foreground: var(--tilouki-ink);
+  --sidebar-border: oklch(0.9 0.015 85);
+  --sidebar-ring: var(--shop-primary-light);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-base leading-relaxed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading), var(--font-body), system-ui, sans-serif;
+    @apply tracking-tight text-foreground;
+  }
+}
+
+@layer utilities {
+  .container-tilouki {
+    @apply mx-auto w-full max-w-[var(--container-max)] px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-tilouki {
+    @apply py-10 md:py-14 lg:py-16;
+  }
+
+  .product-image-frame {
+    aspect-ratio: var(--product-image-ratio);
+    @apply bg-tilouki-beige relative overflow-hidden rounded-[var(--radius-product)];
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
