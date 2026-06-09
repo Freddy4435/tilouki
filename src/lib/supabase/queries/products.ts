@@ -12,7 +12,7 @@ import {
   mapProductListItem,
   type ProductWithRelations,
 } from "@/lib/supabase/mappers/product";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type {
   CatalogueQuery,
   PaginatedProducts,
@@ -79,7 +79,7 @@ async function fetchAllActiveProducts(
 ): Promise<ProductListItem[]> {
   if (!isSupabaseConfigured()) return [];
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   let dbQuery = supabase
     .from("products")
     .select(PRODUCT_SELECT)
@@ -156,7 +156,7 @@ export async function getActiveProductsPaginated(
 async function fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
   if (!isSupabaseConfigured()) return null;
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)
@@ -188,7 +188,7 @@ async function fetchRelatedProducts(
 ): Promise<ProductListItem[]> {
   if (!isSupabaseConfigured() || !categoryId) return [];
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)

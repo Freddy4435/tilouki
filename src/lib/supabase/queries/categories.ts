@@ -6,13 +6,13 @@ import { CACHE_TAGS, REVALIDATE } from "@/lib/supabase/cache";
 import { assertNoError, SupabaseDataError } from "@/lib/supabase/errors";
 import { mapCategory } from "@/lib/supabase/mappers/product";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Category } from "@/types/catalog";
 
 export async function fetchCategoriesUncached(): Promise<Category[]> {
   if (!isSupabaseConfigured()) return [];
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categories")
     .select("*")
@@ -36,7 +36,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
     async () => {
       if (!isSupabaseConfigured()) return null;
 
-      const supabase = await createClient();
+      const supabase = createPublicClient();
       const { data, error } = await supabase
         .from("categories")
         .select("*")

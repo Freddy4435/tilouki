@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 import { LEGAL_PAGE_ROUTES } from "@/lib/legal/templates";
 import { CACHE_TAGS, REVALIDATE } from "@/lib/supabase/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export interface SitemapEntry {
   path: string;
@@ -24,7 +24,7 @@ async function fetchAllSitemapEntries(): Promise<SitemapEntry[]> {
 
   if (!isSupabaseConfigured()) return staticPages;
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   const [productsResult, categoriesResult] = await Promise.all([
     supabase

@@ -7,7 +7,7 @@ import type { ShippingRate } from "@/lib/mondial-relay/types";
 import { CACHE_TAGS, REVALIDATE } from "@/lib/supabase/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { assertNoError } from "@/lib/supabase/errors";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Database } from "@/types/database";
 
 type ShippingRateRow = Database["public"]["Tables"]["shipping_rates"]["Row"];
@@ -29,7 +29,7 @@ async function fetchActiveShippingRates(): Promise<ShippingRate[]> {
     return DEFAULT_SHIPPING_RATES;
   }
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("shipping_rates")
     .select("*")

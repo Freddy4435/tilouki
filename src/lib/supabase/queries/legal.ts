@@ -5,13 +5,13 @@ import { unstable_cache } from "next/cache";
 import { CACHE_TAGS, REVALIDATE, legalTag } from "@/lib/supabase/cache";
 import { SupabaseDataError } from "@/lib/supabase/errors";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { LegalPage } from "@/types/catalog";
 
 async function fetchLegalPage(slug: string): Promise<LegalPage | null> {
   if (!isSupabaseConfigured()) return null;
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("legal_pages")
     .select("*")

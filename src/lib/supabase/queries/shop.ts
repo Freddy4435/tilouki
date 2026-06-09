@@ -7,7 +7,7 @@ import { SHOP_SETTINGS_SINGLETON_ID } from "@/lib/supabase/env";
 import { assertNoError } from "@/lib/supabase/errors";
 import { mapShopCategory, mapShopSettings } from "@/lib/supabase/mappers/shop";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { ShopSettings } from "@/lib/shop/types";
 import { fetchCategoriesUncached } from "@/lib/supabase/queries/categories";
 
@@ -18,7 +18,7 @@ async function fetchShopSettings(): Promise<ShopSettings> {
     return mapShopSettings(null, categories);
   }
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   const { data, error } = await supabase
     .from("shop_settings")
