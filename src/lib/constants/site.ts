@@ -2,7 +2,7 @@ export const siteConfig = {
   name: "Tilouki",
   legalName: "Tilouki",
   domain: "tilouki.fr",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://tilouki.fr",
+  url: process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://tilouki.fr",
   description:
     "Boutique française de vêtements enfants, fille et garçon. Tee-shirts, sweats et essentiels du quotidien, livrés en point relais.",
   locale: "fr-FR",
