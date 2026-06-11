@@ -2,7 +2,8 @@
 
 export type CsvSeparator = "," | ";";
 
-const EXPECTED_HEADERS = [
+export const CSV_IMPORT_HEADERS = [
+  "reference",
   "category",
   "name",
   "description",
@@ -13,12 +14,14 @@ const EXPECTED_HEADERS = [
   "color",
   "size_label",
   "age_label",
-  "price_cents",
-  "cost_cents",
+  "price_eur",
+  "cost_eur",
   "stock_quantity",
   "weight_grams",
   "image_url",
 ] as const;
+
+const EXPECTED_HEADERS = CSV_IMPORT_HEADERS;
 
 export function stripBom(text: string): string {
   return text.replace(/^\uFEFF/, "");
@@ -138,8 +141,9 @@ export function validateCsvHeaders(headers: string[]): string | null {
   return null;
 }
 
-export const CSV_IMPORT_HEADERS = EXPECTED_HEADERS;
-
-export const CSV_IMPORT_TEMPLATE = `${EXPECTED_HEADERS.join(",")}
-Robes,Robe fleurie été,Robe légère en coton bio,coton bio,printemps-été,Portugal,fille,rose,4 ans,3-4 ans,2490,1200,5,180,https://example.com/robe.jpg
-Robes,Robe fleurie été,Robe légère en coton bio,coton bio,printemps-été,Portugal,fille,bleu,6 ans,5-6 ans,2490,1200,3,190,`;
+export const CSV_IMPORT_TEMPLATE = `reference,category,name,description,material,season,made_in,gender,color,size_label,age_label,price_eur,cost_eur,stock_quantity,weight_grams,image_url
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,3A,3 ans,"19,90","8,50",5,120,https://example.com/tshirt-rose.jpg
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,4A,4 ans,"19,90","8,50",8,125,
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,5A,5 ans,"19,90","8,50",3,130,
+ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,S,4 ans,"29,90","12,00",2,180,https://example.com/robe.jpg
+ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,M,6 ans,"29,90","12,00",4,195,`;

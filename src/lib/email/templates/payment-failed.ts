@@ -1,5 +1,5 @@
-import { escapeHtml } from "@/lib/email/format";
-import { emailButton, wrapEmailLayout } from "@/lib/email/templates/layout";
+import { escapeHtml, formatOrderTotalsText } from "@/lib/email/format";
+import { emailButton, emailInfoBox, wrapEmailLayout } from "@/lib/email/templates/layout";
 import type { OrderEmailPayload, RenderedEmail } from "@/lib/email/types";
 
 export function renderPaymentFailedEmail(
@@ -15,11 +15,15 @@ export function renderPaymentFailedEmail(
     ? `<p style="margin:0 0 16px;font-size:14px;color:#71717a;">Motif indiqué : ${escapeHtml(reason)}</p>`
     : "";
 
+  const totalsText = formatOrderTotalsText(order).replace(/\n/g, "<br/>");
+
   const contentHtml = `
     <p style="margin:0 0 16px;">Bonjour ${firstName},</p>
     <p style="margin:0 0 16px;">Le paiement de votre commande <strong>${orderNumber}</strong> n'a pas pu être finalisé.</p>
+    ${emailInfoBox("Montant de la commande", totalsText)}
     ${reasonBlock}
-    <p style="margin:0 0 16px;">Aucun montant n'a été débité. Vous pouvez réessayer votre commande en sélectionnant à nouveau vos articles.</p>
+    <p style="margin:0 0 16px;">Aucun montant n'a été débité sur votre compte. Le stock réservé pour cette tentative a été libéré.</p>
+    <p style="margin:0 0 16px;">Vous pouvez reprendre votre commande depuis le panier ou le checkout.</p>
     ${emailButton(checkoutUrl, "Reprendre ma commande")}
     <p style="margin:0;font-size:13px;color:#71717a;">Si le problème persiste, contactez votre banque ou notre service client. Aucune donnée de carte bancaire n'est transmise par e-mail.</p>
   `.trim();
@@ -32,7 +36,10 @@ export function renderPaymentFailedEmail(
     `Le paiement de votre commande ${order.orderNumber} n'a pas pu être finalisé.`,
     reason ? `Motif : ${reason}` : "",
     "",
-    "Aucun montant n'a été débité. Vous pouvez réessayer sur :",
+    formatOrderTotalsText(order),
+    "",
+    "Aucun montant n'a été débité. Le stock réservé a été libéré.",
+    "Vous pouvez réessayer sur :",
     checkoutUrl,
     "",
     "Si le problème persiste, contactez votre banque ou notre service client.",

@@ -11,10 +11,19 @@ import {
   type ImportPreviewRow,
 } from "@/lib/validations/product-import";
 
-function variantKey(productSlug: string, sizeLabel: string | null, color: string | null): string {
+function normalizeReference(reference: string): string {
+  return reference.trim().toLowerCase();
+}
+
+function variantKey(
+  reference: string,
+  sizeLabel: string | null,
+  color: string | null,
+): string {
+  const ref = normalizeReference(reference);
   const size = (sizeLabel ?? "").trim().toLowerCase();
   const col = (color ?? "").trim().toLowerCase();
-  return `${productSlug}|${size}|${col}`;
+  return `${ref}|${size}|${col}`;
 }
 
 function normalizeGender(raw: string): string {
@@ -25,25 +34,29 @@ function normalizeGender(raw: string): string {
   return v;
 }
 
-async function loadExistingVariantKeys(
-  productSlugs: string[],
-): Promise<Set<string>> {
+async function loadExistingVariantKeys(references: string[]): Promise<Set<string>> {
   const supabase = await getAdminSupabase();
   const keys = new Set<string>();
-  if (!supabase || productSlugs.length === 0) return keys;
+  if (!supabase || references.length === 0) return keys;
+
+  const slugByRef = new Map(
+    references.map((ref) => [slugify(ref), normalizeReference(ref)]),
+  );
+  const slugs = [...slugByRef.keys()];
 
   const { data: products } = await supabase
     .from("products")
     .select("slug, variants:product_variants(size_label, color)")
-    .in("slug", productSlugs);
+    .in("slug", slugs);
 
   for (const product of products ?? []) {
+    const ref = slugByRef.get(product.slug) ?? product.slug;
     const variants = (product.variants ?? []) as {
       size_label: string | null;
       color: string | null;
     }[];
     for (const v of variants) {
-      keys.add(variantKey(product.slug, v.size_label, v.color));
+      keys.add(variantKey(ref, v.size_label, v.color));
     }
   }
 
@@ -62,7 +75,7 @@ function buildPreviewRows(
     const normalized = {
       ...raw,
       gender: normalizeGender(raw.gender ?? ""),
-      cost_cents: raw.cost_cents?.trim() ? raw.cost_cents : undefined,
+      cost_eur: raw.cost_eur?.trim() ? raw.cost_eur : undefined,
       weight_grams: raw.weight_grams?.trim() ? raw.weight_grams : undefined,
       image_url: raw.image_url?.trim() ? raw.image_url : undefined,
     };
@@ -78,14 +91,14 @@ function buildPreviewRows(
     }
 
     const data = parsed.data;
-    const productSlug = slugify(data.name);
-    const key = variantKey(productSlug, data.size_label ?? null, data.color ?? null);
+    const productSlug = slugify(data.reference);
+    const key = variantKey(data.reference, data.size_label ?? null, data.color ?? null);
 
     if (existingKeys.has(key) || batchKeys.has(key)) {
       preview.push({
         lineNumber,
         status: "duplicate",
-        message: "Variante déjà existante (produit + taille + couleur).",
+        message: "Doublon : cette référence + taille + couleur existe déjà.",
         data,
         productSlug,
         variantKey: key,
@@ -120,8 +133,10 @@ export async function previewProductImport(csvContent: string): Promise<ImportPr
     };
   }
 
-  const slugs = [...new Set(parsed.rows.map((r) => slugify(r.name ?? "")).filter(Boolean))];
-  const existingKeys = await loadExistingVariantKeys(slugs);
+  const references = [
+    ...new Set(parsed.rows.map((r) => (r.reference ?? "").trim()).filter(Boolean)),
+  ];
+  const existingKeys = await loadExistingVariantKeys(references);
   const rows = buildPreviewRows(parsed.rows, existingKeys);
 
   const summary = {
@@ -183,7 +198,11 @@ export async function executeProductImport(csvContent: string): Promise<ImportEx
   };
 
   if (preview.headerError) {
-    return { ...result, errors: 1, details: [{ lineNumber: 1, status: "error", message: preview.headerError }] };
+    return {
+      ...result,
+      errors: 1,
+      details: [{ lineNumber: 1, status: "error", message: preview.headerError }],
+    };
   }
 
   const validRows = preview.rows.filter((r) => r.status === "valid" && r.data);
@@ -272,10 +291,11 @@ export async function executeProductImport(csvContent: string): Promise<ImportEx
           productId = newProduct.id;
           productCreated = true;
 
-          if (first.image_url) {
+          const imageRow = rows.find((r) => r.data?.image_url);
+          if (imageRow?.data?.image_url) {
             await supabase.from("product_images").insert({
               product_id: productId,
-              url: first.image_url,
+              url: imageRow.data.image_url,
               alt: first.name,
               sort_order: 0,
             });
@@ -297,7 +317,11 @@ export async function executeProductImport(csvContent: string): Promise<ImportEx
       for (const row of rows) {
         const data = row.data!;
         try {
-          const sku = generateVariantSku(productSlug, allSkus);
+          const sku = generateVariantSku(productSlug, allSkus, {
+            sizeLabel: data.size_label,
+            ageLabel: data.age_label,
+            color: data.color,
+          });
           allSkus.push(sku);
 
           const { error: variantError } = await supabase.from("product_variants").insert({

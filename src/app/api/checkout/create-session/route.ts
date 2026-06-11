@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 
 import { guardApiRequest, parseJsonBody } from "@/lib/security/api";
+import { logSecure } from "@/lib/security/log";
 import { createCheckoutSession, StripeCheckoutError } from "@/lib/stripe";
 import { checkoutSessionSchema } from "@/lib/validations/checkout";
 
 export async function POST(request: Request) {
-  const blocked = guardApiRequest(request, {
+  const blocked = await guardApiRequest(request, {
     rateLimit: { route: "checkout", limit: 10, windowSec: 60 },
   });
   if (blocked) return blocked;
@@ -18,8 +19,9 @@ export async function POST(request: Request) {
     return NextResponse.json(session);
   } catch (error) {
     if (error instanceof StripeCheckoutError) {
-      const publicMessage =
-        error.status === 400
+      const publicMessage = error.expose
+        ? error.message
+        : error.status === 400
           ? "Impossible de finaliser la commande. Vérifiez votre panier et le point relais."
           : "Le paiement est temporairement indisponible.";
       return NextResponse.json({ error: publicMessage }, { status: error.status });
@@ -31,6 +33,10 @@ export async function POST(request: Request) {
         { status: 503 },
       );
     }
+
+    logSecure("error", "checkout-api: erreur inattendue", {
+      error: error instanceof Error ? error.message : String(error),
+    });
 
     return NextResponse.json(
       { error: "Impossible de préparer le paiement. Réessayez." },

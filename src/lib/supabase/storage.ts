@@ -5,6 +5,12 @@ export function getProductImageStoragePath(productId: string, fileName: string):
   return `${productId}/${Date.now()}-${safeName}`;
 }
 
+/** Chemin Storage pour la photo hero (bucket product-images). */
+export function getShopHeroStoragePath(fileName: string): string {
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "-").toLowerCase();
+  return `shop/hero/${Date.now()}-${safeName}`;
+}
+
 export function extractStoragePathFromPublicUrl(url: string): string | null {
   const marker = `/storage/v1/object/public/${PRODUCT_IMAGES_BUCKET}/`;
   const index = url.indexOf(marker);

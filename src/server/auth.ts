@@ -27,11 +27,15 @@ export async function requireAdmin() {
   const admin = createAdminClient();
   const { data: adminUser } = await admin
     .from("admin_users")
-    .select("id")
+    .select("id, email")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!adminUser) {
+  if (
+    !adminUser ||
+    !user.email ||
+    adminUser.email.trim().toLowerCase() !== user.email.trim().toLowerCase()
+  ) {
     redirect("/admin/login");
   }
 
@@ -54,11 +58,17 @@ export async function getAdminUserOrNull() {
   const admin = createAdminClient();
   const { data: adminUser } = await admin
     .from("admin_users")
-    .select("id")
+    .select("id, email")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!adminUser) return null;
+  if (
+    !adminUser ||
+    !user.email ||
+    adminUser.email.trim().toLowerCase() !== user.email.trim().toLowerCase()
+  ) {
+    return null;
+  }
 
   return user;
 }

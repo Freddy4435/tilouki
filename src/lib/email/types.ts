@@ -32,6 +32,10 @@ export interface OrderEmailPayload {
   relayPoint: OrderEmailRelayPoint;
   trackingToken: string;
   trackingNumber?: string | null;
+  /** Lien de suivi public du transporteur (ex. Mondial Relay, Chronopost). */
+  carrierTrackingUrl?: string | null;
+  /** Libellé du transporteur — « Mondial Relay » par défaut. */
+  carrierName?: string;
   siteUrl: string;
   shopName: string;
 }

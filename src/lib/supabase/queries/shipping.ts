@@ -2,8 +2,8 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
-import { DEFAULT_SHIPPING_RATES } from "@/lib/mondial-relay/rates";
-import type { ShippingRate } from "@/lib/mondial-relay/types";
+import { getDefaultRatesForCarrier } from "@/lib/shipping/rates";
+import type { CarrierName, ShippingRate } from "@/lib/shipping/types";
 import { CACHE_TAGS, REVALIDATE } from "@/lib/supabase/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { assertNoError } from "@/lib/supabase/errors";
@@ -24,9 +24,9 @@ function mapShippingRate(row: ShippingRateRow): ShippingRate {
   };
 }
 
-async function fetchActiveShippingRates(): Promise<ShippingRate[]> {
+async function fetchActiveShippingRates(carrier: CarrierName): Promise<ShippingRate[]> {
   if (!isSupabaseConfigured()) {
-    return DEFAULT_SHIPPING_RATES;
+    return getDefaultRatesForCarrier(carrier);
   }
 
   const supabase = createPublicClient();
@@ -34,20 +34,39 @@ async function fetchActiveShippingRates(): Promise<ShippingRate[]> {
     .from("shipping_rates")
     .select("*")
     .eq("is_active", true)
+    .eq("provider", carrier)
     .order("sort_order", { ascending: true });
 
   assertNoError(error, "getActiveShippingRates");
 
   if (!data?.length) {
-    return DEFAULT_SHIPPING_RATES;
+    return getDefaultRatesForCarrier(carrier);
   }
 
   return data.map(mapShippingRate);
 }
 
-export async function getActiveShippingRates(): Promise<ShippingRate[]> {
-  return unstable_cache(fetchActiveShippingRates, ["active-shipping-rates"], {
-    tags: [CACHE_TAGS.shippingRates],
-    revalidate: REVALIDATE.shopSettings,
-  })();
+/** Barème actif du transporteur (défaut : Mondial Relay — compat historique). */
+export async function getActiveShippingRates(
+  carrier: CarrierName = "mondial_relay",
+): Promise<ShippingRate[]> {
+  return unstable_cache(
+    () => fetchActiveShippingRates(carrier),
+    ["active-shipping-rates", carrier],
+    {
+      tags: [CACHE_TAGS.shippingRates],
+      revalidate: REVALIDATE.shopSettings,
+    },
+  )();
+}
+
+/** Barèmes actifs groupés par transporteur (sélecteur checkout / API rates). */
+export async function getActiveShippingRatesByCarrier(
+  carriers: CarrierName[],
+): Promise<Partial<Record<CarrierName, ShippingRate[]>>> {
+  const entries = await Promise.all(
+    carriers.map(async (carrier) => [carrier, await getActiveShippingRates(carrier)] as const),
+  );
+
+  return Object.fromEntries(entries);
 }

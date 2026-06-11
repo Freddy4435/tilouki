@@ -58,7 +58,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ];
 
   return (
-    <div className="container-tilouki section-tilouki">
+    <div className="container-tilouki section-tilouki pb-28 lg:pb-0">
       <JsonLdScript
         data={[buildProductJsonLd(product), buildBreadcrumbJsonLd(breadcrumbs)]}
       />
@@ -66,7 +66,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <Breadcrumbs items={breadcrumbs} className="mb-6" />
 
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-        <ProductGallery images={product.images} productName={product.name} />
+        <ProductGallery
+          images={product.images}
+          productName={product.name}
+          showLowStockBadge={product.variants.some(
+            (v) => v.stockQuantity > 0 && v.stockQuantity <= 2,
+          )}
+        />
         <ProductPurchasePanel product={product} />
       </div>
 

@@ -19,11 +19,17 @@ export interface AdminShopSettings {
   vatRate: number;
   vatNotice: string | null;
   currency: string;
+  mediationName: string | null;
   mediationUrl: string | null;
   repIdu: string | null;
   hostName: string | null;
   hostAddress: string | null;
   hostPhone: string | null;
+  hostEmail: string | null;
+  returnPolicy: string | null;
+  exchangePolicy: string | null;
+  analyticsEnabled: boolean;
+  heroImageUrl: string | null;
 }
 
 export async function getAdminShopSettings(): Promise<AdminShopSettings | null> {
@@ -64,10 +70,16 @@ function mapSettings(row: ShopSettingsRow): AdminShopSettings {
     vatRate: Number(row.vat_rate),
     vatNotice: row.vat_notice,
     currency: row.currency,
+    mediationName: row.mediation_name,
     mediationUrl: row.mediation_url,
     repIdu: row.rep_idu,
     hostName: row.host_name,
     hostAddress: row.host_address,
     hostPhone: row.host_phone,
+    hostEmail: row.host_email,
+    returnPolicy: row.return_policy,
+    exchangePolicy: row.exchange_policy,
+    analyticsEnabled: row.analytics_enabled ?? false,
+    heroImageUrl: row.hero_image_url,
   };
 }

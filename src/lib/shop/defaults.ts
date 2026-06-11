@@ -41,5 +41,6 @@ export const defaultShopSettings: ShopSettings = {
     "Boutique française de vêtements enfants, fille et garçon. Tee-shirts, sweats et essentiels du quotidien, livrés en point relais.",
   primaryColor: "oklch(0.62 0.12 30)",
   contactEmail: "contact@tilouki.fr",
+  minShippingCents: 390,
   categories: defaultCategories,
 };

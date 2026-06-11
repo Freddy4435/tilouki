@@ -6,6 +6,11 @@ import { useTransition } from "react";
 import { ProductStatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import {
+  getProductReadinessIssues,
+  isReadyToPublish,
+  type ProductReadinessVariant,
+} from "@/lib/admin/product-readiness";
+import {
   deleteProductAction,
   setProductStatusAction,
 } from "@/server/actions/admin/products";
@@ -15,12 +20,16 @@ interface ProductStatusActionsProps {
   productId: string;
   status: ProductStatus;
   hasOrders: boolean;
+  imagesCount?: number;
+  variants?: ProductReadinessVariant[];
 }
 
 export function ProductStatusActions({
   productId,
   status,
   hasOrders,
+  imagesCount = 0,
+  variants = [],
 }: ProductStatusActionsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -36,18 +45,23 @@ export function ProductStatusActions({
     });
   };
 
+  const publish = () => {
+    const issues = getProductReadinessIssues({ imagesCount, variants });
+    if (!isReadyToPublish(issues)) {
+      alert(
+        "Impossible de publier : ajoutez des photos, du stock et le poids de chaque variante active.",
+      );
+      return;
+    }
+    run(() => setProductStatusAction(productId, "active"));
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <ProductStatusBadge status={status} />
       {status !== "active" ? (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={isPending}
-          onClick={() => run(() => setProductStatusAction(productId, "active"))}
-        >
-          Activer
+        <Button type="button" size="sm" disabled={isPending} onClick={publish}>
+          Publier
         </Button>
       ) : (
         <Button
@@ -57,7 +71,7 @@ export function ProductStatusActions({
           disabled={isPending}
           onClick={() => run(() => setProductStatusAction(productId, "draft"))}
         >
-          Désactiver
+          Remettre en brouillon
         </Button>
       )}
       {status !== "archived" ? (

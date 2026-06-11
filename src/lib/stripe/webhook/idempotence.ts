@@ -10,8 +10,52 @@ function requireAdminForWebhooks(): void {
 }
 
 /**
- * Vérifie si un événement Stripe a déjà été traité avec succès.
+ * Réserve un événement Stripe (`stripe_webhook_events`) avant traitement.
+ * Retourne false si l'événement a déjà été traité (idempotence).
  */
+export async function tryBeginStripeWebhookEvent(
+  eventId: string,
+  eventType: string,
+): Promise<boolean> {
+  if (!isSupabaseAdminConfigured()) {
+    requireAdminForWebhooks();
+    return true;
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("stripe_webhook_events").insert({
+    id: eventId,
+    event_type: eventType,
+  });
+
+  if (error?.code === "23505") {
+    return false;
+  }
+
+  if (error) {
+    throw error;
+  }
+
+  return true;
+}
+
+/**
+ * Libère la réservation si le handler échoue — permet le retry Stripe.
+ */
+export async function rollbackStripeWebhookEvent(eventId: string): Promise<void> {
+  if (!isSupabaseAdminConfigured()) {
+    return;
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("stripe_webhook_events").delete().eq("id", eventId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+/** @deprecated Utiliser tryBeginStripeWebhookEvent. */
 export async function isStripeWebhookEventProcessed(eventId: string): Promise<boolean> {
   if (!isSupabaseAdminConfigured()) {
     requireAdminForWebhooks();
@@ -29,25 +73,10 @@ export async function isStripeWebhookEventProcessed(eventId: string): Promise<bo
   return Boolean(data);
 }
 
-/**
- * Enregistre un événement Stripe traité avec succès (après exécution du handler).
- */
-export async function claimStripeWebhookEvent(
-  eventId: string,
-  eventType: string,
-): Promise<void> {
-  if (!isSupabaseAdminConfigured()) {
-    requireAdminForWebhooks();
+/** @deprecated Réservation atomique via tryBeginStripeWebhookEvent. */
+export async function claimStripeWebhookEvent(eventId: string, eventType: string): Promise<void> {
+  const begun = await tryBeginStripeWebhookEvent(eventId, eventType);
+  if (!begun) {
     return;
-  }
-
-  const admin = createAdminClient();
-  const { error } = await admin.from("stripe_webhook_events").insert({
-    id: eventId,
-    event_type: eventType,
-  });
-
-  if (error && error.code !== "23505") {
-    throw error;
   }
 }

@@ -6,10 +6,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { SupabaseDataError } from "@/lib/supabase/errors";
 import { validateCartStock } from "@/lib/supabase/queries/cart";
 import {
-  createOrderFromCheckout,
+  createPendingOrder,
   markOrderPaymentFailed,
   updateOrderStripeSession,
 } from "@/lib/supabase/queries/orders";
+import { logSecure } from "@/lib/security/log";
 import { getStripeClient } from "@/lib/stripe/client";
 import {
   getCheckoutCancelUrl,
@@ -17,9 +18,19 @@ import {
   STRIPE_CURRENCY,
 } from "@/lib/stripe/config";
 import { StripeCheckoutError } from "@/lib/stripe/errors";
-import { validateRelayPoint } from "@/lib/mondial-relay/validate-relay";
+import {
+  getShippingConfigurationError,
+  isShippingConfiguredForCheckout,
+} from "@/lib/shipping/checkout";
+import {
+  RELAY_VALIDATION_UNAVAILABLE_MESSAGE,
+  validateRelayPointDetailed,
+} from "@/lib/shipping/validate-relay";
 import { buildStripeCheckoutLineItems } from "@/lib/stripe/line-items";
-import type { CreateCheckoutSessionInput, CreateCheckoutSessionResult } from "@/lib/stripe/types";
+import type {
+  CreateCheckoutSessionInput,
+  CreateCheckoutSessionResult,
+} from "@/lib/stripe/types";
 import type { CreatedOrder } from "@/types/catalog";
 import type { Database } from "@/types/database";
 
@@ -27,10 +38,16 @@ type OrderItemRow = Database["public"]["Tables"]["order_items"]["Row"];
 
 async function fetchOrderLineItems(orderId: string): Promise<OrderItemRow[]> {
   const admin = createAdminClient();
-  const { data, error } = await admin.from("order_items").select("*").eq("order_id", orderId);
+  const { data, error } = await admin
+    .from("order_items")
+    .select("*")
+    .eq("order_id", orderId);
 
   if (error) {
-    throw new StripeCheckoutError("Impossible de charger les articles de la commande.", 500);
+    throw new StripeCheckoutError(
+      "Impossible de charger les articles de la commande.",
+      500,
+    );
   }
 
   return data ?? [];
@@ -76,27 +93,41 @@ export async function createCheckoutSession(
   const stockValidation = await validateCartStock(input.items);
 
   if (!stockValidation.valid) {
-    throw new StripeCheckoutError(
-      "Stock insuffisant pour finaliser la commande.",
-    );
+    throw new StripeCheckoutError("Stock insuffisant pour finaliser la commande.");
   }
 
-  const relayValid = await validateRelayPoint(input.relayPoint);
-  if (!relayValid) {
-    throw new StripeCheckoutError("Point relais invalide. Sélectionnez-en un autre.");
+  const carrier = input.carrier ?? "mondial_relay";
+
+  if (!isShippingConfiguredForCheckout(carrier)) {
+    throw new StripeCheckoutError(getShippingConfigurationError(carrier), 503);
+  }
+
+  const relayValidation = await validateRelayPointDetailed(input.relayPoint, carrier);
+  if (!relayValidation.valid) {
+    if (relayValidation.unavailable) {
+      // Indisponibilité passagère du service de vérification : message exposable.
+      throw new StripeCheckoutError(
+        relayValidation.error ?? RELAY_VALIDATION_UNAVAILABLE_MESSAGE,
+        503,
+        true,
+      );
+    }
+    throw new StripeCheckoutError(
+      relayValidation.error ?? "Point relais invalide. Sélectionnez-en un autre.",
+    );
   }
 
   let order: CreatedOrder;
 
   try {
-    order = await createOrderFromCheckout({
+    order = await createPendingOrder({
       customerEmail: input.customer.email,
       customerFirstName: input.customer.firstName,
       customerLastName: input.customer.lastName,
       customerPhone: input.customer.phone,
       items: input.items,
       relayPoint: input.relayPoint,
-      shippingCents: stockValidation.shippingCents,
+      carrier,
       currency: "EUR",
     });
   } catch (error) {
@@ -143,6 +174,11 @@ export async function createCheckoutSession(
     } catch {
       // La commande restera pending ; le cron expirePendingOrders libérera le stock.
     }
+
+    logSecure("error", "stripe-checkout: échec création session", {
+      orderId: order.id,
+      error: error instanceof Error ? error.message : String(error),
+    });
 
     if (error instanceof StripeCheckoutError) throw error;
     throw new StripeCheckoutError("Impossible de créer la session de paiement.", 500);

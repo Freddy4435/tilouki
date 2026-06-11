@@ -18,6 +18,7 @@ export const relayPointSchema = z.object({
   zip: z.string().min(4, "Code postal invalide."),
   city: z.string().min(1),
   country: z.string().length(2, "Pays invalide."),
+  openingHours: z.string().max(500).optional(),
 });
 
 export const checkoutFormSchema = checkoutCustomerSchema.extend({
@@ -27,10 +28,15 @@ export const checkoutFormSchema = checkoutCustomerSchema.extend({
   }),
 });
 
+/** Transporteurs sélectionnables à l'étape livraison. */
+export const carrierSchema = z.enum(["mondial_relay", "chronopost"]);
+
 export const checkoutSessionSchema = z
   .object({
     customer: checkoutCustomerSchema,
     relayPoint: relayPointSchema,
+    /** Absent (anciens clients) → Mondial Relay, comportement historique. */
+    carrier: carrierSchema.default("mondial_relay"),
     items: z
       .array(
         z.object({

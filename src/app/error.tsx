@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
+import { logSecure } from "@/lib/security/log";
 
 export default function Error({
   error,
@@ -13,7 +14,10 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("[app-error]", error.digest ?? "unknown");
+    logSecure("error", "app-error", {
+      digest: error.digest ?? "unknown",
+      message: error.message,
+    });
   }, [error]);
 
   return (

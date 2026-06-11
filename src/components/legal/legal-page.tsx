@@ -11,15 +11,14 @@ interface LegalPageProps {
 }
 
 export async function LegalPage({ slug, fallbackTitle, fallbackMessage }: LegalPageProps) {
-  const [page, ctx] = await Promise.all([getLegalPage(slug), getLegalRenderContext()]);
+  const [page, ctx] = await Promise.all([getLegalPage(slug), getLegalRenderContext("public")]);
   const template = getDefaultLegalTemplate(slug);
 
   const title = page?.title ?? template?.title ?? fallbackTitle;
-  const html = page
-    ? resolveLegalPageHtml(slug, page.content, ctx)
-    : template
-      ? resolveLegalPageHtml(slug, template.content, ctx)
-      : null;
+  const storedContent = page?.content ?? template?.content ?? null;
+  const html = storedContent
+    ? resolveLegalPageHtml(slug, storedContent, ctx, { audience: "public" })
+    : null;
 
   return (
     <LegalPageContent

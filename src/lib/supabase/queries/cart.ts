@@ -1,12 +1,12 @@
 import "server-only";
 
 import { computeSubtotalCents } from "@/lib/cart/calculations";
-import { computeShippingCents } from "@/lib/mondial-relay/rates";
+import { computeShippingCents } from "@/lib/shipping/rates";
 import { getActiveShippingRates } from "@/lib/supabase/queries/shipping";
 import type { CartStockIssue, CartValidationLine, CartValidationResult } from "@/lib/cart/types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { assertNoError } from "@/lib/supabase/errors";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export interface CartValidationInput {
   variantId: string;
@@ -15,15 +15,12 @@ export interface CartValidationInput {
 
 interface VariantStockRow {
   id: string;
+  product_id: string;
   sku: string;
   price_cents: number;
   stock_quantity: number;
   weight_grams: number | null;
   is_active: boolean;
-  product: {
-    id: string;
-    status: string;
-  } | null;
 }
 
 function buildIssueMessage(
@@ -68,13 +65,11 @@ export async function validateCartStock(
   }
 
   const variantIds = [...new Set(lines.map((line) => line.variantId))];
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   const { data, error } = await supabase
-    .from("product_variants")
-    .select(
-      "id, sku, price_cents, stock_quantity, weight_grams, is_active, product:products(id, status)",
-    )
+    .from("catalog_variants")
+    .select("id, product_id, sku, price_cents, stock_quantity, weight_grams, is_active")
     .in("id", variantIds);
 
   assertNoError(error, "validateCartStock");
@@ -89,8 +84,7 @@ export async function validateCartStock(
       const row = rowById.get(line.variantId);
       if (!row) return null;
 
-      const isProductActive = row.product?.status === "active";
-      const isAvailable = row.is_active && isProductActive;
+      const isAvailable = row.is_active;
       const stockQuantity = row.stock_quantity;
       const requestedQuantity = line.quantity;
 
@@ -125,7 +119,7 @@ export async function validateCartStock(
       if (adjustedQuantity <= 0) return null;
 
       return {
-        productId: row.product?.id ?? "",
+        productId: row.product_id,
         variantId: row.id,
         productName: "",
         slug: "",

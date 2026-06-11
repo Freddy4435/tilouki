@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 export default function SuiviCommandePage() {
   return (
     <div className="container-tilouki section-tilouki">
-      <header className="mb-8 text-center">
+      <header className="mx-auto mb-8 max-w-lg space-y-2 text-center">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">Suivi de commande</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Entrez le numéro de suivi reçu par e-mail après votre achat.
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Retrouvez le statut de votre colis — expédié depuis la France en point relais.
         </p>
       </header>
       <OrderTrackingForm action={trackOrderAction} />

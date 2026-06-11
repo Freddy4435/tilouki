@@ -12,7 +12,7 @@ export default function MentionsLegalesPage() {
     <LegalPage
       slug="mentions-legales"
       fallbackTitle="Mentions légales"
-      fallbackMessage="Contenu éditable depuis l'administration."
+      fallbackMessage="Page en cours de chargement."
     />
   );
 }

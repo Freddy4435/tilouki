@@ -25,9 +25,11 @@ export function CartRecommendations({
             compareAtPriceCents={product.compareAtPriceCents}
             imageUrl={product.primaryImageUrl}
             imageAlt={product.primaryImageAlt ?? product.name}
+            categoryName={product.categoryName}
             sizes={product.sizes}
             ageLabel={product.ageLabels[0]}
             badges={product.badges}
+            totalStock={product.totalStock}
           />
         ))}
       </div>

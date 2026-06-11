@@ -16,8 +16,8 @@ export function CartEmptyState({ recommendations, compact = false }: CartEmptySt
       <EmptyState
         icon={ShoppingBag}
         title="Votre panier est vide"
-        description="Parcourez le catalogue pour découvrir nos vêtements enfants."
-        action={{ label: "Voir le catalogue", href: "/catalogue" }}
+        description="Découvrez nos vêtements enfants — tailles, âges et stock affichés sur chaque fiche. Livraison en point relais, paiement sécurisé."
+        action={{ label: "Explorer le catalogue", href: "/catalogue" }}
         className={compact ? "py-8" : undefined}
       />
 

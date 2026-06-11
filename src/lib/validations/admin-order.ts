@@ -26,6 +26,22 @@ export const updateOrderInternalNotesSchema = z.object({
   internalNotes: z.string().max(5000).optional().nullable(),
 });
 
+export const createShippingLabelSchema = z.object({
+  orderId: z.string().uuid(),
+});
+
+export const registerExternalShipmentSchema = z.object({
+  orderId: z.string().uuid(),
+  trackingNumber: z
+    .string()
+    .trim()
+    .min(4, "Numéro de suivi trop court.")
+    .max(100, "Numéro de suivi trop long."),
+  carrierShipmentNumber: z.string().trim().max(100).optional().nullable(),
+  labelUrl: z.string().trim().max(2000).optional().nullable(),
+  markShipped: z.boolean().default(true),
+});
+
 export const orderStatusActionSchema = z.object({
   orderId: z.string().uuid(),
   action: z.enum([

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { headers } from "next/headers";
 
 import { siteConfig } from "@/lib/constants/site";
 import "@/styles/globals.css";
@@ -47,11 +48,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // CSP à nonce : un nonce est unique par requête, le HTML ne peut donc pas
+  // être pré-rendu (doc Next.js CSP). Lire headers() force le rendu dynamique
+  // de toutes les pages pour que Next.js applique le nonce à ses scripts.
+  await headers();
+
   return (
     <html lang="fr" className={`${bodyFont.variable} ${headingFont.variable} h-full`}>
       <body className="min-h-full antialiased">{children}</body>

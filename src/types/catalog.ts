@@ -81,6 +81,11 @@ export interface OrderTrackingInfo {
   currency: string;
   createdAt: string;
   trackingNumber: string | null;
+  /** Numéro d'expédition transporteur (lien de suivi public). */
+  shippingNumber: string | null;
+  relayPointZip: string | null;
+  /** Transporteur de la commande (mondial_relay, chronopost…). */
+  shippingProvider: string | null;
 }
 
 export interface ProductDetail extends ProductListItem {
@@ -136,7 +141,10 @@ export interface CreateOrderInput {
   customerPhone: string | null;
   items: CheckoutLineItem[];
   relayPoint: RelayPointInput;
-  shippingCents: number;
+  /** Transporteur choisi à l'étape livraison — Mondial Relay par défaut. */
+  carrier?: "mondial_relay" | "chronopost";
+  /** Ignoré — recalculé côté serveur depuis Supabase. */
+  shippingCents?: number;
   discountCents?: number;
   currency?: string;
 }

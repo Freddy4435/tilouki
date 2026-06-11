@@ -11,12 +11,16 @@ import {
   hasStockIssues,
 } from "@/lib/cart/calculations";
 import type { CartLineInput, CartLineItem, CartValidationResult } from "@/lib/cart/types";
+import type { CarrierName } from "@/lib/shipping/types";
 
 interface CartState {
   items: CartLineItem[];
+  /** Transporteur choisi à l'étape livraison — Mondial Relay par défaut. */
+  carrier: CarrierName;
   isDrawerOpen: boolean;
   validationMessages: string[];
   isValidated: boolean;
+  setCarrier: (carrier: CarrierName) => void;
   addItem: (item: CartLineInput, quantity?: number) => void;
   removeItem: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
@@ -99,9 +103,12 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      carrier: "mondial_relay",
       isDrawerOpen: false,
       validationMessages: [],
       isValidated: false,
+
+      setCarrier: (carrier) => set({ carrier }),
 
       addItem: (item, quantity = 1) => {
         set((state) => {
@@ -230,9 +237,9 @@ export const useCartStore = create<CartState>()(
         if (version === 0) {
           return migratePersistedCart(persisted);
         }
-        return persisted as Pick<CartState, "items">;
+        return persisted as Pick<CartState, "items" | "carrier">;
       },
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ items: state.items, carrier: state.carrier }),
     },
   ),
 );

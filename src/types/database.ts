@@ -30,11 +30,17 @@ export interface Database {
           vat_rate: number;
           vat_notice: string | null;
           currency: string;
+          mediation_name: string | null;
           mediation_url: string | null;
           rep_idu: string | null;
           host_name: string | null;
           host_address: string | null;
           host_phone: string | null;
+          host_email: string | null;
+          return_policy: string | null;
+          exchange_policy: string | null;
+          analytics_enabled: boolean;
+          hero_image_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -51,11 +57,17 @@ export interface Database {
           vat_rate?: number;
           vat_notice?: string | null;
           currency?: string;
+          mediation_name?: string | null;
           mediation_url?: string | null;
           rep_idu?: string | null;
           host_name?: string | null;
           host_address?: string | null;
           host_phone?: string | null;
+          host_email?: string | null;
+          return_policy?: string | null;
+          exchange_policy?: string | null;
+          analytics_enabled?: boolean;
+          hero_image_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -72,11 +84,17 @@ export interface Database {
           vat_rate?: number;
           vat_notice?: string | null;
           currency?: string;
+          mediation_name?: string | null;
           mediation_url?: string | null;
           rep_idu?: string | null;
           host_name?: string | null;
           host_address?: string | null;
           host_phone?: string | null;
+          host_email?: string | null;
+          return_policy?: string | null;
+          exchange_policy?: string | null;
+          analytics_enabled?: boolean;
+          hero_image_url?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -86,6 +104,7 @@ export interface Database {
         Row: {
           id: string;
           provider: string;
+          shipping_method: string;
           label: string;
           min_weight_grams: number;
           max_weight_grams: number;
@@ -98,6 +117,7 @@ export interface Database {
         Insert: {
           id?: string;
           provider?: string;
+          shipping_method?: string;
           label: string;
           min_weight_grams?: number;
           max_weight_grams: number;
@@ -110,6 +130,7 @@ export interface Database {
         Update: {
           id?: string;
           provider?: string;
+          shipping_method?: string;
           label?: string;
           min_weight_grams?: number;
           max_weight_grams?: number;
@@ -339,7 +360,15 @@ export interface Database {
           relay_point_zip: string | null;
           relay_point_city: string | null;
           relay_point_country: string | null;
+          shipping_provider: string;
+          shipping_method: string;
+          total_weight_grams: number | null;
+          shipping_rate_label: string | null;
           tracking_number: string | null;
+          shipping_label_url: string | null;
+          shipping_number: string | null;
+          label_created_at: string | null;
+          shipped_at: string | null;
           invoice_number: string | null;
           tracking_token: string;
           internal_notes: string | null;
@@ -369,7 +398,15 @@ export interface Database {
           relay_point_zip?: string | null;
           relay_point_city?: string | null;
           relay_point_country?: string | null;
+          shipping_provider?: string;
+          shipping_method?: string;
+          total_weight_grams?: number | null;
+          shipping_rate_label?: string | null;
           tracking_number?: string | null;
+          shipping_label_url?: string | null;
+          shipping_number?: string | null;
+          label_created_at?: string | null;
+          shipped_at?: string | null;
           invoice_number?: string | null;
           tracking_token?: string;
           internal_notes?: string | null;
@@ -399,7 +436,15 @@ export interface Database {
           relay_point_zip?: string | null;
           relay_point_city?: string | null;
           relay_point_country?: string | null;
+          shipping_provider?: string;
+          shipping_method?: string;
+          total_weight_grams?: number | null;
+          shipping_rate_label?: string | null;
           tracking_number?: string | null;
+          shipping_label_url?: string | null;
+          shipping_number?: string | null;
+          label_created_at?: string | null;
+          shipped_at?: string | null;
           invoice_number?: string | null;
           tracking_token?: string;
           internal_notes?: string | null;
@@ -408,6 +453,80 @@ export interface Database {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      shipments: {
+        Row: {
+          id: string;
+          order_id: string;
+          carrier: string;
+          service: string;
+          pickup_point_id: string | null;
+          pickup_point_name: string | null;
+          pickup_point_address: string | null;
+          pickup_point_zip: string | null;
+          pickup_point_city: string | null;
+          pickup_point_country: string | null;
+          weight_grams: number | null;
+          tracking_number: string | null;
+          carrier_shipment_number: string | null;
+          label_url: string | null;
+          status: string;
+          label_created_at: string | null;
+          shipped_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          carrier: string;
+          service?: string;
+          pickup_point_id?: string | null;
+          pickup_point_name?: string | null;
+          pickup_point_address?: string | null;
+          pickup_point_zip?: string | null;
+          pickup_point_city?: string | null;
+          pickup_point_country?: string | null;
+          weight_grams?: number | null;
+          tracking_number?: string | null;
+          carrier_shipment_number?: string | null;
+          label_url?: string | null;
+          status?: string;
+          label_created_at?: string | null;
+          shipped_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          carrier?: string;
+          service?: string;
+          pickup_point_id?: string | null;
+          pickup_point_name?: string | null;
+          pickup_point_address?: string | null;
+          pickup_point_zip?: string | null;
+          pickup_point_city?: string | null;
+          pickup_point_country?: string | null;
+          weight_grams?: number | null;
+          tracking_number?: string | null;
+          carrier_shipment_number?: string | null;
+          label_url?: string | null;
+          status?: string;
+          label_created_at?: string | null;
+          shipped_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       stripe_webhook_events: {
         Row: {
@@ -642,6 +761,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      shop_settings_public: {
+        Row: {
+          id: string;
+          shop_name: string;
+          legal_name: string | null;
+          legal_status: string | null;
+          siret: string | null;
+          address: string | null;
+          email: string | null;
+          phone: string | null;
+          vat_enabled: boolean;
+          vat_rate: number;
+          vat_notice: string | null;
+          currency: string;
+          mediation_name: string | null;
+          mediation_url: string | null;
+          rep_idu: string | null;
+          host_name: string | null;
+          host_address: string | null;
+          host_phone: string | null;
+          host_email: string | null;
+          return_policy: string | null;
+          exchange_policy: string | null;
+          analytics_enabled: boolean;
+          hero_image_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       generate_order_number: {
@@ -671,6 +820,8 @@ export interface Database {
           relay_point_name: string | null;
           relay_point_city: string | null;
           relay_point_zip: string | null;
+          shipping_number: string | null;
+          shipping_provider: string | null;
         }[];
       };
       is_admin: {

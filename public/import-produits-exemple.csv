@@ -1,0 +1,6 @@
+reference,category,name,description,material,season,made_in,gender,color,size_label,age_label,price_eur,cost_eur,stock_quantity,weight_grams,image_url
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,3A,3 ans,"19,90","8,50",5,120,https://example.com/tshirt-rose.jpg
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,4A,4 ans,"19,90","8,50",8,125,
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,5A,5 ans,"19,90","8,50",3,130,
+ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,S,4 ans,"29,90","12,00",2,180,https://example.com/robe.jpg
+ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,M,6 ans,"29,90","12,00",4,195,

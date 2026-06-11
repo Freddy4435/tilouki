@@ -29,7 +29,7 @@ export async function submitDataRequestAction(
     headerStore.get("x-real-ip") ??
     "unknown";
 
-  const limit = checkRateLimit({
+  const limit = await checkRateLimit({
     key: `${ip}:gdpr-request`,
     limit: 3,
     windowSec: 3600,

@@ -40,6 +40,7 @@ export const adminNavItems = [
   { label: "Catégories", href: "/admin/categories", icon: "folder" },
   { label: "Commandes", href: "/admin/commandes", icon: "package" },
   { label: "Stock", href: "/admin/stock", icon: "warehouse" },
+  { label: "Livraison", href: "/admin/livraison", icon: "truck" },
   { label: "Paramètres", href: "/admin/parametres", icon: "settings" },
   { label: "Pages légales", href: "/admin/pages-legales", icon: "file-text" },
 ] as const;

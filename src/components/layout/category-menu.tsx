@@ -17,19 +17,18 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
   return (
     <nav
       className={cn(
-        "bg-tilouki-white/90 border-border/60 border-b",
+        "border-border/60 border-b bg-card/90",
         className,
       )}
-      style={{ height: "var(--category-nav-height)" }}
       aria-label="Catégories"
     >
-      <div className="container-tilouki flex h-full items-center">
-        <ul className="scrollbar-hide flex h-full items-center gap-1 overflow-x-auto py-1.5">
+      <div className="container-tilouki flex flex-col justify-center py-2 md:h-[var(--category-nav-height)] md:py-0">
+        <ul className="flex flex-wrap items-center gap-1.5 md:flex-nowrap md:overflow-x-auto md:py-1.5 md:scrollbar-hide">
           <li className="shrink-0">
             <Link
               href="/catalogue"
               className={cn(
-                "inline-flex h-8 items-center rounded-full px-3.5 text-sm font-medium transition-colors",
+                "inline-flex min-h-9 items-center rounded-full px-3.5 text-sm font-medium transition-colors",
                 pathname === "/catalogue"
                   ? "bg-primary text-primary-foreground"
                   : "text-foreground hover:bg-muted",
@@ -38,19 +37,25 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
               Tout voir
             </Link>
           </li>
-          {categories.map((category) => (
-            <li key={category.slug} className="shrink-0">
-              <Link
-                href={`/categorie/${category.slug}`}
-                className={cn(
-                  "inline-flex h-8 items-center rounded-full px-3.5 text-sm font-medium whitespace-nowrap transition-colors",
-                  "text-foreground hover:bg-muted",
-                )}
-              >
-                {category.label}
-              </Link>
-            </li>
-          ))}
+          {categories.map((category) => {
+            const href = `/categorie/${category.slug}`;
+            const isActive = pathname === href;
+            return (
+              <li key={category.slug} className="shrink-0">
+                <Link
+                  href={href}
+                  className={cn(
+                    "inline-flex min-h-9 items-center rounded-full px-3.5 text-sm font-medium whitespace-nowrap transition-colors",
+                    isActive
+                      ? "bg-primary/10 text-primary ring-primary/20 ring-1"
+                      : "text-foreground hover:bg-muted",
+                  )}
+                >
+                  {category.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </nav>

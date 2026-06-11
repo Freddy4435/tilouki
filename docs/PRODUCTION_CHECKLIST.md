@@ -1,4 +1,7 @@
-# Checklist mise en production — Tilouki
+# Checklist mise en production — Tilouki (technique)
+
+> **Version auto-entrepreneur (vêtements enfants) :** [checklist-mise-en-production.md](./checklist-mise-en-production.md)  
+> **Guide déploiement Vercel :** [deploiement-vercel.md](./deploiement-vercel.md)
 
 Cocher chaque point avant d'ouvrir la boutique au public.
 
@@ -26,7 +29,7 @@ Cocher chaque point avant d'ouvrir la boutique au public.
 - [ ] Clés Live : `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - [ ] Webhook Live pointant vers `https://votre-domaine.fr/api/webhooks/stripe`
 - [ ] Événements webhook : `checkout.session.completed`, `checkout.session.expired`, `payment_intent.payment_failed`, `charge.refunded`
-- [ ] `CRON_SECRET` configuré + cron Vercel actif (`/api/cron/expire-pending-orders`, toutes les heures)
+- [ ] `CRON_SECRET` configuré + cron Vercel actif (`/api/cron/expire-pending-orders`, voir `vercel.json`)
 - [ ] `STRIPE_WEBHOOK_SECRET` du endpoint Live renseigné dans Vercel
 - [ ] Test commande réelle petit montant (puis remboursement si besoin)
 

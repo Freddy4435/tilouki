@@ -100,11 +100,11 @@
   }
 
   html {
-    @apply scroll-smooth;
+    @apply scroll-smooth overflow-x-hidden;
   }
 
   body {
-    @apply bg-background text-foreground font-sans text-base leading-relaxed;
+    @apply bg-background text-foreground overflow-x-hidden font-sans text-base leading-relaxed;
   }
 
   h1,
@@ -130,6 +130,24 @@
   .product-image-frame {
     aspect-ratio: var(--product-image-ratio);
     @apply bg-tilouki-beige relative overflow-hidden rounded-[var(--radius-product)];
+  }
+
+  .tilouki-product-card {
+    @apply transition-[transform,box-shadow] duration-[var(--transition-base)];
+  }
+
+  .tilouki-product-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .tilouki-product-card .product-image-frame {
+    transition:
+      box-shadow var(--transition-base),
+      transform var(--transition-base);
+  }
+
+  .tilouki-product-card:hover .product-image-frame {
+    box-shadow: var(--shadow-card-hover);
   }
 
   .text-balance {

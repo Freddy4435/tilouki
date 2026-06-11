@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm run check
+        run: npm run check
+        env:
+          # Valeurs factices — suffisantes pour typecheck, lint, tests et build
+          # (isSupabaseConfigured() sans instance réelle ; pas de JWT versionné).
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: PLACEHOLDER_ANON_KEY_FOR_CI
+          SUPABASE_SERVICE_ROLE_KEY: PLACEHOLDER_SERVICE_ROLE_FOR_CI
+          STRIPE_SECRET_KEY: sk_test_PLACEHOLDERFORCI0001
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_PLACEHOLDERFORCI01
+          STRIPE_WEBHOOK_SECRET: whsec_PLACEHOLDERFORCI0001
+          SHIPPING_DEV_MOCK: "true"
+
+  e2e:
+    name: e2e
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase and seed catalogue
+        run: |
+          supabase start
+          supabase db reset
+
+      - name: Export Supabase credentials
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o json | jq -r '.API_URL')" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" >> "$GITHUB_ENV"
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: npm run e2e
+        run: npm run e2e
+        env:
+          CI: "true"
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3002
+          STRIPE_SECRET_KEY: sk_test_PLACEHOLDERFORCI0001
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_PLACEHOLDERFORCI01
+          STRIPE_WEBHOOK_SECRET: whsec_PLACEHOLDERFORCI0001
+          SHIPPING_DEV_MOCK: "true"
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

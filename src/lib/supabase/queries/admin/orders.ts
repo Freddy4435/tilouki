@@ -32,6 +32,9 @@ export interface AdminOrderDetail extends AdminOrderListItem {
   discountCents: number;
   currency: string;
   trackingNumber: string | null;
+  shippingNumber: string | null;
+  shippingLabelUrl: string | null;
+  labelCreatedAt: string | null;
   trackingToken: string;
   stripeSessionId: string | null;
   stripePaymentIntentId: string | null;
@@ -41,6 +44,10 @@ export interface AdminOrderDetail extends AdminOrderListItem {
   relayPointZip: string | null;
   relayPointCity: string | null;
   relayPointCountry: string | null;
+  shippingProvider: string;
+  shippingMethod: string;
+  totalWeightGrams: number | null;
+  shippingRateLabel: string | null;
   internalNotes: string | null;
   statusHistory: AdminOrderStatusHistoryEntry[];
   items: {
@@ -149,6 +156,9 @@ export async function getAdminOrder(id: string): Promise<AdminOrderDetail | null
     discountCents: order.discount_cents,
     currency: order.currency,
     trackingNumber: order.tracking_number,
+    shippingNumber: order.shipping_number ?? null,
+    shippingLabelUrl: order.shipping_label_url ?? null,
+    labelCreatedAt: order.label_created_at ?? null,
     trackingToken: order.tracking_token,
     stripeSessionId: order.stripe_session_id,
     stripePaymentIntentId: order.stripe_payment_intent_id,
@@ -158,6 +168,10 @@ export async function getAdminOrder(id: string): Promise<AdminOrderDetail | null
     relayPointZip: order.relay_point_zip,
     relayPointCity: order.relay_point_city,
     relayPointCountry: order.relay_point_country,
+    shippingProvider: order.shipping_provider ?? "mondial_relay",
+    shippingMethod: order.shipping_method ?? "relay_point",
+    totalWeightGrams: order.total_weight_grams,
+    shippingRateLabel: order.shipping_rate_label,
     relayPointLabel: relayLabel(order),
     internalNotes: order.internal_notes ?? null,
     createdAt: order.created_at,

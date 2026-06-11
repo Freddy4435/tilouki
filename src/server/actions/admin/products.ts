@@ -87,18 +87,26 @@ export async function createProductAction(
 
   if (error || !product) return { error: error?.message ?? "Création impossible." };
 
-  const sku =
-    data.initialVariant.sku?.trim() ||
-    generateVariantSku(product.slug, []);
+  const existingSkus: string[] = [];
+  for (const variant of data.initialVariants) {
+    const sku =
+      variant.sku?.trim() ||
+      generateVariantSku(product.slug, existingSkus, {
+        sizeLabel: variant.sizeLabel,
+        ageLabel: variant.ageLabel,
+        color: variant.color,
+      });
+    existingSkus.push(sku);
 
-  const { error: variantError } = await supabase.from("product_variants").insert({
-    product_id: product.id,
-    ...mapVariantPayload(data.initialVariant, sku),
-  });
+    const { error: variantError } = await supabase.from("product_variants").insert({
+      product_id: product.id,
+      ...mapVariantPayload(variant, sku),
+    });
 
-  if (variantError) {
-    await supabase.from("products").delete().eq("id", product.id);
-    return { error: variantError.message };
+    if (variantError) {
+      await supabase.from("products").delete().eq("id", product.id);
+      return { error: variantError.message };
+    }
   }
 
   revalidateProductPaths(product.id);
@@ -192,7 +200,12 @@ export async function saveVariantAction(
     .filter((v) => v.id !== variant.id)
     .map((v) => v.sku);
   const sku =
-    variant.sku?.trim() || generateVariantSku(product.slug, existingSkus);
+    variant.sku?.trim() ||
+    generateVariantSku(product.slug, existingSkus, {
+      sizeLabel: variant.sizeLabel,
+      ageLabel: variant.ageLabel,
+      color: variant.color,
+    });
   const payload = mapVariantPayload(variant, sku);
 
   if (variant.id) {
@@ -324,6 +337,58 @@ export async function deleteProductImageAction(
 
   revalidateProductPaths(productId);
   return {};
+}
+
+export async function bulkSaveVariantsAction(
+  productId: string,
+  input: unknown,
+): Promise<{ error?: string; created?: number }> {
+  await requireAdmin();
+
+  if (!Array.isArray(input) || input.length === 0) {
+    return { error: "Aucune variante à créer." };
+  }
+
+  if (input.length > 30) {
+    return { error: "Maximum 30 variantes par lot." };
+  }
+
+  const supabase = await getAdminSupabase();
+  if (!supabase) return { error: "Base de données indisponible." };
+
+  const product = await getAdminProduct(productId);
+  if (!product) return { error: "Produit introuvable." };
+
+  const existingSkus = product.variants.map((v) => v.sku);
+  let created = 0;
+
+  for (const raw of input) {
+    const parsed = adminVariantSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? "Variante invalide." };
+    }
+
+    const variant = parsed.data;
+    const sku =
+      variant.sku?.trim() ||
+      generateVariantSku(product.slug, existingSkus, {
+        sizeLabel: variant.sizeLabel,
+        ageLabel: variant.ageLabel,
+        color: variant.color,
+      });
+    existingSkus.push(sku);
+
+    const { error } = await supabase.from("product_variants").insert({
+      product_id: productId,
+      ...mapVariantPayload(variant, sku),
+    });
+
+    if (error) return { error: error.message };
+    created += 1;
+  }
+
+  revalidateProductPaths(productId);
+  return { created };
 }
 
 export async function reorderProductImagesAction(

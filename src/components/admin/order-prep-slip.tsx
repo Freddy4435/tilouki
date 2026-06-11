@@ -3,6 +3,7 @@
 import { Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { formatShippingProvider } from "@/lib/shipping/labels";
 import { formatPrice } from "@/lib/utils";
 import type { AdminOrderDetail } from "@/lib/supabase/queries/admin/orders";
 
@@ -80,13 +81,31 @@ export function OrderPrepSlip({ order }: OrderPrepSlipProps) {
 
         {order.relayPointName ? (
           <div className="section">
-            <strong>Point relais Mondial Relay</strong>
+            <strong>
+              Point relais {formatShippingProvider(order.shippingProvider)}
+            </strong>
             <br />
             {order.relayPointName}
             <br />
             {order.relayPointAddress}
             <br />
             {order.relayPointZip} {order.relayPointCity}
+            {order.relayPointCountry ? ` (${order.relayPointCountry})` : ""}
+            {order.relayPointId ? (
+              <>
+                <br />
+                ID relais : {order.relayPointId}
+              </>
+            ) : null}
+            {order.totalWeightGrams != null ? (
+              <>
+                <br />
+                Poids colis : {order.totalWeightGrams} g
+              </>
+            ) : null}
+            <br />
+            Livraison : {formatPrice(order.shippingCents)}
+            {order.shippingRateLabel ? ` (${order.shippingRateLabel})` : ""}
           </div>
         ) : null}
 

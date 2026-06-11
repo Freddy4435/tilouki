@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { LegalComplianceAlert } from "@/components/admin/legal-compliance-alert";
+import { LegalComplianceChecklist } from "@/components/admin/legal-compliance-checklist";
 import { LegalPageForm } from "@/components/admin/legal-page-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAdminLegalPages } from "@/lib/supabase/queries/admin/legal";
+import { getAdminShopSettings } from "@/lib/supabase/queries/admin/settings";
 
 export const metadata: Metadata = {
   title: "Pages légales",
@@ -19,14 +22,42 @@ function formatDate(iso: string) {
 }
 
 export default async function AdminPagesLegalesPage() {
-  const pages = await listAdminLegalPages();
+  const [pages, settings] = await Promise.all([listAdminLegalPages(), getAdminShopSettings()]);
+
+  const complianceInput = settings
+    ? {
+        shopName: settings.shopName,
+        legalName: settings.legalName,
+        legalStatus: settings.legalStatus,
+        siret: settings.siret,
+        address: settings.address,
+        email: settings.email,
+        phone: settings.phone,
+        vatEnabled: settings.vatEnabled,
+        vatNotice: settings.vatNotice,
+        mediationName: settings.mediationName,
+        mediationUrl: settings.mediationUrl,
+        repIdu: settings.repIdu,
+        hostName: settings.hostName,
+        hostAddress: settings.hostAddress,
+        hostPhone: settings.hostPhone,
+        hostEmail: settings.hostEmail,
+        returnPolicy: settings.returnPolicy,
+        exchangePolicy: settings.exchangePolicy,
+      }
+    : null;
 
   return (
     <>
       <AdminPageHeader
         title="Pages légales"
-        description="Modèles HTML structurés, variables {{…}} et zones [À PERSONNALISER]. À valider par un professionnel du droit avant publication."
+        description="Textes structurés pour une boutique française. Variables {{…}} remplies depuis les paramètres. À valider par un professionnel du droit."
       />
+
+      <div className="mb-6 space-y-4">
+        <LegalComplianceAlert settings={complianceInput} />
+        <LegalComplianceChecklist settings={complianceInput} />
+      </div>
 
       {pages.length === 0 ? (
         <Card>

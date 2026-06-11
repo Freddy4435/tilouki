@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { applySecurityHeaders } from "@/lib/security/headers";
+import { applySecurityHeaders, buildCsp, generateCspNonce } from "@/lib/security/headers";
 import { checkRateLimit, rateLimitKey } from "@/lib/security/rate-limit";
 import type { Database } from "@/types/database";
 
@@ -14,7 +14,7 @@ const RATE_LIMITED_PREFIXES = [
   "/api/webhooks/stripe",
 ];
 
-function applyRateLimit(request: NextRequest): NextResponse | null {
+async function applyRateLimit(request: NextRequest): Promise<NextResponse | null> {
   const { pathname } = request.nextUrl;
 
   const matched = RATE_LIMITED_PREFIXES.find((prefix) => pathname.startsWith(prefix));
@@ -28,7 +28,7 @@ function applyRateLimit(request: NextRequest): NextResponse | null {
   };
 
   const config = limits[matched] ?? { limit: 30, windowSec: 60 };
-  const result = checkRateLimit({
+  const result = await checkRateLimit({
     key: rateLimitKey(request, matched),
     ...config,
   });
@@ -36,7 +36,15 @@ function applyRateLimit(request: NextRequest): NextResponse | null {
   if (!result.allowed) {
     return NextResponse.json(
       { error: "Trop de requêtes." },
-      { status: 429, headers: { "Retry-After": "60" } },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(
+            Math.max(1, Math.ceil((result.resetAt - Date.now()) / 1000)),
+          ),
+          "X-RateLimit-Remaining": String(result.remaining),
+        },
+      },
     );
   }
 
@@ -44,9 +52,18 @@ function applyRateLimit(request: NextRequest): NextResponse | null {
 }
 
 export async function updateSession(request: NextRequest) {
-  const rateLimited = applyRateLimit(request);
+  // CSP à nonce : généré par requête, propagé via les en-têtes de la requête
+  // (x-nonce pour nos composants, Content-Security-Policy pour que Next.js
+  // l'applique automatiquement à ses scripts framework — doc Next.js CSP).
+  const nonce = generateCspNonce();
+  const csp = buildCsp(nonce);
+  request.headers.set("x-nonce", nonce);
+  request.headers.set("content-security-policy", csp);
+  const secure = (response: NextResponse) => applySecurityHeaders(response, csp);
+
+  const rateLimited = await applyRateLimit(request);
   if (rateLimited) {
-    return applySecurityHeaders(rateLimited);
+    return secure(rateLimited);
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -55,11 +72,9 @@ export async function updateSession(request: NextRequest) {
 
   if (!url || !key) {
     if (pathname.startsWith("/admin") && !ADMIN_PUBLIC_PATHS.includes(pathname)) {
-      return applySecurityHeaders(
-        NextResponse.redirect(new URL("/admin/login", request.url)),
-      );
+      return secure(NextResponse.redirect(new URL("/admin/login", request.url)));
     }
-    return applySecurityHeaders(NextResponse.next({ request }));
+    return secure(NextResponse.next({ request }));
   }
 
   let supabaseResponse = NextResponse.next({ request });
@@ -92,33 +107,29 @@ export async function updateSession(request: NextRequest) {
   if ((isAdminRoute && !isAdminLogin) || isAdminApi) {
     if (!user) {
       if (isAdminApi) {
-        return applySecurityHeaders(
-          NextResponse.json({ error: "Non autorisé." }, { status: 401 }),
-        );
+        return secure(NextResponse.json({ error: "Non autorisé." }, { status: 401 }));
       }
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("next", pathname);
-      return applySecurityHeaders(NextResponse.redirect(loginUrl));
+      return secure(NextResponse.redirect(loginUrl));
     }
 
     const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
 
     if (adminError || !isAdmin) {
       if (isAdminApi) {
-        return applySecurityHeaders(
-          NextResponse.json({ error: "Non autorisé." }, { status: 403 }),
-        );
+        return secure(NextResponse.json({ error: "Non autorisé." }, { status: 403 }));
       }
-      return applySecurityHeaders(NextResponse.redirect(new URL("/admin/login", request.url)));
+      return secure(NextResponse.redirect(new URL("/admin/login", request.url)));
     }
   }
 
   if (isAdminLogin && user) {
     const { data: isAdmin } = await supabase.rpc("is_admin");
     if (isAdmin) {
-      return applySecurityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
+      return secure(NextResponse.redirect(new URL("/admin", request.url)));
     }
   }
 
-  return applySecurityHeaders(supabaseResponse);
+  return secure(supabaseResponse);
 }

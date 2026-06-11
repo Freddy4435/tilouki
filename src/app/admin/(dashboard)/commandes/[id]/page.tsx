@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { OrderActions } from "@/components/admin/order-actions";
+import { OrderShippingCard } from "@/components/admin/order-shipping-card";
 import { OrderInternalNotesForm } from "@/components/admin/order-internal-notes-form";
-import { OrderPrepSlip } from "@/components/admin/order-prep-slip";
 import { OrderStatusHistory } from "@/components/admin/order-status-history";
 import { OrderTrackingForm } from "@/components/admin/order-tracking-form";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/admin/status-badge";
@@ -55,7 +55,6 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
       <AdminPageHeader
         title={`Commande ${order.orderNumber}`}
         description={`Passée le ${formatDate(order.createdAt)}`}
-        actions={<OrderPrepSlip order={order} />}
       />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -153,20 +152,7 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {order.relayPointName ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Point relais</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm">
-                <p className="font-medium">{order.relayPointName}</p>
-                <p className="text-muted-foreground">{order.relayPointAddress}</p>
-                <p className="text-muted-foreground">
-                  {[order.relayPointZip, order.relayPointCity].filter(Boolean).join(" ")}
-                </p>
-              </CardContent>
-            </Card>
-          ) : null}
+          <OrderShippingCard order={order} />
 
           <Card>
             <CardHeader>

@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search } from "lucide-react";
+import { ExternalLink, Package, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
-import { formatPrice } from "@/lib/utils";
+import {
+  buildCarrierTrackingUrl,
+  getCarrierTrackingLabel,
+} from "@/lib/shipping/tracking";
+import { cn, formatPrice } from "@/lib/utils";
 import type { OrderTrackingInfo } from "@/types/catalog";
 
 interface OrderTrackingFormProps {
@@ -42,57 +48,102 @@ export function OrderTrackingForm({ action }: OrderTrackingFormProps) {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="tracking-token" className="text-sm font-medium">
-            Numéro de suivi
-          </label>
-          <Input
-            id="tracking-token"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="Reçu par e-mail après commande"
-            autoComplete="off"
-          />
-          <p className="text-muted-foreground text-xs">
-            Le numéro de suivi vous est communiqué dans l&apos;e-mail de confirmation.
+      <Card className="shadow-[var(--shadow-soft)]">
+        <CardContent className="space-y-4 p-6">
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Saisissez le numéro reçu par e-mail après votre commande. Vous y trouverez le statut
+            d&apos;expédition et le suivi colis.
           </p>
-        </div>
-        <Button type="submit" className="w-full rounded-full" disabled={isPending}>
-          <Search className="size-4" />
-          {isPending ? "Recherche…" : "Suivre ma commande"}
-        </Button>
-      </form>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="tracking-token" className="text-sm font-semibold">
+                Numéro de suivi
+              </label>
+              <Input
+                id="tracking-token"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="Ex. reçu dans l'e-mail de confirmation"
+                autoComplete="off"
+                className="rounded-xl"
+              />
+            </div>
+            <Button type="submit" className="w-full rounded-full" disabled={isPending}>
+              <Search className="size-4" />
+              {isPending ? "Recherche…" : "Suivre ma commande"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {error ? (
-        <p className="text-destructive text-center text-sm">{error}</p>
+        <EmptyState
+          icon={Package}
+          title="Commande introuvable"
+          description={error}
+          showReassurance={false}
+          action={{ label: "Voir livraison & retours", href: "/livraison-retours" }}
+        />
       ) : null}
 
       {result ? (
-        <Card>
-          <CardContent className="space-y-3 p-5 text-sm">
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">Commande</span>
-              <span className="font-medium">{result.orderNumber}</span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">Statut</span>
-              <span className="font-medium">{result.status}</span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">Total</span>
-              <span className="font-medium tabular-nums">
-                {formatPrice(result.totalCents, result.currency)}
-              </span>
-            </div>
-            {result.trackingNumber ? (
+        <Card className="border-primary/20 shadow-[var(--shadow-card)]">
+          <CardContent className="space-y-4 p-6 text-sm">
+            <p className="font-heading text-lg font-semibold">Votre commande</p>
+            <div className="space-y-3">
               <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">N° colis</span>
-                <span className="font-medium">{result.trackingNumber}</span>
+                <span className="text-muted-foreground">N° commande</span>
+                <span className="font-semibold">{result.orderNumber}</span>
               </div>
-            ) : null}
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">Statut</span>
+                <span className="bg-primary/10 text-primary rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                  {result.status}
+                </span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">Total</span>
+                <span className="font-semibold tabular-nums">
+                  {formatPrice(result.totalCents)}
+                </span>
+              </div>
+              {result.trackingNumber ? (
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">Suivi colis</span>
+                  <span className="font-medium">{result.trackingNumber}</span>
+                </div>
+              ) : null}
+              {(() => {
+                const carrierUrl = buildCarrierTrackingUrl(
+                  result.shippingProvider,
+                  result.shippingNumber,
+                  result.relayPointZip,
+                );
+                return carrierUrl ? (
+                  <a
+                    href={carrierUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "w-full rounded-full",
+                    )}
+                  >
+                    <ExternalLink className="size-4" />
+                    Suivre mon colis {getCarrierTrackingLabel(result.shippingProvider)}
+                  </a>
+                ) : null;
+              })()}
+            </div>
+            <p className="text-muted-foreground border-t pt-3 text-xs">
+              Colis expédié depuis la France. Questions ? Consultez la page Livraison et retours.
+            </p>
           </CardContent>
         </Card>
+      ) : null}
+
+      {!result && !error ? (
+        <ReassuranceStrip variant="compact" className="pt-2" />
       ) : null}
     </div>
   );

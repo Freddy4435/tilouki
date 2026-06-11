@@ -12,7 +12,7 @@ export default function CgvPage() {
     <LegalPage
       slug="cgv"
       fallbackTitle="Conditions générales de vente"
-      fallbackMessage="Contenu éditable depuis l'administration."
+      fallbackMessage="Conditions générales de vente."
     />
   );
 }

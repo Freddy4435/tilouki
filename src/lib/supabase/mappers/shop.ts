@@ -3,7 +3,7 @@ import type { ShopCategory, ShopSettings } from "@/lib/shop/types";
 import type { Category } from "@/types/catalog";
 import type { Database } from "@/types/database";
 
-type ShopSettingsRow = Database["public"]["Tables"]["shop_settings"]["Row"];
+type ShopSettingsRow = Database["public"]["Views"]["shop_settings_public"]["Row"];
 
 export function mapShopCategory(category: Category): ShopCategory {
   return {
@@ -17,6 +17,7 @@ export function mapShopCategory(category: Category): ShopCategory {
 export function mapShopSettings(
   row: ShopSettingsRow | null,
   categories: ShopCategory[],
+  minShippingCents: number,
 ): ShopSettings {
   const envPrimary = process.env.NEXT_PUBLIC_SHOP_PRIMARY_COLOR;
   const envName = process.env.NEXT_PUBLIC_SHOP_NAME;
@@ -25,6 +26,7 @@ export function mapShopSettings(
   if (!row) {
     return {
       ...defaultShopSettings,
+      minShippingCents,
       categories: categories.length > 0 ? categories : defaultShopSettings.categories,
       ...(envName ? { name: envName } : {}),
       ...(envPrimary ? { primaryColor: envPrimary } : {}),
@@ -37,6 +39,7 @@ export function mapShopSettings(
     name: envName ?? row.shop_name,
     tagline: defaultShopSettings.tagline,
     description: defaultShopSettings.description,
+    heroImageUrl: row.hero_image_url,
     legalName: row.legal_name,
     legalStatus: row.legal_status,
     siret: row.siret,
@@ -47,12 +50,18 @@ export function mapShopSettings(
     vatRate: Number(row.vat_rate),
     vatNotice: row.vat_notice,
     currency: row.currency,
+    mediationName: row.mediation_name,
     mediationUrl: row.mediation_url,
     repIdu: row.rep_idu,
     hostName: row.host_name,
     hostAddress: row.host_address,
     hostPhone: row.host_phone,
+    hostEmail: row.host_email,
+    returnPolicy: row.return_policy,
+    exchangePolicy: row.exchange_policy,
+    analyticsEnabled: row.analytics_enabled ?? false,
     primaryColor: envPrimary ?? defaultShopSettings.primaryColor,
+    minShippingCents,
     categories: categories.length > 0 ? categories : defaultShopSettings.categories,
   };
 }

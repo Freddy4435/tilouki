@@ -90,7 +90,8 @@ export function LegalPageForm({ page }: LegalPageFormProps) {
               {`{{${key}}}`}
             </code>
           ))}
-          . Complétez les passages <em>[À PERSONNALISER]</em> avant publication.
+          . Les passages <em>« À valider avec un professionnel du droit »</em> doivent être relus avant
+          publication.
         </p>
         <textarea
           id={`content-${page.slug}`}

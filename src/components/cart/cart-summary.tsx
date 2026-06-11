@@ -2,7 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Lock, ShieldCheck } from "lucide-react";
 
+import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Separator } from "@/components/ui/separator";
@@ -48,7 +50,7 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
     <aside
       className={
         variant === "page"
-          ? "h-fit rounded-2xl border bg-card p-5 shadow-[var(--shadow-soft)] lg:sticky lg:top-24"
+          ? "h-fit rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-28"
           : "space-y-4"
       }
     >
@@ -59,21 +61,21 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
       <div className="space-y-2 text-sm">
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Sous-total</span>
-          <span className="font-medium tabular-nums">{formatPrice(subtotalCents)}</span>
+          <span className="font-semibold tabular-nums">{formatPrice(subtotalCents)}</span>
         </div>
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Livraison point relais</span>
-          <span className="font-medium tabular-nums">{formatPrice(shippingCents)}</span>
+          <span className="font-semibold tabular-nums">{formatPrice(shippingCents)}</span>
         </div>
-        <p className="text-muted-foreground text-xs">
-          Estimation Mondial Relay selon le poids du colis.
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          Estimation Mondial Relay selon le poids. Expédié depuis la France.
         </p>
       </div>
 
       <Separator className={variant === "page" ? "my-4" : "my-2"} />
 
-      <div className="flex justify-between text-base font-semibold">
-        <span>Total</span>
+      <div className="flex justify-between text-base font-bold">
+        <span>Total estimé</span>
         <span className="tabular-nums">{formatPrice(totalCents)}</span>
       </div>
 
@@ -90,8 +92,20 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
           disabled={!canCheckout || isValidating}
           onClick={() => void handleCheckout()}
         >
-          {isValidating ? "Vérification…" : "Passer commande"}
+          {isValidating ? (
+            "Vérification du stock…"
+          ) : (
+            <>
+              <Lock className="size-4" />
+              Passer commande
+            </>
+          )}
         </Button>
+
+        <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-center text-xs">
+          <ShieldCheck className="text-primary size-3.5 shrink-0" aria-hidden />
+          Paiement sécurisé — étape suivante
+        </p>
 
         {variant === "page" ? (
           <ButtonLink
@@ -125,6 +139,12 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
           </ButtonLink>
         ) : null}
       </div>
+
+      {variant === "page" ? (
+        <div className="border-border/60 mt-5 border-t pt-4">
+          <ReassuranceStrip variant="compact" />
+        </div>
+      ) : null}
     </aside>
   );
 }

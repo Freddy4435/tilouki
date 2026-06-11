@@ -63,7 +63,7 @@ export async function handleCheckoutSessionCompleted(
     return;
   }
 
-  logStripeWebhook("info", "Commande payée et stock décrémenté", {
+  logStripeWebhook("info", "Commande marquée payée (stock déjà réservé à la création pending)", {
     eventId,
     orderId,
     orderNumber: result.order.order_number,

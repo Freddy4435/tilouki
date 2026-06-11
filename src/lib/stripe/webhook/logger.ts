@@ -1,3 +1,5 @@
+import { logSecure } from "@/lib/security/log";
+
 type WebhookLogLevel = "info" | "warn" | "error";
 
 interface WebhookLogMeta {
@@ -7,30 +9,37 @@ interface WebhookLogMeta {
   [key: string]: unknown;
 }
 
+const SENSITIVE_KEYS = new Set([
+  "customer_email",
+  "email",
+  "customerEmail",
+  "payment_method",
+  "card",
+  "last4",
+  "client_secret",
+]);
+
+function sanitizeWebhookMeta(meta: WebhookLogMeta): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(meta)) {
+    if (SENSITIVE_KEYS.has(key)) {
+      sanitized[key] = "[redacted]";
+      continue;
+    }
+    sanitized[key] = value;
+  }
+
+  return sanitized;
+}
+
 export function logStripeWebhook(
   level: WebhookLogLevel,
   message: string,
   meta: WebhookLogMeta = {},
 ): void {
-  const payload = {
+  logSecure(level, `stripe-webhook: ${message}`, {
     scope: "stripe-webhook",
-    level,
-    message,
-    timestamp: new Date().toISOString(),
-    ...meta,
-  };
-
-  const line = JSON.stringify(payload);
-
-  if (level === "error") {
-    console.error(line);
-    return;
-  }
-
-  if (level === "warn") {
-    console.warn(line);
-    return;
-  }
-
-  console.info(line);
+    ...sanitizeWebhookMeta(meta),
+  });
 }

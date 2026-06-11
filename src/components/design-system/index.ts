@@ -14,6 +14,9 @@ export {
 export { ProductGrid } from "@/components/product/product-grid";
 export { CartEmptyState } from "@/components/cart/cart-empty-state";
 export { TrustSection } from "@/components/layout/trust-section";
+export { ReassuranceStrip } from "@/components/layout/reassurance-strip";
+export { HomeValueProps } from "@/components/home/home-value-props";
+export { getReassuranceMicrocopy, HOME_VALUE_PROPS } from "@/lib/constants/reassurance";
 export { SearchBar } from "@/components/layout/search-bar";
 export { CategoryMenu } from "@/components/layout/category-menu";
 export { SiteHeader } from "@/components/layout/site-header";

@@ -12,7 +12,7 @@ export default function FormulaireRetractationPage() {
     <LegalPage
       slug="formulaire-retractation"
       fallbackTitle="Formulaire type de rétractation"
-      fallbackMessage="Contenu éditable depuis l'administration."
+      fallbackMessage="Formulaire type de rétractation."
     />
   );
 }

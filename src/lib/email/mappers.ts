@@ -1,6 +1,10 @@
 import "server-only";
 
 import { getEmailConfig } from "@/lib/email/config";
+import {
+  buildCarrierTrackingUrl,
+  getCarrierTrackingLabel,
+} from "@/lib/shipping/tracking";
 import type { OrderEmailPayload, OrderEmailRelayPoint } from "@/lib/email/types";
 import type { AdminOrderDetail } from "@/lib/supabase/queries/admin/orders";
 import type { OrderForWebhook } from "@/lib/supabase/queries/orders";
@@ -52,6 +56,7 @@ export function orderForWebhookToEmailPayload(order: OrderForWebhook): OrderEmai
     relayPoint: mapRelayFromWebhook(order),
     trackingToken: order.tracking_token,
     trackingNumber: order.tracking_number,
+    carrierName: getCarrierTrackingLabel(order.shipping_provider),
     siteUrl,
     shopName,
   };
@@ -84,6 +89,12 @@ export function adminOrderToEmailPayload(order: AdminOrderDetail): OrderEmailPay
     relayPoint: mapRelayFromAdmin(order),
     trackingToken: order.trackingToken,
     trackingNumber: order.trackingNumber,
+    carrierTrackingUrl: buildCarrierTrackingUrl(
+      order.shippingProvider,
+      order.shippingNumber ?? order.trackingNumber,
+      order.relayPointZip,
+    ),
+    carrierName: getCarrierTrackingLabel(order.shippingProvider),
     siteUrl,
     shopName,
   };

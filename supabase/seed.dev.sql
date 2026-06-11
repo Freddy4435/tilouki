@@ -1,7 +1,9 @@
 -- =============================================================================
 -- Tilouki — Seed DÉVELOPPEMENT UNIQUEMENT
--- Ne jamais exécuter en production.
--- Aucun produit fictif — structure et contenus légaux placeholder uniquement.
+-- ⛔ Ne jamais exécuter en production.
+--
+-- Structure boutique (paramètres, catégories, pages légales).
+-- Les 12 produits de démo sont dans seed.dev-products.sql (chargé ensuite).
 -- =============================================================================
 
 -- Paramètres boutique par défaut (ID fixe — singleton)
@@ -26,12 +28,12 @@ INSERT INTO public.shop_settings (
 ) VALUES (
   '00000000-0000-0000-0000-000000000001',
   'Tilouki',
-  'À compléter — Auto-entrepreneur',
+  'Prénom Nom (dev)',
   'Auto-entrepreneur',
   NULL,
-  'Adresse à compléter',
+  '1 rue de la Démo, 75001 Paris',
   'contact@tilouki.fr',
-  NULL,
+  '0600000000',
   false,
   0.2000,
   'TVA non applicable, art. 293 B du CGI',
@@ -40,9 +42,14 @@ INSERT INTO public.shop_settings (
   NULL,
   'Vercel Inc.',
   '440 N Barranca Ave #4133, Covina, CA 91723, États-Unis',
-  NULL
+  'support@vercel.com'
 )
 ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.shop_settings SET
+  return_policy = 'Frais de retour à la charge du client sauf erreur du vendeur. Remboursement sous 14 jours après réception du retour (dev).',
+  exchange_policy = 'Retour puis nouvelle commande sous réserve du stock (dev).'
+WHERE id = '00000000-0000-0000-0000-000000000001';
 
 -- Catégories de navigation (structure, pas de produits)
 INSERT INTO public.categories (name, slug, description, sort_order, is_active) VALUES
@@ -53,36 +60,14 @@ INSERT INTO public.categories (name, slug, description, sort_order, is_active) V
   ('Accessoires', 'accessoires', 'Compléments', 5, true)
 ON CONFLICT (slug) DO NOTHING;
 
--- Pages légales (placeholders éditables depuis l''admin)
+-- Pages légales : contenu vide → modèles structurés + paramètres boutique
 INSERT INTO public.legal_pages (slug, title, content) VALUES
-  (
-    'mentions-legales',
-    'Mentions légales',
-    '<p>Contenu à compléter depuis l''administration.</p>'
-  ),
-  (
-    'cgv',
-    'Conditions générales de vente',
-    '<p>Contenu à compléter depuis l''administration.</p>'
-  ),
-  (
-    'confidentialite',
-    'Politique de confidentialité',
-    '<p>Contenu à compléter depuis l''administration.</p>'
-  ),
-  (
-    'cookies',
-    'Politique de cookies',
-    '<p>Contenu à compléter depuis l''administration.</p>'
-  ),
-  (
-    'livraison-retours',
-    'Livraison et retours',
-    '<p>Contenu à compléter depuis l''administration.</p>'
-  ),
-  (
-    'formulaire-retractation',
-    'Formulaire type de rétractation',
-    '<p>Contenu à compléter depuis l''administration.</p>'
-  )
-ON CONFLICT (slug) DO NOTHING;
+  ('mentions-legales', 'Mentions légales', ''),
+  ('cgv', 'Conditions générales de vente', ''),
+  ('confidentialite', 'Politique de confidentialité', ''),
+  ('cookies', 'Politique de cookies', ''),
+  ('livraison-retours', 'Livraison et retours', ''),
+  ('formulaire-retractation', 'Formulaire type de rétractation', '')
+ON CONFLICT (slug) DO UPDATE SET content = EXCLUDED.content
+WHERE public.legal_pages.content ILIKE '%contenu à compléter%'
+   OR public.legal_pages.content ILIKE '%contenu à initialiser%';

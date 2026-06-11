@@ -6,4 +6,4 @@ export {
   computeShippingCents,
   DEFAULT_ITEM_WEIGHT_GRAMS,
   DEFAULT_SHIPPING_RATES,
-} from "@/lib/mondial-relay/rates";
+} from "@/lib/shipping/rates";

@@ -18,6 +18,9 @@ export {
   getCategories,
   getShopSettings,
   getLegalPage,
+  createPendingOrder,
   createOrderFromCheckout,
+  decrementStockOnce,
+  markOrderAsPaid,
   updateStockAfterOrder,
 } from "./queries";

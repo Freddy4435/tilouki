@@ -14,7 +14,8 @@ Migrations SQL pour la boutique Tilouki.
 | `migrations/20250609100500_order_admin_fields.sql` | Historique statuts, notes commandes |
 | `migrations/20250609100600_legal_shop_settings.sql` | Paramètres légaux, page rétractation |
 | `migrations/20250609100700_security_hardening.sql` | Suivi commande sécurisé, webhooks, variants catalogue |
-| `seed.dev.sql` | Données dev minimales (jamais en prod) |
+| `seed.dev.sql` | Paramètres, catégories, pages légales (jamais en prod) |
+| `seed.dev-products.sql` | **12 produits de démo** + variantes (jamais en prod) |
 
 ## Prérequis
 
@@ -48,15 +49,25 @@ Cette commande exécute toutes les migrations non encore appliquées sur le proj
 
 ### 3. Seed développement (optionnel)
 
-Le seed **ne s'exécute pas** automatiquement sur le cloud avec `db push`. Pour le lancer manuellement :
+Le seed **ne s'exécute pas** automatiquement sur le cloud avec `db push`.
+
+**Structure + produits de démo (recommandé pour tester le storefront) :**
+
+```bash
+npm run seed:dev
+```
+
+Charge `seed.dev-products.sql` (12 produits fictifs, images `/demo-products/`, SKU `DEV-*`).
+
+**Structure seule** (sans produits) :
 
 ```bash
 supabase db execute --file supabase/seed.dev.sql
 ```
 
-Ou via le SQL Editor du dashboard Supabase en collant le contenu de `seed.dev.sql`.
+En local, `supabase db reset` exécute les deux fichiers (`config.toml`).
 
-> **Ne pas exécuter `seed.dev.sql` en production.**
+> ⛔ **Ne jamais exécuter les seeds en production.** Les produits demo sont clairement marqués (SKU `DEV-`, visuels « DEV »).
 
 ### 4. Créer un administrateur
 

@@ -11,14 +11,14 @@ export function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
 
-export function guardApiRequest(
+export async function guardApiRequest(
   request: Request,
   options?: ApiGuardOptions,
-): NextResponse | null {
+): Promise<NextResponse | null> {
   if (!options?.rateLimit) return null;
 
   const key = rateLimitKey(request, options.rateLimit.route);
-  const result = checkRateLimit({ ...options.rateLimit, key });
+  const result = await checkRateLimit({ ...options.rateLimit, key });
 
   if (!result.allowed) {
     return NextResponse.json(
@@ -29,6 +29,7 @@ export function guardApiRequest(
           "Retry-After": String(
             Math.max(1, Math.ceil((result.resetAt - Date.now()) / 1000)),
           ),
+          "X-RateLimit-Remaining": String(result.remaining),
         },
       },
     );

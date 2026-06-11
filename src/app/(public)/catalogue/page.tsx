@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { CatalogueActiveFilters } from "@/components/catalogue/catalogue-active-filters";
 import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
+import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { CatalogueFilters } from "@/components/catalogue/catalogue-filters";
 import { CataloguePagination } from "@/components/catalogue/catalogue-pagination";
 import { CatalogueToolbar } from "@/components/catalogue/catalogue-toolbar";
@@ -61,8 +63,10 @@ export async function generateMetadata({
 
 async function CatalogueContent({
   searchParams,
+  categories,
 }: {
   searchParams: Record<string, string | string[] | undefined>;
+  categories: Awaited<ReturnType<typeof getCategories>>;
 }) {
   const query = parseCatalogueQuery(searchParams);
   const result = await getActiveProductsPaginated(query);
@@ -89,10 +93,11 @@ async function CatalogueContent({
         page={result.page}
         totalPages={result.totalPages}
       />
+      <CatalogueActiveFilters categories={categories} />
       <CatalogueProductList
         products={result.items}
         emptyTitle="Aucun produit trouvé"
-        emptyDescription="Modifiez vos filtres ou revenez plus tard."
+        emptyDescription="Essayez d'élargir vos critères ou parcourez toutes les catégories."
       />
       <CataloguePagination
         page={result.page}
@@ -109,14 +114,17 @@ export default async function CataloguePage({ searchParams }: CataloguePageProps
 
   return (
     <div className="container-tilouki section-tilouki">
-      <header className="mb-8">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Catalogue vêtements enfants
-        </h1>
-        <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
-          Tee-shirts, sweats et essentiels fille et garçon. Filtrez par taille, catégorie et prix,
-          avec livraison en point relais.
-        </p>
+      <header className="mb-6 space-y-3 rounded-2xl border border-tilouki-blue/10 bg-gradient-to-br from-tilouki-blue-soft/30 via-card to-tilouki-sage-light/20 p-5 sm:mb-8 sm:p-6">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">
+            Catalogue vêtements enfants
+          </h1>
+          <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
+            {categories.length} catégories — tailles, stock et prix sur chaque carte. Livraison point
+            relais, paiement sécurisé.
+          </p>
+        </div>
+        <ReassuranceStrip variant="compact" className="justify-start" />
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
@@ -128,7 +136,7 @@ export default async function CataloguePage({ searchParams }: CataloguePageProps
 
         <div>
           <Suspense fallback={<ProductGridSkeleton count={8} />}>
-            <CatalogueContent searchParams={resolvedParams} />
+            <CatalogueContent searchParams={resolvedParams} categories={categories} />
           </Suspense>
         </div>
       </div>

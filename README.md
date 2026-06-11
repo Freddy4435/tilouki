@@ -1,5 +1,7 @@
 # Tilouki.fr
 
+[![CI](https://github.com/Freddy4435/tilouki/actions/workflows/ci.yml/badge.svg)](https://github.com/Freddy4435/tilouki/actions/workflows/ci.yml)
+
 Boutique e-commerce de vêtements enfants — Next.js 16, Supabase, Stripe Checkout, Mondial Relay.
 
 ## Stack
@@ -45,6 +47,46 @@ Ouvrir [http://localhost:3000](http://localhost:3000).
 
 Admin : [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
+### Catalogue de démonstration (DEV uniquement)
+
+Pour remplir le storefront avec 12 produits fictifs (bébé, fille, garçon, pyjamas, accessoires, petits prix) :
+
+```bash
+npm run seed:dev
+```
+
+Images locales dans `public/demo-products/`. **⛔ Ne jamais charger ces données en production** (SKU préfixés `DEV-`).
+
+Si le catalogue reste vide après le seed, redémarrez `npm run dev` (cache Next.js).
+
+## Fichiers à ne jamais partager
+
+Avant toute livraison (archive zip, e-mail, cloud public, dépôt Git public), **excluez systématiquement** :
+
+| Fichier / dossier | Raison |
+|-------------------|--------|
+| `.env.local` | Secrets locaux (Supabase, Stripe, Mondial Relay, Resend…) |
+| `.env.vercel` | Variables exportées depuis Vercel |
+| `.env.production`, `.env.development` | Autres variantes d'environnement |
+| `.vercel/` | Lien projet Vercel + métadonnées de déploiement |
+| `node_modules/` | Dépendances réinstallables (`npm install`) |
+| `.next/` | Build Next.js régénérable (`npm run build`) |
+| `archives/` | Archives zip produites localement |
+| `*.log`, `logs/` | Journaux pouvant contenir des URLs ou tokens |
+| `*.pem` | Certificats et clés privées |
+
+**Seul modèle public autorisé :** `.env.example` (noms de variables sans valeurs réelles).
+
+Pour créer une archive propre du code source :
+
+```bash
+npm run prepare:archive
+```
+
+Le script audite les secrets, vérifie le contenu git, puis génère `archives/tilouki-AAAA-MM-JJ.zip` (fichiers versionnés uniquement).
+
+> En cas de fuite accidentelle : faites tourner les clés concernées (Stripe, Supabase, Resend, Mondial Relay) avant tout redéploiement.
+
 ## Scripts npm
 
 | Commande | Description |
@@ -58,13 +100,48 @@ Admin : [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 | `npm run test` | Tests unitaires (Vitest) |
 | `npm run format` | Prettier (écriture) |
 | `npm run format:check` | Prettier (vérification) |
-| `npm run check` | **Pipeline CI** : typecheck + lint + test + build |
+| `npm run check` | **Pipeline CI** : audit secrets + typecheck + lint + test + build |
+| `npm run audit:secrets` | Détecte des secrets dans les fichiers suivis par git |
+| `npm run prepare:archive` | Archive zip partageable (sans secrets ni artefacts) |
+| `npm run seed:dev` | Charge 12 produits de démo (DEV uniquement) |
+| `npm run generate:demo-images` | Régénère les SVG dans `public/demo-products/` |
+| `npm run verify:deploy` | Vérifie les variables d'environnement (dev) |
+| `npm run verify:deploy:prod` | Vérifie les règles production (clés Live, HTTPS, etc.) |
+| `npm run e2e` | Tests E2E Playwright (parcours achat, mobile + desktop) |
+| `npm run qa` | **Recette pré-lancement** : typecheck, lint, tests, build, E2E |
 
 Avant chaque déploiement :
 
 ```bash
-npm run check
+npm run qa                   # recette automatisée complète
+npm run verify:deploy:prod   # après avoir renseigné les variables prod
 ```
+
+Guide E2E : [docs/recette-automatisee.md](./docs/recette-automatisee.md)
+
+Guides : [variables-production.md](./docs/variables-production.md) · [guide-test-production.md](./docs/guide-test-production.md) · [deploiement-vercel.md](./docs/deploiement-vercel.md) · [checklist-mise-en-production.md](./docs/checklist-mise-en-production.md)
+
+## Intégration continue
+
+Le workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) s'exécute sur chaque push et pull request vers `main`.
+
+| Job | Contenu |
+|-----|---------|
+| **check** | `npm run check` (audit anti-secrets, TypeScript, ESLint, Vitest, build Next.js) avec variables d'environnement factices |
+| **e2e** | Supabase local (`supabase start` + `supabase db reset` pour migrations et seed produits), puis `npm run e2e` (Playwright desktop + mobile) |
+
+Aucun secret réel n'est versionné : le job **check** utilise des placeholders ; le job **e2e** lit les clés locales générées par Supabase CLI au runtime.
+
+### Lire un échec CI
+
+1. Ouvrir l'onglet **Actions** sur GitHub → workflow **CI** → run en rouge.
+2. **check** en échec : cliquer sur l'étape `npm run check` — la première commande en erreur (`audit:secrets`, `typecheck`, `lint`, `test` ou `build`) indique la cause.
+3. **e2e** en échec : consulter les logs de `npm run e2e` ; en cas d'échec, télécharger l'artefact **playwright-report** (onglet Summary du run) et l'ouvrir localement avec `npm run e2e:report` après extraction.
+4. Reproduire en local : `npm run check` puis `npm run e2e` (avec Supabase seedé : `supabase start`, `supabase db reset`, ou `npm run seed:dev` sur un projet lié).
+
+### Secrets GitHub (optionnel)
+
+Le job **e2e** n'exige **pas** de secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY` : la base est Supabase locale dans le runner. Pour un dépôt cloud de test à la place du CLI local, configurez les secrets et adaptez le workflow (voir [docs/recette-automatisee.md](./docs/recette-automatisee.md)).
 
 ## Variables d'environnement
 
@@ -325,6 +402,8 @@ Liste complète à cocher : [`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHE
 ## Sécurité
 
 - Secrets uniquement côté serveur (`SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, etc.)
+- `.env.local` et `.vercel` listés dans `.gitignore` — ne jamais les committer ni les joindre à une archive
+- `npm run audit:secrets` avant chaque release ; `npm run prepare:archive` pour une livraison propre
 - RLS Supabase activé sur toutes les tables sensibles
 - Webhook Stripe signé + idempotence
 - Prix et stock validés côté serveur

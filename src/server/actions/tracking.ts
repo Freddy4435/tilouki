@@ -16,7 +16,7 @@ export async function trackOrderAction(token: string): Promise<OrderTrackingInfo
     headerStore.get("x-real-ip") ??
     "unknown";
 
-  const limit = checkRateLimit({
+  const limit = await checkRateLimit({
     key: `${ip}:track-order`,
     limit: 10,
     windowSec: 60,

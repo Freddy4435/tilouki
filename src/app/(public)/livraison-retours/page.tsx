@@ -12,7 +12,7 @@ export default function LivraisonRetoursPage() {
     <LegalPage
       slug="livraison-retours"
       fallbackTitle="Livraison et retours"
-      fallbackMessage="Informations livraison et retours — à compléter depuis l'administration."
+      fallbackMessage="Informations livraison et retours."
     />
   );
 }

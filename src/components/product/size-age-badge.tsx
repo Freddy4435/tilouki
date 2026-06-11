@@ -3,18 +3,32 @@ import { cn } from "@/lib/utils";
 interface SizeAgeBadgeProps {
   label: string;
   variant?: "size" | "age";
+  selected?: boolean;
   className?: string;
 }
 
-export function SizeAgeBadge({ label, variant = "size", className }: SizeAgeBadgeProps) {
+export function SizeAgeBadge({
+  label,
+  variant = "size",
+  selected = false,
+  className,
+}: SizeAgeBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-2 text-xs font-medium",
+        "inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2.5 text-xs font-semibold transition-colors",
         variant === "size" &&
-          "border-border bg-background text-foreground hover:border-primary/40",
+          !selected &&
+          "border-border/80 bg-tilouki-cream text-foreground border",
+        variant === "size" &&
+          selected &&
+          "border-primary bg-primary text-primary-foreground border",
         variant === "age" &&
-          "border-tilouki-blue/30 bg-tilouki-blue-soft text-tilouki-ink",
+          !selected &&
+          "bg-tilouki-blue-soft/80 text-tilouki-ink border border-tilouki-blue/20",
+        variant === "age" &&
+          selected &&
+          "bg-tilouki-blue text-white border border-tilouki-blue",
         className,
       )}
     >
@@ -47,7 +61,11 @@ export function SizeAgeBadgeList({
         <SizeAgeBadge key={item} label={item} variant={variant} />
       ))}
       {remaining > 0 ? (
-        <SizeAgeBadge label={`+${remaining}`} variant={variant} className="text-muted-foreground" />
+        <SizeAgeBadge
+          label={`+${remaining}`}
+          variant={variant}
+          className="text-muted-foreground border-dashed opacity-80"
+        />
       ) : null}
     </div>
   );

@@ -12,7 +12,7 @@ export default function ConfidentialitePage() {
     <LegalPage
       slug="confidentialite"
       fallbackTitle="Politique de confidentialité"
-      fallbackMessage="Contenu éditable depuis l'administration."
+      fallbackMessage="Politique de confidentialité."
     />
   );
 }

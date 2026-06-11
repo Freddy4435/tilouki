@@ -34,7 +34,7 @@ export async function adminLoginAction(
     headerStore.get("x-real-ip") ??
     "unknown";
 
-  const limit = checkRateLimit({
+  const limit = await checkRateLimit({
     key: `${ip}:admin-login`,
     limit: 5,
     windowSec: 900,
@@ -58,11 +58,14 @@ export async function adminLoginAction(
   const admin = createAdminClient();
   const { data: adminUser } = await admin
     .from("admin_users")
-    .select("id")
+    .select("id, email")
     .eq("user_id", data.user.id)
     .maybeSingle();
 
-  if (!adminUser) {
+  if (
+    !adminUser ||
+    adminUser.email.trim().toLowerCase() !== email.trim().toLowerCase()
+  ) {
     await supabase.auth.signOut();
     return { error: "Accès réservé aux administrateurs." };
   }

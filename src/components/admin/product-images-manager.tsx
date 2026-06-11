@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, ArrowUp, Loader2, Trash2, Upload } from "lucide-react";
+import { GripVertical, Loader2, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
@@ -19,6 +19,7 @@ import {
   saveProductImageAction,
 } from "@/server/actions/admin/products";
 import type { AdminProductDetail } from "@/lib/supabase/queries/admin/products";
+import { cn } from "@/lib/utils";
 
 interface ProductImagesManagerProps {
   productId: string;
@@ -38,6 +39,8 @@ export function ProductImagesManager({
   const [error, setError] = useState<string | null>(null);
   const [images, setImages] = useState(initialImages);
   const [prevInitialImages, setPrevInitialImages] = useState(initialImages);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
 
   if (initialImages !== prevInitialImages) {
     setPrevInitialImages(initialImages);
@@ -46,6 +49,18 @@ export function ProductImagesManager({
 
   const syncFromServer = () => {
     router.refresh();
+  };
+
+  const persistOrder = (next: AdminProductDetail["images"]) => {
+    setImages(next);
+    startTransition(async () => {
+      const result = await reorderProductImagesAction(
+        productId,
+        next.map((img) => img.id),
+      );
+      if (result.error) setError(result.error);
+      else router.refresh();
+    });
   };
 
   const uploadFiles = async (files: FileList | null) => {
@@ -94,20 +109,18 @@ export function ProductImagesManager({
     }
   };
 
-  const moveImage = (index: number, direction: -1 | 1) => {
-    const target = index + direction;
-    if (target < 0 || target >= images.length) return;
+  const handleDrop = (targetIndex: number) => {
+    if (dragIndex === null || dragIndex === targetIndex) {
+      setDragIndex(null);
+      setDropIndex(null);
+      return;
+    }
     const next = [...images];
-    [next[index], next[target]] = [next[target], next[index]];
-    setImages(next);
-    startTransition(async () => {
-      const result = await reorderProductImagesAction(
-        productId,
-        next.map((img) => img.id),
-      );
-      if (result.error) setError(result.error);
-      else router.refresh();
-    });
+    const [moved] = next.splice(dragIndex, 1);
+    next.splice(targetIndex, 0, moved);
+    setDragIndex(null);
+    setDropIndex(null);
+    persistOrder(next);
   };
 
   const updateAlt = (imageId: string, alt: string) => {
@@ -156,9 +169,11 @@ export function ProductImagesManager({
           ) : (
             <Upload className="size-4" />
           )}
-          Ajouter des images
+          Ajouter des photos
         </Button>
-        <p className="text-muted-foreground text-xs">JPEG, PNG, WebP, GIF — max 10 Mo</p>
+        <p className="text-muted-foreground text-xs">
+          Plusieurs fichiers à la fois — glissez pour réordonner
+        </p>
       </div>
 
       {error ? (
@@ -169,53 +184,64 @@ export function ProductImagesManager({
 
       {images.length === 0 ? (
         <p className="text-muted-foreground rounded-lg border border-dashed py-8 text-center text-sm">
-          Aucune image. Uploadez au moins une photo produit.
+          Aucune photo — ajoutez au moins une image pour publier.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {images.map((image, index) => (
             <div
               key={image.id}
-              className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-start"
+              draggable
+              onDragStart={() => setDragIndex(index)}
+              onDragEnd={() => {
+                setDragIndex(null);
+                setDropIndex(null);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDropIndex(index);
+              }}
+              onDragLeave={() => setDropIndex(null)}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleDrop(index);
+              }}
+              className={cn(
+                "flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-start",
+                dragIndex === index && "opacity-50",
+                dropIndex === index && dragIndex !== null && "border-primary bg-primary/5",
+              )}
             >
-              <div className="bg-muted relative size-20 shrink-0 overflow-hidden rounded-md">
-                <Image
-                  src={image.url}
-                  alt={image.alt ?? productName}
-                  fill
-                  className="object-cover"
-                  sizes="80px"
+              <div className="flex items-center gap-2 sm:flex-col">
+                <GripVertical
+                  className="text-muted-foreground size-4 shrink-0 cursor-grab active:cursor-grabbing"
+                  aria-hidden
                 />
+                <div className="bg-muted relative size-20 shrink-0 overflow-hidden rounded-md">
+                  <Image
+                    src={image.url}
+                    alt={image.alt ?? productName}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                  {index === 0 ? (
+                    <span className="bg-primary text-primary-foreground absolute bottom-0 left-0 right-0 py-0.5 text-center text-[10px] font-medium">
+                      Principale
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="min-w-0 flex-1 space-y-2">
-                <Label htmlFor={`alt-${image.id}`}>Texte alternatif</Label>
+                <Label htmlFor={`alt-${image.id}`}>Description photo</Label>
                 <Input
                   id={`alt-${image.id}`}
                   defaultValue={image.alt ?? ""}
+                  placeholder={productName}
                   onBlur={(e) => updateAlt(image.id, e.target.value)}
                 />
               </div>
-              <div className="flex shrink-0 gap-1">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  disabled={index === 0 || isPending}
-                  onClick={() => moveImage(index, -1)}
-                  aria-label="Monter"
-                >
-                  <ArrowUp className="size-4" />
-                </Button>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  disabled={index === images.length - 1 || isPending}
-                  onClick={() => moveImage(index, 1)}
-                  aria-label="Descendre"
-                >
-                  <ArrowDown className="size-4" />
-                </Button>
+              <div className="flex shrink-0 gap-1 sm:pt-6">
                 <Button
                   type="button"
                   size="icon"

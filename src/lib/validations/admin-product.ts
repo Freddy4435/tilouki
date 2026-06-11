@@ -87,7 +87,7 @@ export const adminProductCoreSchema = z.object({
 });
 
 export const adminCreateProductSchema = adminProductCoreSchema.extend({
-  initialVariant: adminVariantSchema,
+  initialVariants: z.array(adminVariantSchema).min(1, "Ajoutez au moins une variante (taille/âge)."),
 });
 
 export const adminUpdateProductSchema = adminProductCoreSchema.extend({

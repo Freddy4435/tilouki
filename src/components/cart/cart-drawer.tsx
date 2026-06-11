@@ -14,6 +14,7 @@ import {
 import { useCartValidation } from "@/hooks/use-cart-validation";
 import { useIsMounted } from "@/hooks/use-is-mounted";
 import { useCartStore } from "@/lib/cart/store";
+import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer() {
   const mounted = useIsMounted();
@@ -21,6 +22,7 @@ export function CartDrawer() {
   const closeDrawer = useCartStore((s) => s.closeDrawer);
   const items = useCartStore((s) => s.items);
   const itemCount = useCartStore((s) => s.itemCount());
+  const subtotalCents = useCartStore((s) => s.subtotalCents());
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const validationMessages = useCartStore((s) => s.validationMessages);
@@ -69,8 +71,14 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              <div className="border-t bg-background p-4">
-                <CartSummary variant="drawer" onContinueShopping={closeDrawer} />
+              <div className="bg-background sticky bottom-0 shrink-0 border-t shadow-[0_-4px_24px_oklch(0.28_0.02_50_/_0.06)]">
+                <div className="flex items-center justify-between px-4 pt-3 text-sm">
+                  <span className="text-muted-foreground">Sous-total</span>
+                  <span className="text-base font-bold tabular-nums">{formatPrice(subtotalCents)}</span>
+                </div>
+                <div className="p-4 pt-2">
+                  <CartSummary variant="drawer" onContinueShopping={closeDrawer} />
+                </div>
               </div>
             </>
           )}

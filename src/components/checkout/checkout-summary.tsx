@@ -19,8 +19,12 @@ function variantLabel(sizeLabel: string | null, ageLabel: string | null): string
 
 export function CheckoutSummary({ form }: CheckoutSummaryProps) {
   const items = useCartStore((s) => s.items);
+  const carrier = useCartStore((s) => s.carrier);
   const subtotalCents = useCartStore((s) => s.subtotalCents());
-  const { shippingCents } = useCartShipping();
+  const { shippingCents, carriers } = useCartShipping();
+  const carrierLabel =
+    carriers.find((info) => info.id === carrier)?.label ??
+    (carrier === "chronopost" ? "Chronopost relais" : "Mondial Relay");
   const totalCents = subtotalCents + shippingCents;
   const relayPoint = form.watch("relayPoint");
 
@@ -59,12 +63,21 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
         <>
           <Separator />
           <div className="text-sm">
-            <p className="font-medium">Livraison</p>
-            <p className="text-muted-foreground mt-1">
-              {relayPoint.name}
+            <p className="font-medium">Livraison point relais</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">{carrierLabel}</p>
+            <p className="text-muted-foreground mt-2 leading-relaxed">
+              <span className="text-foreground font-medium">{relayPoint.name}</span>
               <br />
-              {relayPoint.zip} {relayPoint.city}
+              {relayPoint.address}
+              <br />
+              {relayPoint.zip} {relayPoint.city} ({relayPoint.country})
             </p>
+            {"openingHours" in relayPoint && relayPoint.openingHours ? (
+              <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+                Horaires : {relayPoint.openingHours}
+              </p>
+            ) : null}
+            <p className="text-muted-foreground mt-2 text-xs">Réf. {relayPoint.id}</p>
           </div>
         </>
       ) : null}

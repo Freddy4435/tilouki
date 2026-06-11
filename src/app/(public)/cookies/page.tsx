@@ -12,7 +12,7 @@ export default function CookiesPage() {
     <LegalPage
       slug="cookies"
       fallbackTitle="Politique de cookies"
-      fallbackMessage="Contenu éditable depuis l'administration."
+      fallbackMessage="Politique de cookies."
     />
   );
 }

@@ -1,9 +1,16 @@
 import "server-only";
 
+import { computeCartWeightGrams } from "@/lib/shipping/rates";
+import { SHIPPING_METHOD_RELAY_POINT } from "@/lib/shipping/checkout";
+import { isChronopostQuickCostEnabled } from "@/lib/shipping/env";
+import { getQuickCostPriceCents } from "@/lib/shipping/providers/chronopost/quickcost";
+import { calculateShippingRate } from "@/lib/shipping/rates";
+import type { CarrierName } from "@/lib/shipping/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertNoError, SupabaseDataError } from "@/lib/supabase/errors";
 import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveShippingRates } from "@/lib/supabase/queries/shipping";
 import type { CreateOrderInput, CreatedOrder, OrderTrackingInfo } from "@/types/catalog";
 import type { Database } from "@/types/database";
 
@@ -24,6 +31,7 @@ interface ResolvedLineItem {
   quantity: number;
   unitPriceCents: number;
   totalPriceCents: number;
+  weightGrams: number | null;
 }
 
 async function resolveLineItems(
@@ -79,15 +87,67 @@ async function resolveLineItems(
       quantity: item.quantity,
       unitPriceCents: variant.price_cents,
       totalPriceCents: variant.price_cents * item.quantity,
+      weightGrams: variant.weight_grams,
     };
   });
 }
 
-export async function createOrderFromCheckout(
-  input: CreateOrderInput,
-): Promise<CreatedOrder> {
+interface ServerShippingQuote {
+  shippingCents: number;
+  totalWeightGrams: number;
+  shippingRateLabel: string;
+  shippingProvider: string;
+  shippingMethod: string;
+}
+
+const MAX_RELAY_SHIPPING_WEIGHT_GRAMS = 3000;
+
+async function computeServerShippingQuote(
+  lineItems: ResolvedLineItem[],
+  carrier: CarrierName,
+  destinationZip: string,
+): Promise<ServerShippingQuote> {
+  const cartLines = lineItems.map((item) => ({
+    weightGrams: item.weightGrams,
+    quantity: item.quantity,
+  }));
+
+  const shippingRates = await getActiveShippingRates(carrier);
+  const totalWeightGrams = computeCartWeightGrams(cartLines);
+
+  if (totalWeightGrams > MAX_RELAY_SHIPPING_WEIGHT_GRAMS) {
+    throw new SupabaseDataError(
+      `Poids colis trop élevé (${totalWeightGrams} g). Maximum ${MAX_RELAY_SHIPPING_WEIGHT_GRAMS} g pour la livraison point relais.`,
+    );
+  }
+
+  const rate = calculateShippingRate(totalWeightGrams, shippingRates);
+  let shippingCents = rate.priceCents;
+
+  // Cotation QuickCost (opt-in Chronopost) — fallback barème DB si l'API échoue.
+  if (carrier === "chronopost" && isChronopostQuickCostEnabled()) {
+    const quickCostCents = await getQuickCostPriceCents(destinationZip, totalWeightGrams);
+    if (quickCostCents !== null) {
+      shippingCents = quickCostCents;
+    }
+  }
+
+  return {
+    shippingCents,
+    totalWeightGrams,
+    shippingRateLabel: rate.rate.label,
+    shippingProvider: carrier,
+    shippingMethod: SHIPPING_METHOD_RELAY_POINT,
+  };
+}
+
+/**
+ * Crée une commande `pending` avec prix et stock relus depuis Supabase.
+ * Réserve le stock une seule fois via {@link decrementStockOnce}.
+ */
+export async function createPendingOrder(input: CreateOrderInput): Promise<CreatedOrder> {
   if (!isSupabaseAdminConfigured()) {
-    throw new SupabaseDataError("Supabase admin non configuré pour createOrderFromCheckout.");
+    throw new SupabaseDataError("Supabase admin non configuré pour createPendingOrder.");
   }
 
   const admin = createAdminClient();
@@ -95,8 +155,13 @@ export async function createOrderFromCheckout(
 
   const subtotalCents = lineItems.reduce((sum, item) => sum + item.totalPriceCents, 0);
   const discountCents = input.discountCents ?? 0;
-  const shippingCents = input.shippingCents;
-  const totalCents = subtotalCents + shippingCents - discountCents;
+  const carrier: CarrierName = input.carrier ?? "mondial_relay";
+  const shippingQuote = await computeServerShippingQuote(
+    lineItems,
+    carrier,
+    input.relayPoint.zip,
+  );
+  const totalCents = subtotalCents + shippingQuote.shippingCents - discountCents;
 
   if (totalCents < 0) {
     throw new SupabaseDataError("Total de commande invalide.");
@@ -125,10 +190,14 @@ export async function createOrderFromCheckout(
       status: "pending",
       payment_status: "pending",
       subtotal_cents: subtotalCents,
-      shipping_cents: shippingCents,
+      shipping_cents: shippingQuote.shippingCents,
       discount_cents: discountCents,
       total_cents: totalCents,
       currency,
+      shipping_provider: shippingQuote.shippingProvider,
+      shipping_method: shippingQuote.shippingMethod,
+      total_weight_grams: shippingQuote.totalWeightGrams,
+      shipping_rate_label: shippingQuote.shippingRateLabel,
       relay_point_id: input.relayPoint.id,
       relay_point_name: input.relayPoint.name,
       relay_point_address: input.relayPoint.address,
@@ -167,7 +236,7 @@ export async function createOrderFromCheckout(
   }
 
   try {
-    await updateStockAfterOrder(order.id);
+    await decrementStockOnce(order.id);
   } catch (stockError) {
     await admin.from("order_items").delete().eq("order_id", order.id);
     await admin.from("orders").delete().eq("id", order.id);
@@ -186,9 +255,16 @@ export async function createOrderFromCheckout(
   };
 }
 
-export async function updateStockAfterOrder(orderId: string): Promise<void> {
+/** @deprecated Utiliser {@link createPendingOrder}. */
+export const createOrderFromCheckout = createPendingOrder;
+
+/**
+ * Décrémente le stock une seule fois pour une commande (idempotent).
+ * Appelé à la création `pending` pour réserver l'inventaire.
+ */
+export async function decrementStockOnce(orderId: string): Promise<void> {
   if (!isSupabaseAdminConfigured()) {
-    throw new SupabaseDataError("Supabase admin non configuré pour updateStockAfterOrder.");
+    throw new SupabaseDataError("Supabase admin non configuré pour decrementStockOnce.");
   }
 
   const admin = createAdminClient();
@@ -201,7 +277,7 @@ export async function updateStockAfterOrder(orderId: string): Promise<void> {
     .like("note", `${notePrefix}%`)
     .limit(1);
 
-  assertNoError(existingError, "updateStockAfterOrder/check");
+  assertNoError(existingError, "decrementStockOnce/check");
 
   if (existingMovements && existingMovements.length > 0) {
     return;
@@ -212,7 +288,7 @@ export async function updateStockAfterOrder(orderId: string): Promise<void> {
     .select("variant_id, quantity")
     .eq("order_id", orderId);
 
-  assertNoError(itemsError, "updateStockAfterOrder/items");
+  assertNoError(itemsError, "decrementStockOnce/items");
 
   if (!items?.length) {
     throw new SupabaseDataError(`Aucune ligne pour la commande ${orderId}.`);
@@ -235,6 +311,9 @@ export async function updateStockAfterOrder(orderId: string): Promise<void> {
     }
   }
 }
+
+/** @deprecated Utiliser {@link decrementStockOnce}. */
+export const updateStockAfterOrder = decrementStockOnce;
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
   pending: "En attente de paiement",
@@ -379,9 +458,10 @@ async function ensureOrderNumber(orderId: string): Promise<string> {
 
 /**
  * Marque une commande comme payée uniquement si elle est encore `pending`.
+ * Ne modifie jamais une commande déjà `paid`.
  * @returns true si la mise à jour a eu lieu (première exécution).
  */
-export async function markOrderPaid(
+export async function markOrderAsPaid(
   orderId: string,
   stripePaymentIntentId: string | null,
 ): Promise<boolean> {
@@ -396,16 +476,21 @@ export async function markOrderPaid(
       status: "paid",
       payment_status: "paid",
       stripe_payment_intent_id: stripePaymentIntentId,
+      pending_expires_at: null,
     })
     .eq("id", orderId)
     .eq("payment_status", "pending")
+    .eq("status", "pending")
     .select("id")
     .maybeSingle();
 
-  assertNoError(error, "markOrderPaid");
+  assertNoError(error, "markOrderAsPaid");
 
   return Boolean(data);
 }
+
+/** @deprecated Utiliser {@link markOrderAsPaid}. */
+export const markOrderPaid = markOrderAsPaid;
 
 export async function releaseStockForPendingOrder(orderId: string): Promise<void> {
   if (!isSupabaseAdminConfigured()) {
@@ -549,7 +634,8 @@ export async function restoreStockAfterRefund(orderId: string): Promise<void> {
 }
 
 /**
- * Traite un paiement confirmé : statut payé, stock, e-mails.
+ * Traite un paiement confirmé via webhook Stripe uniquement.
+ * Le stock a déjà été réservé à la création `pending` — pas de double décrément.
  * Idempotent — safe pour les retries Stripe.
  */
 export async function fulfillPaidOrder(
@@ -563,7 +649,7 @@ export async function fulfillPaidOrder(
     return { status: "skipped", reason: "Commande introuvable." };
   }
 
-  if (order.payment_status === "paid" && order.status === "paid") {
+  if (order.payment_status === "paid") {
     return { status: "already_fulfilled", order };
   }
 
@@ -585,7 +671,7 @@ export async function fulfillPaidOrder(
 
   await ensureOrderNumber(orderId);
 
-  const updated = await markOrderPaid(orderId, stripePaymentIntentId);
+  const updated = await markOrderAsPaid(orderId, stripePaymentIntentId);
 
   if (!updated) {
     const refreshed = await getOrderById(orderId);
@@ -594,8 +680,6 @@ export async function fulfillPaidOrder(
     }
     return { status: "skipped", reason: "Mise à jour du statut impossible." };
   }
-
-  await updateStockAfterOrder(orderId);
 
   const fulfilledOrder = await getOrderById(orderId);
   if (!fulfilledOrder) {
@@ -630,6 +714,9 @@ export async function getOrderByTrackingToken(
     currency: order.currency,
     createdAt: order.created_at,
     trackingNumber: order.tracking_number,
+    shippingNumber: order.shipping_number,
+    relayPointZip: order.relay_point_zip,
+    shippingProvider: order.shipping_provider,
   };
 }
 

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AdminDashboardAlerts } from "@/components/admin/admin-dashboard-alerts";
+import { AdminDashboardCta } from "@/components/admin/admin-dashboard-cta";
+import { AdminDashboardPriorities } from "@/components/admin/admin-dashboard-priorities";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { OrderStatusBadge, ProductStatusBadge } from "@/components/admin/status-badge";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -13,6 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  buildAdminConfigurationAlerts,
+  buildAdminDashboardPriorities,
+} from "@/lib/admin/dashboard-alerts";
+import { buildAdminDashboardAlertContext } from "@/lib/admin/dashboard-config";
+import { getAdminShopSettings } from "@/lib/supabase/queries/admin/settings";
 import {
   getAdminDashboardStats,
   getAdminRecentOrders,
@@ -26,47 +35,132 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+function formatShortDate(iso: string) {
+  return new Date(iso).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default async function AdminDashboardPage() {
-  const [stats, recentProducts, recentOrders] = await Promise.all([
+  const [stats, recentProducts, recentOrders, settings] = await Promise.all([
     getAdminDashboardStats(),
     getAdminRecentProducts(),
     getAdminRecentOrders(),
+    getAdminShopSettings(),
   ]);
+
+  const alertContext = await buildAdminDashboardAlertContext(settings, stats);
+  const alerts = buildAdminConfigurationAlerts(alertContext);
+
+  const priorities = buildAdminDashboardPriorities({
+    ordersToPrepare: stats.ordersToPrepare,
+    paidNotShippedCount: stats.paidNotShippedCount,
+    lowStockCount: stats.lowStockCount,
+    alerts,
+    activeProductCount: stats.activeProductCount,
+  });
+
+  const monthLabel = new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
   return (
     <>
       <AdminPageHeader
         title="Tableau de bord"
-        description="Vue d'ensemble de votre boutique Tilouki."
+        description="Votre liste de tâches pour faire tourner la boutique."
+        actions={<AdminDashboardCta />}
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <AdminStatCard
-          title="CA du mois"
-          value={stats.monthlyRevenueLabel}
-          description={`${stats.monthlyOrderCount} commande(s) payée(s)`}
-        />
-        <AdminStatCard
-          title="À préparer"
-          value={String(stats.ordersToPrepare)}
-          description="Commandes payées"
-        />
-        <AdminStatCard
-          title="Stock faible"
-          value={String(stats.lowStockCount)}
-          description="Variantes ≤ 3 unités"
-        />
-        <AdminStatCard
-          title="Produits actifs"
-          value={String(stats.activeProductCount)}
-          description="Catalogue publié"
-        />
-      </div>
+      <AdminDashboardPriorities priorities={priorities} />
+      <AdminDashboardAlerts alerts={alerts} />
+
+      <section className="mb-8" aria-label="Indicateurs du mois">
+        <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
+          Activité — {monthLabel}
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <AdminStatCard
+            title="Chiffre d'affaires"
+            value={stats.monthlyRevenueLabel}
+            description={`${stats.monthlyOrderCount} commande${stats.monthlyOrderCount > 1 ? "s" : ""} payée${stats.monthlyOrderCount > 1 ? "s" : ""}`}
+          />
+          <AdminStatCard
+            title="Commandes du mois"
+            value={String(stats.monthlyOrderCount)}
+            description="Commandes payées ce mois-ci"
+            href="/admin/commandes?payment=paid"
+          />
+          <AdminStatCard
+            title="À préparer"
+            value={String(stats.ordersToPrepare)}
+            description="Payées, en attente de préparation"
+            href="/admin/commandes?status=paid"
+            tone={stats.ordersToPrepare > 0 ? "warning" : "default"}
+          />
+          <AdminStatCard
+            title="Non expédiées"
+            value={String(stats.paidNotShippedCount)}
+            description="Payées, pas encore expédiées"
+            href="/admin/commandes?status=preparing"
+            tone={stats.paidNotShippedCount > 0 ? "warning" : "default"}
+          />
+        </div>
+      </section>
+
+      <section className="mb-8" aria-label="Catalogue et stock">
+        <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
+          Catalogue & stock
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <AdminStatCard
+            title="Produits actifs"
+            value={String(stats.activeProductCount)}
+            description="Visibles sur le site"
+            href="/admin/produits"
+            tone={stats.activeProductCount === 0 ? "warning" : "default"}
+          />
+          <AdminStatCard
+            title="Stock faible"
+            value={String(stats.lowStockCount)}
+            description="Variantes ≤ 3 unités"
+            href="/admin/stock"
+            tone={stats.lowStockCount > 0 ? "warning" : "default"}
+          />
+          <AdminStatCard
+            title="Sans photo"
+            value={String(stats.productsWithoutPhotoCount)}
+            description="Produits sans image"
+            href="/admin/produits"
+            tone={stats.productsWithoutPhotoCount > 0 ? "warning" : "default"}
+          />
+          <AdminStatCard
+            title="Sans stock"
+            value={String(stats.productsWithoutStockCount)}
+            description="Produits actifs à zéro"
+            href="/admin/stock"
+            tone={stats.productsWithoutStockCount > 0 ? "warning" : "default"}
+          />
+        </div>
+        {stats.productsWithoutWeightCount > 0 ? (
+          <p className="text-muted-foreground mt-3 text-sm">
+            {stats.productsWithoutWeightCount} produit
+            {stats.productsWithoutWeightCount > 1 ? "s" : ""} avec variante(s) sans poids —{" "}
+            <Link href="/admin/produits" className="text-primary font-medium underline">
+              compléter les fiches
+            </Link>
+          </p>
+        ) : null}
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Dernières commandes</CardTitle>
+            <Link href="/admin/commandes" className="text-primary text-sm font-medium hover:underline">
+              Tout voir
+            </Link>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -89,12 +183,17 @@ export default async function AdminDashboardPage() {
                   recentOrders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell>
-                        <Link
-                          href={`/admin/commandes/${order.id}`}
-                          className="text-primary font-medium hover:underline"
-                        >
-                          {order.orderNumber}
-                        </Link>
+                        <div>
+                          <Link
+                            href={`/admin/commandes/${order.id}`}
+                            className="text-primary font-medium hover:underline"
+                          >
+                            {order.orderNumber}
+                          </Link>
+                          <p className="text-muted-foreground text-xs">
+                            {formatShortDate(order.createdAt)}
+                          </p>
+                        </div>
                       </TableCell>
                       <TableCell>{order.customerName}</TableCell>
                       <TableCell>
@@ -112,8 +211,11 @@ export default async function AdminDashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Derniers produits</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-base">Derniers produits ajoutés</CardTitle>
+            <Link href="/admin/produits" className="text-primary text-sm font-medium hover:underline">
+              Tout voir
+            </Link>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -121,13 +223,17 @@ export default async function AdminDashboardPage() {
                 <TableRow>
                   <TableHead>Nom</TableHead>
                   <TableHead>Statut</TableHead>
+                  <TableHead className="text-right">Ajouté</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-muted-foreground py-8 text-center">
-                      Aucun produit
+                    <TableCell colSpan={3} className="text-muted-foreground py-8 text-center">
+                      Aucun produit —{" "}
+                      <Link href="/admin/produits/nouveau" className="text-primary underline">
+                        créer le premier
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -143,6 +249,9 @@ export default async function AdminDashboardPage() {
                       </TableCell>
                       <TableCell>
                         <ProductStatusBadge status={product.status as ProductStatus} />
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-right text-xs">
+                        {formatShortDate(product.createdAt)}
                       </TableCell>
                     </TableRow>
                   ))

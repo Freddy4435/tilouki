@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { useForm, useWatch, type UseFormRegister } from "react-hook-form";
-import { z } from "zod";
+import { useForm, useWatch } from "react-hook-form";
 
 import { ProductImagesManager } from "@/components/admin/product-images-manager";
 import {
@@ -12,11 +12,16 @@ import {
   ProductSeoFields,
 } from "@/components/admin/product-form-fields";
 import { ProductPreviewPanel } from "@/components/admin/product-preview-panel";
+import { ProductReadinessAlerts } from "@/components/admin/product-readiness-alerts";
 import { ProductStatusActions } from "@/components/admin/product-status-actions";
 import { ProductVariantsManager } from "@/components/admin/product-variants-manager";
+import { VariantBulkAdd } from "@/components/admin/variant-bulk-add";
+import type { VariantFieldValues } from "@/components/admin/variant-form-fields";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  getProductReadinessIssues,
+  isReadyToPublish,
+} from "@/lib/admin/product-readiness";
 import { slugify } from "@/lib/utils/slug";
 import {
   adminCreateProductSchema,
@@ -29,7 +34,7 @@ import {
   updateProductAction,
 } from "@/server/actions/admin/products";
 import type { AdminProductDetail } from "@/lib/supabase/queries/admin/products";
-import type { ProductGender } from "@/types/database";
+import type { ProductGender, ProductStatus } from "@/types/database";
 
 interface CategoryOption {
   id: string;
@@ -40,23 +45,6 @@ interface ProductFormProps {
   product?: AdminProductDetail;
   categories: CategoryOption[];
 }
-
-const createFormSchema = adminProductCoreSchema.extend({
-  initialVariant: z.object({
-    sku: z.string().optional(),
-    sizeLabel: z.string().optional(),
-    ageLabel: z.string().optional(),
-    color: z.string().optional(),
-    priceEuros: z.string().min(1, "Prix requis."),
-    compareAtEuros: z.string().optional(),
-    costEuros: z.string().optional(),
-    stockQuantity: z.string().min(1),
-    weightGrams: z.string().optional(),
-    isActive: z.boolean(),
-  }),
-});
-
-type CreateFormValues = z.infer<typeof createFormSchema>;
 
 function coreDefaults(product?: AdminProductDetail): AdminProductCoreInput {
   return {
@@ -77,29 +65,44 @@ function coreDefaults(product?: AdminProductDetail): AdminProductCoreInput {
   };
 }
 
+function variantFieldsToPreview(v: VariantFieldValues, index: number) {
+  const priceCents = Math.round(Number(String(v.priceEuros).replace(",", ".")) * 100);
+  if (!Number.isFinite(priceCents) || priceCents < 0) return null;
+  const compareAt = v.compareAtEuros
+    ? Math.round(Number(String(v.compareAtEuros).replace(",", ".")) * 100)
+    : null;
+  const costCents = v.costEuros
+    ? Math.round(Number(String(v.costEuros).replace(",", ".")) * 100)
+    : null;
+  return {
+    id: `preview-${index}`,
+    sku: v.sku || `preview-${index}`,
+    sizeLabel: v.sizeLabel || null,
+    ageLabel: v.ageLabel || null,
+    color: v.color || null,
+    priceCents,
+    compareAtPriceCents: compareAt,
+    costCents: Number.isFinite(costCents ?? NaN) ? costCents : null,
+    stockQuantity: Number(v.stockQuantity) || 0,
+    weightGrams: v.weightGrams ? Number(v.weightGrams) : null,
+    isActive: v.isActive ?? true,
+  };
+}
+
+function variantLabel(v: VariantFieldValues): string {
+  return [v.sizeLabel, v.ageLabel, v.color].filter(Boolean).join(" · ") || "Variante";
+}
+
 function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [slugTouched, setSlugTouched] = useState(false);
+  const [pendingVariants, setPendingVariants] = useState<VariantFieldValues[]>([]);
 
-  const form = useForm<CreateFormValues>({
-    resolver: zodResolver(createFormSchema),
-    defaultValues: {
-      ...coreDefaults(),
-      initialVariant: {
-        sku: "",
-        sizeLabel: "",
-        ageLabel: "",
-        color: "",
-        priceEuros: "",
-        compareAtEuros: "",
-        costEuros: "",
-        stockQuantity: "0",
-        weightGrams: "",
-        isActive: true,
-      },
-    },
+  const form = useForm<AdminProductCoreInput>({
+    resolver: zodResolver(adminProductCoreSchema),
+    defaultValues: coreDefaults(),
   });
 
   const watched = useWatch({ control: form.control });
@@ -118,152 +121,147 @@ function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
     return categories.find((c) => c.id === id)?.name ?? null;
   }, [watched.categoryId, categories]);
 
-  const previewVariants = useMemo(() => {
-    const v = watched.initialVariant;
-    if (!v?.priceEuros) return [];
-    const priceCents = Math.round(Number(String(v.priceEuros).replace(",", ".")) * 100);
-    if (!Number.isFinite(priceCents) || priceCents < 0) return [];
-    const compareAt = v.compareAtEuros
-      ? Math.round(Number(String(v.compareAtEuros).replace(",", ".")) * 100)
-      : null;
-    const costCents = v.costEuros
-      ? Math.round(Number(String(v.costEuros).replace(",", ".")) * 100)
-      : null;
-    return [
-      {
-        id: "preview-variant",
-        sku: v.sku || "preview",
-        sizeLabel: v.sizeLabel || null,
-        ageLabel: v.ageLabel || null,
-        color: v.color || null,
-        priceCents,
-        compareAtPriceCents: compareAt,
-        costCents: Number.isFinite(costCents ?? NaN) ? costCents : null,
-        stockQuantity: Number(v.stockQuantity) || 0,
-        weightGrams: v.weightGrams ? Number(v.weightGrams) : null,
-        isActive: v.isActive ?? true,
-      },
-    ];
-  }, [watched.initialVariant]);
+  const previewVariants = useMemo(
+    () =>
+      pendingVariants
+        .map((v, i) => variantFieldsToPreview(v, i))
+        .filter((v): v is NonNullable<typeof v> => v !== null),
+    [pendingVariants],
+  );
 
-  const onSubmit = form.handleSubmit((values) => {
-    startTransition(async () => {
-      setSubmitError(null);
-      const variantParsed = adminVariantSchema.safeParse({
-        sku: values.initialVariant.sku || undefined,
-        sizeLabel: values.initialVariant.sizeLabel || null,
-        ageLabel: values.initialVariant.ageLabel || null,
-        color: values.initialVariant.color || null,
-        priceCents: values.initialVariant.priceEuros,
-        compareAtPriceCents: values.initialVariant.compareAtEuros || null,
-        costCents: values.initialVariant.costEuros || null,
-        stockQuantity: values.initialVariant.stockQuantity,
-        weightGrams: values.initialVariant.weightGrams || null,
-        isActive: values.initialVariant.isActive,
-      });
+  const readinessVariants = useMemo(
+    () =>
+      previewVariants.map((v) => ({
+        stockQuantity: v.stockQuantity,
+        weightGrams: v.weightGrams,
+        isActive: v.isActive,
+      })),
+    [previewVariants],
+  );
 
-      if (!variantParsed.success) {
-        setSubmitError(variantParsed.error.issues[0]?.message ?? "Variante invalide.");
+  const submitWithStatus = (targetStatus: ProductStatus) => {
+    form.handleSubmit((values) => {
+      if (pendingVariants.length === 0) {
+        setSubmitError("Ajoutez au moins une variante (taille ou âge).");
         return;
       }
 
-      const productParsed = adminCreateProductSchema.safeParse({
-        ...values,
-        initialVariant: variantParsed.data,
-      });
+      const parsedVariants = pendingVariants.map((v) =>
+        adminVariantSchema.safeParse({
+          sku: v.sku || undefined,
+          sizeLabel: v.sizeLabel || null,
+          ageLabel: v.ageLabel || null,
+          color: v.color || null,
+          priceCents: v.priceEuros,
+          compareAtPriceCents: v.compareAtEuros || null,
+          costCents: v.costEuros || null,
+          stockQuantity: v.stockQuantity,
+          weightGrams: v.weightGrams || null,
+          isActive: v.isActive,
+        }),
+      );
 
-      if (!productParsed.success) {
-        setSubmitError(productParsed.error.issues[0]?.message ?? "Données invalides.");
+      const invalid = parsedVariants.find((p) => !p.success);
+      if (invalid && !invalid.success) {
+        setSubmitError(invalid.error.issues[0]?.message ?? "Variante invalide.");
         return;
       }
 
-      const result = await createProductAction(productParsed.data);
-      if (result.error) setSubmitError(result.error);
-      else if (result.id) router.push(`/admin/produits/${result.id}`);
-    });
-  });
+      if (
+        targetStatus === "active" &&
+        !isReadyToPublish(
+          getProductReadinessIssues({ imagesCount: 0, variants: readinessVariants }),
+        )
+      ) {
+        setSubmitError("Complétez photos, stock et poids avant de publier.");
+        return;
+      }
+
+      startTransition(async () => {
+        setSubmitError(null);
+        const productParsed = adminCreateProductSchema.safeParse({
+          ...values,
+          status: targetStatus,
+          initialVariants: parsedVariants.map((p) => p.data!),
+        });
+
+        if (!productParsed.success) {
+          setSubmitError(productParsed.error.issues[0]?.message ?? "Données invalides.");
+          return;
+        }
+
+        const result = await createProductAction(productParsed.data);
+        if (result.error) setSubmitError(result.error);
+        else if (result.id) router.push(`/admin/produits/${result.id}`);
+      });
+    })();
+  };
 
   return (
     <div className="grid gap-8 xl:grid-cols-[1fr_360px]">
-      <form onSubmit={onSubmit} className="space-y-8">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitWithStatus("draft");
+        }}
+        className="space-y-8"
+      >
         <ProductFormFields
-          register={form.register as unknown as UseFormRegister<AdminProductCoreInput>}
-          errors={form.formState.errors as never}
+          register={form.register}
+          errors={form.formState.errors}
           categories={categories}
           onSlugManualEdit={() => setSlugTouched(true)}
+          hideStatus
         />
 
-        <section className="space-y-4 rounded-lg border p-4">
-          <h2 className="text-base font-semibold">Première variante</h2>
-          <p className="text-muted-foreground text-xs">
-            SKU généré automatiquement si laissé vide.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>SKU</Label>
-              <Input {...form.register("initialVariant.sku")} placeholder="Auto" />
-            </div>
-            <div className="space-y-2">
-              <Label>Prix (€) *</Label>
-              <Input
-                {...form.register("initialVariant.priceEuros")}
-                type="number"
-                step="0.01"
-                min="0"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Taille</Label>
-              <Input {...form.register("initialVariant.sizeLabel")} />
-            </div>
-            <div className="space-y-2">
-              <Label>Âge</Label>
-              <Input {...form.register("initialVariant.ageLabel")} />
-            </div>
-            <div className="space-y-2">
-              <Label>Couleur</Label>
-              <Input {...form.register("initialVariant.color")} />
-            </div>
-            <div className="space-y-2">
-              <Label>Prix barré (€)</Label>
-              <Input
-                {...form.register("initialVariant.compareAtEuros")}
-                type="number"
-                step="0.01"
-                min="0"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Coût d&apos;achat (€)</Label>
-              <Input
-                {...form.register("initialVariant.costEuros")}
-                type="number"
-                step="0.01"
-                min="0"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Stock *</Label>
-              <Input
-                {...form.register("initialVariant.stockQuantity")}
-                type="number"
-                min="0"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Poids (g)</Label>
-              <Input
-                {...form.register("initialVariant.weightGrams")}
-                type="number"
-                min="0"
-              />
-            </div>
-          </div>
+        <section className="space-y-4">
+          <h2 className="text-base font-semibold">Tailles, âges & stock</h2>
+          <VariantBulkAdd
+            productSlug={watchedSlug || "nouveau-produit"}
+            existingCount={pendingVariants.length}
+            onCreateVariants={(variants) =>
+              setPendingVariants((prev) => [...prev, ...variants])
+            }
+          />
+
+          {pendingVariants.length > 0 ? (
+            <ul className="space-y-2">
+              {pendingVariants.map((v, index) => (
+                <li
+                  key={`${variantLabel(v)}-${index}`}
+                  className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm"
+                >
+                  <span>
+                    <span className="font-medium">{variantLabel(v)}</span>
+                    <span className="text-muted-foreground ml-2">
+                      {v.priceEuros} € · stock {v.stockQuantity}
+                      {v.weightGrams ? ` · ${v.weightGrams} g` : ""}
+                    </span>
+                  </span>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Retirer"
+                    onClick={() =>
+                      setPendingVariants((prev) => prev.filter((_, i) => i !== index))
+                    }
+                  >
+                    <Trash2 className="text-destructive size-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground rounded-lg border border-dashed py-6 text-center text-sm">
+              Aucune variante — utilisez l&apos;ajout rapide ci-dessus.
+            </p>
+          )}
         </section>
 
-        <ProductSeoFields
-          register={form.register as unknown as UseFormRegister<AdminProductCoreInput>}
-        />
+        <ProductReadinessAlerts imagesCount={0} variants={readinessVariants} />
+
+        <ProductSeoFields register={form.register} />
 
         {submitError ? (
           <p className="text-destructive text-sm" role="alert">
@@ -271,9 +269,18 @@ function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
           </p>
         ) : null}
 
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Création…" : "Créer le produit"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" variant="outline" disabled={isPending}>
+            {isPending ? "Enregistrement…" : "Enregistrer en brouillon"}
+          </Button>
+          <Button
+            type="button"
+            disabled={isPending}
+            onClick={() => submitWithStatus("active")}
+          >
+            {isPending ? "Publication…" : "Publier"}
+          </Button>
+        </div>
       </form>
 
       <ProductPreviewPanel
@@ -331,14 +338,41 @@ function ProductEditForm({
     return categories.find((c) => c.id === id)?.name ?? product.categoryName;
   }, [watched.categoryId, categories, product.categoryName]);
 
-  const onSubmit = form.handleSubmit((values) => {
-    startTransition(async () => {
-      setSubmitError(null);
-      const result = await updateProductAction({ ...values, id: product.id });
-      if (result.error) setSubmitError(result.error);
-      else router.refresh();
-    });
-  });
+  const readinessVariants = useMemo(
+    () =>
+      product.variants.map((v) => ({
+        stockQuantity: v.stockQuantity,
+        weightGrams: v.weightGrams,
+        isActive: v.isActive,
+      })),
+    [product.variants],
+  );
+
+  const saveWithStatus = (targetStatus: ProductStatus) => {
+    form.handleSubmit((values) => {
+      if (targetStatus === "active") {
+        const issues = getProductReadinessIssues({
+          imagesCount: product.images.length,
+          variants: readinessVariants,
+        });
+        if (!isReadyToPublish(issues)) {
+          setSubmitError("Complétez photos, stock et poids avant de publier.");
+          return;
+        }
+      }
+
+      startTransition(async () => {
+        setSubmitError(null);
+        const result = await updateProductAction({
+          ...values,
+          status: targetStatus,
+          id: product.id,
+        });
+        if (result.error) setSubmitError(result.error);
+        else router.refresh();
+      });
+    })();
+  };
 
   return (
     <div className="grid gap-8 xl:grid-cols-[1fr_360px]">
@@ -347,19 +381,31 @@ function ProductEditForm({
           productId={product.id}
           status={product.status}
           hasOrders={product.hasOrders}
+          imagesCount={product.images.length}
+          variants={readinessVariants}
         />
 
-        <form onSubmit={onSubmit} className="space-y-8">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            saveWithStatus(product.status === "active" ? "active" : "draft");
+          }}
+          className="space-y-8"
+        >
           <ProductFormFields
             register={form.register}
             errors={form.formState.errors}
             categories={categories}
             onSlugManualEdit={() => setSlugTouched(true)}
+            hideStatus
           />
 
-          <ProductSeoFields
-          register={form.register as unknown as UseFormRegister<AdminProductCoreInput>}
-        />
+          <ProductReadinessAlerts
+            imagesCount={product.images.length}
+            variants={readinessVariants}
+          />
+
+          <ProductSeoFields register={form.register} />
 
           {submitError ? (
             <p className="text-destructive text-sm" role="alert">
@@ -367,13 +413,33 @@ function ProductEditForm({
             </p>
           ) : null}
 
-          <Button type="submit" disabled={isPending}>
-            {isPending ? "Enregistrement…" : "Enregistrer le produit"}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" variant="outline" disabled={isPending}>
+              {isPending ? "Enregistrement…" : "Enregistrer"}
+            </Button>
+            {product.status !== "active" ? (
+              <Button
+                type="button"
+                disabled={isPending}
+                onClick={() => saveWithStatus("active")}
+              >
+                {isPending ? "Publication…" : "Publier"}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={isPending}
+                onClick={() => saveWithStatus("draft")}
+              >
+                Remettre en brouillon
+              </Button>
+            )}
+          </div>
         </form>
 
         <section className="space-y-4 border-t pt-8">
-          <h2 className="text-base font-semibold">Variantes</h2>
+          <h2 className="text-base font-semibold">Tailles, âges & stock</h2>
           <ProductVariantsManager
             productId={product.id}
             productSlug={watchedSlug}
@@ -382,7 +448,7 @@ function ProductEditForm({
         </section>
 
         <section className="space-y-4 border-t pt-8">
-          <h2 className="text-base font-semibold">Images</h2>
+          <h2 className="text-base font-semibold">Photos</h2>
           <ProductImagesManager
             productId={product.id}
             productName={watchedName}

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { Loader2, Lock } from "lucide-react";
 
 import { CartAlerts } from "@/components/cart/cart-alerts";
+import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { CheckoutSteps } from "@/components/checkout/checkout-steps";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
 import { CustomerForm } from "@/components/checkout/customer-form";
@@ -18,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCartValidation } from "@/hooks/use-cart-validation";
 import { useIsMounted } from "@/hooks/use-is-mounted";
 import { useCartStore } from "@/lib/cart/store";
+import { isClientRelayPointSelectable } from "@/lib/shipping/client-guards";
 import {
   checkoutCustomerSchema,
   checkoutFormSchema,
@@ -25,9 +27,15 @@ import {
   type CheckoutFormValues,
 } from "@/lib/validations/checkout";
 
-export function CheckoutFlow() {
+interface CheckoutFlowProps {
+  /** Nonce CSP de la requête — transmis aux <Script> du widget Mondial Relay. */
+  nonce?: string;
+}
+
+export function CheckoutFlow({ nonce }: CheckoutFlowProps) {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
+  const carrier = useCartStore((s) => s.carrier);
   const canCheckout = useCartStore((s) => s.canCheckout());
   const validationMessages = useCartStore((s) => s.validationMessages);
   const [step, setStep] = useState(1);
@@ -101,11 +109,25 @@ export function CheckoutFlow() {
       return;
     }
 
+    if (!isClientRelayPointSelectable(relayPoint.id)) {
+      form.setError("relayPoint", {
+        message: "Ce point relais n'est pas valide. Effectuez une nouvelle recherche.",
+      });
+      return;
+    }
+
     setStep(3);
   };
 
   const handlePayment = form.handleSubmit(async (values) => {
     setPaymentError(null);
+
+    const relayCheck = relayPointSchema.safeParse(values.relayPoint);
+    if (!relayCheck.success || !isClientRelayPointSelectable(values.relayPoint.id)) {
+      setPaymentError("Sélectionnez un point relais valide avant de payer.");
+      setStep(2);
+      return;
+    }
 
     const stockValid = await validate();
     if (!stockValid || !canCheckout) {
@@ -129,6 +151,7 @@ export function CheckoutFlow() {
             phone: values.phone,
           },
           relayPoint: values.relayPoint,
+          carrier,
           items: items.map((item) => ({
             variantId: item.variantId,
             quantity: item.quantity,
@@ -172,7 +195,7 @@ export function CheckoutFlow() {
 
         <form onSubmit={(event) => void handlePayment(event)}>
           {step === 1 ? (
-            <Card>
+            <Card className="rounded-2xl shadow-[var(--shadow-soft)]">
               <CardHeader>
                 <CardTitle className="font-heading text-xl">Vos informations</CardTitle>
               </CardHeader>
@@ -191,12 +214,12 @@ export function CheckoutFlow() {
           ) : null}
 
           {step === 2 ? (
-            <Card>
+            <Card className="rounded-2xl shadow-[var(--shadow-soft)]">
               <CardHeader>
                 <CardTitle className="font-heading text-xl">Livraison en point relais</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <RelayPointSelector form={form} />
+                <RelayPointSelector form={form} nonce={nonce} />
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
                   <Button
                     type="button"
@@ -215,7 +238,7 @@ export function CheckoutFlow() {
           ) : null}
 
           {step === 3 ? (
-            <Card>
+            <Card className="rounded-2xl shadow-[var(--shadow-soft)]">
               <CardHeader>
                 <CardTitle className="font-heading text-xl">Paiement sécurisé</CardTitle>
               </CardHeader>
@@ -223,8 +246,9 @@ export function CheckoutFlow() {
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Vous serez redirigé vers Stripe pour régler votre commande en toute sécurité.
                   Aucun paiement n&apos;est enregistré tant que la transaction n&apos;est pas
-                  confirmée.
+                  confirmée. Retour possible selon nos conditions.
                 </p>
+                <ReassuranceStrip variant="compact" className="justify-start" />
 
                 <TermsCheckbox form={form} />
 

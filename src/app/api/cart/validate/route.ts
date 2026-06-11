@@ -5,7 +5,7 @@ import { validateCartStock } from "@/lib/supabase/queries/cart";
 import { cartValidateSchema } from "@/lib/validations/cart";
 
 export async function POST(request: Request) {
-  const blocked = guardApiRequest(request, {
+  const blocked = await guardApiRequest(request, {
     rateLimit: { route: "cart-validate", limit: 30, windowSec: 60 },
   });
   if (blocked) return blocked;

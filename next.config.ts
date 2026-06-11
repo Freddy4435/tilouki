@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
+  /** Masque l'en-tête X-Powered-By pour limiter la surface d'information. */
   poweredByHeader: false,
+  /**
+   * En-têtes de base pour assets statiques.
+   * CSP, HSTS et Permissions-Policy sont appliqués sur les pages via le middleware
+   * (src/lib/security/headers.ts).
+   */
   async headers() {
     return [
       {

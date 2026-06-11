@@ -13,13 +13,25 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build"
+    "audit:secrets": "node scripts/audit-secrets.mjs",
+    "prepare:archive": "node scripts/prepare-archive.mjs",
+    "seed:dev": "node scripts/seed-dev.mjs",
+    "generate:demo-images": "node scripts/generate-demo-images.mjs",
+    "check": "npm run audit:secrets && npm run typecheck && npm run lint && npm run test && npm run build",
+    "e2e": "node scripts/run-playwright.mjs",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report",
+    "qa": "npm run typecheck && npm run lint && npm run test && npm run build && node scripts/run-e2e.mjs",
+    "verify:deploy": "node scripts/verify-deploy.mjs",
+    "verify:deploy:prod": "node scripts/verify-deploy.mjs --production"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@hookform/resolvers": "^5.4.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",
@@ -39,6 +51,8 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.0",

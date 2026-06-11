@@ -8,6 +8,7 @@ import {
   Package,
   Settings,
   Shirt,
+  Truck,
   Upload,
   Warehouse,
   type LucideIcon,
@@ -27,6 +28,7 @@ const iconMap: Record<string, LucideIcon> = {
   folder: FolderOpen,
   package: Package,
   warehouse: Warehouse,
+  truck: Truck,
   settings: Settings,
   "file-text": FileText,
 };

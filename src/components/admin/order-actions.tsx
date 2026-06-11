@@ -17,8 +17,12 @@ import type { AdminOrderDetail } from "@/lib/supabase/queries/admin/orders";
 import type { OrderAdminAction } from "@/lib/validations/admin-order";
 
 interface OrderActionsProps {
-  order: Pick<AdminOrderDetail, "id" | "status" | "paymentStatus" | "orderNumber"> & {
+  order: Pick<
+    AdminOrderDetail,
+    "id" | "status" | "paymentStatus" | "orderNumber"
+  > & {
     trackingNumber?: string | null;
+    shippingNumber?: string | null;
   };
   compact?: boolean;
 }
@@ -74,7 +78,18 @@ export function OrderActions({ order, compact = false }: OrderActionsProps) {
           </Button>
         ) : null}
 
-        {order.status === "preparing" ? (
+        {order.status === "preparing" &&
+        (order.trackingNumber?.trim() || order.shippingNumber) ? (
+          <Button
+            type="button"
+            size={compact ? "sm" : "default"}
+            variant="outline"
+            disabled={isPending}
+            onClick={() => run("mark_shipped")}
+          >
+            Marquer comme expédiée
+          </Button>
+        ) : order.status === "preparing" ? (
           <Button
             type="button"
             size={compact ? "sm" : "default"}
@@ -82,7 +97,7 @@ export function OrderActions({ order, compact = false }: OrderActionsProps) {
             disabled={isPending}
             onClick={() => setShowShipForm((v) => !v)}
           >
-            Marquer expédiée
+            Marquer comme expédiée
           </Button>
         ) : null}
 

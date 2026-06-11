@@ -1,3 +1,4 @@
+import { ConsentGatedAnalytics } from "@/components/analytics/consent-gated-analytics";
 import { AppProviders } from "@/components/providers/app-providers";
 import { ShopProvider } from "@/components/providers/shop-provider";
 import { CookieConsent } from "@/components/layout/cookie-consent";
@@ -21,11 +22,15 @@ export default async function PublicLayout({
       <div className="flex min-h-screen flex-col" style={themeStyle}>
         <AppProviders>
           <SiteHeader />
-          <main id="contenu-principal" className="flex-1">
+          <main
+            id="contenu-principal"
+            className="flex-1 pb-[var(--cookie-banner-height,0px)]"
+          >
             {children}
           </main>
           <SiteFooter />
           <CookieConsent />
+          <ConsentGatedAnalytics />
         </AppProviders>
       </div>
     </ShopProvider>
