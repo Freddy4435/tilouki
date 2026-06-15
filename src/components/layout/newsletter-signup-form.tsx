@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSyncExternalStore, useState, useTransition } from "react";
+import { Check, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +13,7 @@ import {
   hasCookieConsentChoice,
 } from "@/lib/consent/cookies";
 import { subscribeNewsletterAction } from "@/server/actions/newsletter";
+import { cn } from "@/lib/utils";
 
 function subscribeConsent(listener: () => void) {
   const onStorage = () => listener();
@@ -28,7 +30,41 @@ function readConsentReady(): boolean {
   return hasCookieConsentChoice();
 }
 
-export function NewsletterSignupForm() {
+function NewsletterSuccessMessage({ message }: { message: string }) {
+  return (
+    <div
+      className="tilouki-motion-soft-in bg-tilouki-jade-soft/60 border-tilouki-jade/30 space-y-2 rounded-[var(--radius-card)] border p-4"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="flex items-start gap-3">
+        <span className="bg-tilouki-teal text-tilouki-milk flex size-8 shrink-0 items-center justify-center rounded-full">
+          <Check className="size-4" aria-hidden />
+        </span>
+        <div className="space-y-1">
+          <p className="font-display text-sm font-semibold">C&apos;est noté — merci !</p>
+          <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export interface NewsletterSignupFormProps {
+  id?: string;
+  source?: string;
+  heading?: string;
+  description?: string;
+  className?: string;
+}
+
+export function NewsletterSignupForm({
+  id = "newsletter",
+  source = "footer",
+  heading = "La newsletter",
+  description = "Les nouveautés du mercredi, les petits prix et les conseils tailles — une fois par mois, sans spam.",
+  className,
+}: NewsletterSignupFormProps) {
   const consentReady = useSyncExternalStore(
     subscribeConsent,
     readConsentReady,
@@ -64,13 +100,10 @@ export function NewsletterSignupForm() {
   };
 
   return (
-    <div id="newsletter" className="space-y-3">
+    <div id={id} className={cn("space-y-3", className)}>
       <div>
-        <p className="font-display text-lg font-semibold">La newsletter</p>
-        <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-          Les nouveautés du mercredi, les petits prix et les conseils tailles — une fois
-          par mois, sans spam.
-        </p>
+        <p className="font-display text-lg font-semibold">{heading}</p>
+        <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{description}</p>
       </div>
 
       {!consentReady ? (
@@ -78,9 +111,11 @@ export function NewsletterSignupForm() {
           Pour vous inscrire, acceptez d&apos;abord les cookies via le bandeau en bas de
           page.
         </p>
+      ) : message ? (
+        <NewsletterSuccessMessage message={message} />
       ) : (
         <form onSubmit={onSubmit} className="space-y-3">
-          <input type="hidden" name="source" value="footer" />
+          <input type="hidden" name="source" value={source} />
           <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden>
             <label htmlFor="newsletter-website">Site web</label>
             <input
@@ -134,20 +169,22 @@ export function NewsletterSignupForm() {
 
           <Button
             type="submit"
-            className="w-full"
+            className={cn("w-full", isPending && "opacity-80")}
             disabled={isPending || !marketingConsent}
           >
-            {isPending ? "Inscription…" : "S'inscrire"}
+            {isPending ? (
+              "Inscription…"
+            ) : (
+              <>
+                <Mail className="size-4" aria-hidden />
+                S&apos;inscrire
+              </>
+            )}
           </Button>
 
           {error ? (
             <p className="text-destructive text-xs" role="alert">
               {error}
-            </p>
-          ) : null}
-          {message ? (
-            <p className="text-tilouki-sage-dark text-xs" role="status">
-              {message}
             </p>
           ) : null}
         </form>

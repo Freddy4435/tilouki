@@ -9,6 +9,8 @@ export interface PageMetadataInput {
   noIndex?: boolean;
   ogImage?: string | null;
   ogType?: "website" | "article";
+  articlePublishedTime?: string;
+  articleModifiedTime?: string;
 }
 
 export function absoluteUrl(path: string): string {
@@ -47,6 +49,12 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
     title,
     description,
     ...(input.ogImage ? { images: [{ url: input.ogImage, alt: title }] } : {}),
+    ...(input.ogType === "article" && input.articlePublishedTime
+      ? {
+          publishedTime: input.articlePublishedTime,
+          modifiedTime: input.articleModifiedTime ?? input.articlePublishedTime,
+        }
+      : {}),
   };
 
   return {

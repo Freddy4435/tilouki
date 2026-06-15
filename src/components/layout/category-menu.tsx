@@ -33,6 +33,10 @@ function isNavItemActive(
     return pathname === "/catalogue" && !searchParams.get("promo");
   }
 
+  if (href === NAV_HREF.blog) {
+    return pathname === "/blog" || pathname.startsWith("/blog/");
+  }
+
   return pathname === href;
 }
 
@@ -50,7 +54,7 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
   return (
     <nav
       className={cn(
-        "border-border/40 bg-tilouki-cloud/50 hidden border-b md:block",
+        "border-border/40 bg-tilouki-milk hidden border-b md:block",
         className,
       )}
       aria-label="Navigation boutique"
@@ -78,8 +82,8 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
                   className={cn(
                     "inline-flex h-9 shrink-0 items-center rounded-[var(--radius-button)] px-3 text-sm font-medium whitespace-nowrap transition-colors",
                     isActive
-                      ? "bg-tilouki-jade-soft text-tilouki-teal-dark"
-                      : "text-foreground hover:bg-tilouki-jade-soft/50 hover:text-tilouki-teal-dark",
+                      ? "bg-tilouki-mint-soft text-tilouki-navy font-semibold"
+                      : "text-foreground hover:bg-tilouki-peach-soft/60 hover:text-tilouki-navy",
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -88,6 +92,22 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
               </li>
             );
           })}
+          <li className="shrink-0">
+            <Link
+              href={NAV_HREF.blog}
+              className={cn(
+                "inline-flex h-9 shrink-0 items-center rounded-[var(--radius-button)] px-3 text-sm font-medium whitespace-nowrap transition-colors",
+                isNavItemActive(pathname, NAV_HREF.blog, searchParams)
+                  ? "bg-tilouki-brand-blue-soft text-tilouki-navy font-semibold"
+                  : "text-foreground hover:bg-tilouki-brand-blue-soft/70 hover:text-tilouki-navy",
+              )}
+              aria-current={
+                isNavItemActive(pathname, NAV_HREF.blog, searchParams) ? "page" : undefined
+              }
+            >
+              Carnet
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>

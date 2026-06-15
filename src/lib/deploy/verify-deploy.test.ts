@@ -7,14 +7,14 @@ import {
   verifyGitignoreCoversSecrets,
   verifyStripeWebhookEventsInSource,
   verifyVercelCronConfig,
-} from "../../../scripts/lib/verify-deploy-checks.mjs";
+} from "@/lib/deploy/verify-deploy-checks";
 
 function completeProductionEnv() {
   return {
     NEXT_PUBLIC_SITE_URL: "https://tilouki.fr",
     NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder",
-    SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "supabase-anon-key-test-placeholder-only",
+    SUPABASE_SERVICE_ROLE_KEY: "supabase-service-role-test-placeholder-only",
     STRIPE_SECRET_KEY: "sk_live_placeholder",
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_live_placeholder",
     STRIPE_WEBHOOK_SECRET: "whsec_placeholder_secret",

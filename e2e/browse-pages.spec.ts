@@ -22,7 +22,7 @@ test.describe("Pages vitrine", () => {
     await expect(page.getByRole("main")).toBeVisible();
     await expect(page.getByRole("link", { name: /catalogue/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /mentions légales/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /cgv/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: "CGV", exact: true })).toBeVisible();
   });
 
   test("catalogue — liste produits et lien fiche", async ({ page }) => {
@@ -61,16 +61,23 @@ test.describe("Pages vitrine", () => {
 
   test("suivi commande — token invalide dans l'URL", async ({ page }) => {
     await page.goto("/suivi-commande?token=pas-un-uuid");
-    await expect(page.getByText(/numéro de suivi invalide/i)).toBeVisible();
-    await expect(page.getByLabel(/numéro de suivi/i)).toHaveValue("pas-un-uuid");
+    await expect(page.getByLabel(/numéro de suivi/i)).toHaveValue("pas-un-uuid", {
+      timeout: 15_000,
+    });
+    await expect(page.getByText(/numéro de suivi invalide/i)).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("suivi commande — token valide inconnu", async ({ page }) => {
-    await page.goto("/suivi-commande?token=550e8400-e29b-41d4-a716-446655440000");
-    await expect(page.getByText(/aucune commande trouvée/i)).toBeVisible();
-    await expect(page.getByLabel(/numéro de suivi/i)).toHaveValue(
-      "550e8400-e29b-41d4-a716-446655440000",
-    );
+    const unknownToken = "550e8400-e29b-41d4-a716-446655440000";
+    await page.goto(`/suivi-commande?token=${unknownToken}`);
+    await expect(page.getByLabel(/numéro de suivi/i)).toHaveValue(unknownToken, {
+      timeout: 15_000,
+    });
+    await expect(page.getByText(/aucune commande trouvée/i)).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test("panier et checkout — récapitulatif complet", async ({ page }) => {

@@ -49,12 +49,15 @@ export function RecentlyViewedSection({
     [products, slugs],
   );
 
-  if (slugs.length === 0) return null;
+  const shouldShow =
+    slugs.length > 0 && (isLoading || orderedProducts.length >= minProducts);
+
+  if (!shouldShow) return null;
   if (!isLoading && orderedProducts.length < minProducts) return null;
 
   return (
     <section
-      className={cn("space-y-4", className)}
+      className={cn("tilouki-motion-fade-up space-y-4", className)}
       aria-labelledby="recently-viewed-heading"
     >
       <div className="space-y-1">

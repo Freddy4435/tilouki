@@ -1,5 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 
+import { mockCartValidation } from "./mocks";
+
 export const DEFAULT_CART_ITEM = {
   productId: "00000000-0000-0000-0000-000000000099",
   variantId: "00000000-0000-0000-0000-000000000098",
@@ -45,14 +47,27 @@ export async function waitForCartHydrated(page: Page) {
   });
 }
 
+async function waitForSeededCartInDom(page: Page) {
+  await expect(page.getByText(DEFAULT_CART_ITEM.productName)).toBeVisible({
+    timeout: 20_000,
+  });
+  const checkoutReady = page.getByRole("button", { name: /passer commande/i });
+  await expect(checkoutReady).toBeVisible({ timeout: 20_000 });
+  await expect(checkoutReady).toBeEnabled({ timeout: 20_000 });
+}
+
 /** Panier prérempli + attente réhydratation Zustand avant checkout. */
 export async function ensureSeededCartOnPage(page: Page) {
+  await mockCartValidation(page);
   await seedCartInBrowser(page);
   await page.goto("/panier");
+  await waitForCartHydrated(page);
 
-  const checkoutReady = page.getByRole("button", { name: /passer commande/i });
-  if (await checkoutReady.isVisible().catch(() => false)) {
+  try {
+    await waitForSeededCartInDom(page);
     return;
+  } catch {
+    // Réinjection + reload si la validation serveur a vidé le store avant hydratation.
   }
 
   await page.evaluate((cartItem) => {
@@ -66,5 +81,6 @@ export async function ensureSeededCartOnPage(page: Page) {
   }, DEFAULT_CART_ITEM);
 
   await page.reload();
-  await expect(checkoutReady).toBeVisible({ timeout: 20_000 });
+  await waitForCartHydrated(page);
+  await waitForSeededCartInDom(page);
 }

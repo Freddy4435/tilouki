@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { GoLiveFinalizationPanel } from "@/components/admin/go-live-finalization-panel";
 import { LegalComplianceChecklist } from "@/components/admin/legal-compliance-checklist";
 import {
   ProductionReadinessBanner,
@@ -30,6 +31,7 @@ export default async function AdminPreparationPage() {
       />
 
       <ProductionReadinessBanner summary={summary} />
+      <GoLiveFinalizationPanel summary={summary} />
       <div className="mb-8">
         <LegalComplianceChecklist settings={complianceInput} shopFieldsOnly />
       </div>

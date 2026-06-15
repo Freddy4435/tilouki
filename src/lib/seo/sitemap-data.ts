@@ -2,7 +2,9 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
+import { getPublishedBlogArticles } from "@/content/blog/articles";
 import { LEGAL_PAGE_ROUTES } from "@/lib/legal/templates";
+import { getAllRitualSlugs } from "@/lib/rituals/rituals";
 import { CACHE_TAGS, REVALIDATE } from "@/lib/supabase/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -17,12 +19,24 @@ async function fetchAllSitemapEntries(): Promise<SitemapEntry[]> {
   const staticPages: SitemapEntry[] = [
     { path: "/", lastModified: now },
     { path: "/catalogue", lastModified: now },
+    { path: "/guide-tailles", lastModified: now },
+    { path: "/blog", lastModified: now },
     { path: "/livraison-retours", lastModified: now },
     { path: "/donnees-personnelles", lastModified: now },
     ...Object.values(LEGAL_PAGE_ROUTES).map((path) => ({ path, lastModified: now })),
   ];
 
-  if (!isSupabaseConfigured()) return staticPages;
+  const blogPages: SitemapEntry[] = getPublishedBlogArticles().map((article) => ({
+    path: `/blog/${article.slug}`,
+    lastModified: new Date(article.publishedAt),
+  }));
+
+  const ritualPages: SitemapEntry[] = getAllRitualSlugs().map((slug) => ({
+    path: `/rituels/${slug}`,
+    lastModified: now,
+  }));
+
+  if (!isSupabaseConfigured()) return [...staticPages, ...blogPages, ...ritualPages];
 
   const supabase = createPublicClient();
 
@@ -49,7 +63,7 @@ async function fetchAllSitemapEntries(): Promise<SitemapEntry[]> {
     lastModified: new Date(row.created_at),
   }));
 
-  return [...staticPages, ...categoryPages, ...productPages];
+  return [...staticPages, ...blogPages, ...ritualPages, ...categoryPages, ...productPages];
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {

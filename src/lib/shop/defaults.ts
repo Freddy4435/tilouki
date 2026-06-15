@@ -41,7 +41,7 @@ export const defaultShopSettings: ShopSettings = {
   tagline: "Vêtements enfants avec soin",
   description:
     "Boutique française de vêtements enfants, fille et garçon. Tee-shirts, sweats et essentiels du quotidien, livrés en point relais.",
-  primaryColor: "oklch(0.58 0.18 15)",
+  primaryColor: "#3d4f66",
   contactEmail: "contact@tilouki.fr",
   minShippingCents: 390,
   announcementsEnabled: false,

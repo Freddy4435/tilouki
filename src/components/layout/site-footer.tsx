@@ -1,5 +1,6 @@
 "use client";
 
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { FooterSocialLinks } from "@/components/layout/footer-social-links";
 import { FooterTrustBlock } from "@/components/layout/footer-trust-block";
 import { NewsletterSignupForm } from "@/components/layout/newsletter-signup-form";
@@ -20,9 +21,9 @@ export function SiteFooter({ className }: SiteFooterProps) {
 
   return (
     <footer
-      className={cn("border-tilouki-jade/20 bg-card mt-auto border-t", className)}
+      className={cn("border-tilouki-mint/25 bg-card mt-auto border-t", className)}
     >
-      <div className="border-border/50 bg-tilouki-jade-soft/35 border-b py-5">
+      <div className="border-border/50 bg-tilouki-mint-soft/40 border-b py-5">
         <div className="container-tilouki">
           <ReassuranceStrip variant="pills" />
         </div>
@@ -31,7 +32,8 @@ export function SiteFooter({ className }: SiteFooterProps) {
       <div className="container-tilouki section-tilouki pb-8">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="space-y-4 lg:col-span-4">
-            <p className="text-section-title">{name}</p>
+            <BrandLogo variant="footer" alt={`${name} — vêtements enfants`} />
+            <p className="sr-only">{name}</p>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {description}
             </p>

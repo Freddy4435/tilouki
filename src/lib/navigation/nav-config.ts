@@ -12,12 +12,13 @@ export const MAIN_NAV_LABELS: Record<string, string> = {
 };
 
 export const NAV_HREF = {
-  nouveautes: "/#home-nouveautes",
+  nouveautes: "/#home-vestiaire",
   petitsPrix: "/catalogue?promo=petit-prix",
-  guideTailles: "/#home-guide-tailles",
+  guideTailles: "/guide-tailles",
   pyjamas: "/categorie/pyjamas",
   livraison: "/livraison-retours",
   favoris: "/favoris",
+  blog: "/blog",
 } as const;
 
 /** Tranches d'âge parent-friendly (filtres catalogue). */
@@ -94,6 +95,7 @@ export function buildNouveautesCategoryLink(categorySlug: string): NavDropdownLi
 }
 
 export const NAV_REASSURANCE_DESKTOP = [
+  { id: "carnet", label: "Carnet", href: NAV_HREF.blog },
   { id: "livraison", label: "Livraison", href: NAV_HREF.livraison },
   { id: "retours", label: "Retours", href: NAV_HREF.livraison },
   { id: "favoris", label: "Favoris", href: NAV_HREF.favoris },

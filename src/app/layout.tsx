@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 
-import { siteConfig } from "@/lib/constants/site";
+import { brandAssets, siteConfig } from "@/lib/constants/site";
 import { fontVariables } from "@/lib/fonts";
 import "@/styles/globals.css";
 
@@ -33,6 +33,24 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: brandAssets.favicon.ico, sizes: "any" },
+      { url: brandAssets.favicon.png32, sizes: "32x32", type: "image/png" },
+      { url: brandAssets.favicon.png64, sizes: "64x64", type: "image/png" },
+    ],
+    apple: [
+      { url: brandAssets.favicon.png180, sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      {
+        rel: "icon",
+        url: brandAssets.favicon.png192,
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
   },
 };
 

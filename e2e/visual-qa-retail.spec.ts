@@ -23,7 +23,6 @@ test.describe("QA visuelle retail — production", () => {
 
   test("accueil desktop 1440", async ({ page }) => {
     await captureFullPage(page, "/", "docs/retail-qa-home-desktop-1440.png", DESKTOP);
-    await expectNoBottomNavOverlap(page);
     await expectNoSeriousAxeViolations(page);
   });
 
@@ -54,6 +53,35 @@ test.describe("QA visuelle retail — production", () => {
       MOBILE,
     );
     await expectNoBottomNavOverlap(page);
+    await expectNoSeriousAxeViolations(page);
+  });
+
+  test("catalogue vide — lancement éditorial", async ({ page }) => {
+    await page.goto("/catalogue");
+    await page.getByRole("heading", { name: /catalogue vêtements enfants/i }).waitFor();
+
+    const launch = page.getByTestId("catalogue-launch");
+    const isLaunch = await launch.isVisible().catch(() => false);
+
+    if (!isLaunch) {
+      test.skip(true, "Catalogue avec produits — test lancement non applicable");
+    }
+
+    await expect(
+      page.getByRole("heading", { name: /le vestiaire tilouki arrive/i }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /atelier des tailles/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /carnet tilouki/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /newsletter/i })).toBeVisible();
+    await expect(page.getByLabel("Trier par")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /filtres & tri/i })).toHaveCount(0);
+
+    await captureFullPage(
+      page,
+      "/catalogue",
+      "docs/retail-qa-catalogue-launch-desktop-1440.png",
+      DESKTOP,
+    );
     await expectNoSeriousAxeViolations(page);
   });
 

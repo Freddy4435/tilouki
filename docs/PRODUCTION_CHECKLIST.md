@@ -14,7 +14,9 @@ Avant toute mise en vente, **tous** les contrôles ci-dessous doivent passer :
 npm run verify:deploy:prod
 ```
 
-Le script lit `.env.local` + variables d'environnement du shell (comme sur Vercel après configuration). En local sans secrets réels, il **doit échouer** avec des messages actionnables — c'est le comportement attendu.
+Le script lit `.env.local`, puis `.env.production.local` si présent, puis les variables du shell (comme sur Vercel après configuration). En local sans secrets réels, il **doit échouer** avec des messages actionnables — c'est le comportement attendu.
+
+Pour tester en local avec les mêmes valeurs que Vercel : `cp .env.production.local.example .env.production.local`, renseigner les clés, puis `npm run verify:deploy:prod`. Préflight complet : `npm run go-live:preflight` (scan + verify + archive `delivery:clean`).
 
 ### Contrôles bloquants (`verify:deploy:prod`)
 

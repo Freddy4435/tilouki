@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
@@ -25,8 +24,9 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   return (
     <header className={cn("bg-background sticky top-0 z-50 w-full", className)}>
+      <div className="brand-header-stripe" aria-hidden />
       <AnnouncementBar enabled={announcementsEnabled} announcements={announcements} />
-      <div className="border-border/40 bg-tilouki-cloud/70 hidden border-b py-2 md:block">
+      <div className="border-border/40 bg-tilouki-mint-soft/50 hidden border-b py-2 md:block">
         <div className="container-tilouki flex items-center justify-between gap-4">
           <p className="text-muted-foreground text-xs leading-snug sm:text-sm">
             Boutique indépendante — vêtements enfants sélectionnés avec soin, expédiés
@@ -43,7 +43,7 @@ export function SiteHeader({
         <div className="container-tilouki flex h-full items-center gap-3 md:gap-6">
           <MobileNav />
 
-          <SiteLogo className="shrink-0" />
+          <SiteLogo className="shrink-0" priority />
 
           <div className="hidden flex-1 justify-center md:flex">
             <Suspense

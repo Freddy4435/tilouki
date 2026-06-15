@@ -39,6 +39,7 @@ logs/
 # env files — jamais versionner (modèle public : .env.example uniquement)
 .env*
 !.env.example
+!.env.production.local.example
 
 # archives manuelles à la racine (zip/rar du dossier entier — interdit)
 /*.zip

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 import { ButtonLink } from "@/components/ui/button-link";
 import { Separator } from "@/components/ui/separator";
@@ -42,13 +43,11 @@ export function AdminSidebar() {
 
   return (
     <aside className="bg-sidebar text-sidebar-foreground flex h-full w-64 flex-col border-r">
-      <div className="flex h-[var(--header-height)] items-center gap-2 border-b px-4">
-        <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg text-sm font-bold">
-          T
-        </span>
-        <div>
-          <p className="text-sm font-semibold">{siteConfig.name}</p>
-          <p className="text-muted-foreground text-xs">Administration</p>
+      <div className="flex h-[var(--header-height)] items-center gap-2.5 border-b px-4">
+        <BrandLogo variant="mark" alt={`${siteConfig.name} — administration`} />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{siteConfig.name}</p>
+          <p className="text-muted-foreground truncate text-xs">Administration</p>
         </div>
       </div>
 

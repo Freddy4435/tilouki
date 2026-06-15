@@ -1,64 +1,75 @@
 /**
  * Tilouki — design tokens 2026
- * Boutique enfant cocooning : fonds cloud/jade, encre chaude, CTA deep teal.
- * Persimmon réservé aux promos, stock limité et alertes douces.
+ * Palette extraite du logo : marine, bleu cintre, menthe, pêche.
+ * Boutique e-commerce enfants — fraîcheur marque, pas ambiance clinique.
  * --shop-primary surchargeable via les paramètres boutique (admin).
  */
 :root {
-  /* Surfaces */
-  --tilouki-cloud: #f8f6f0;
-  --tilouki-milk: #fffcf7;
+  /* Surfaces — fonds clairs, vitrine produit */
+  --tilouki-cloud: #f7f8fa;
+  --tilouki-milk: #ffffff;
   --tilouki-white: var(--tilouki-milk);
-  --tilouki-cream: var(--tilouki-cloud);
-  --tilouki-beige: #f0ebe2;
-  --tilouki-sand: #e8e2d8;
+  --tilouki-cream: #faf9f7;
+  --tilouki-beige: #f3f1ed;
+  --tilouki-sand: #e8e6e1;
 
-  /* Marque — teal & jade */
-  --tilouki-teal: #1f6f68;
-  --tilouki-teal-dark: #185b55;
-  --tilouki-jade: #afcbb9;
-  --tilouki-jade-soft: #e4efe8;
+  /* Marque logo Tilouki */
+  --tilouki-navy: #3d4f66;
+  --tilouki-navy-dark: #2f3d52;
+  --tilouki-brand-blue: #7a93b0;
+  --tilouki-brand-blue-soft: #e8eef5;
+  --tilouki-mint: #a0d0c0;
+  --tilouki-mint-soft: #e8f6f1;
+  --tilouki-peach: #f0a080;
+  --tilouki-peach-soft: #fdeee6;
 
-  /* Accents éditoriaux (usage ponctuel) */
-  --tilouki-powder: #f2cad3;
-  --tilouki-powder-soft: #faf0f3;
-  --tilouki-butter: #f5d879;
-  --tilouki-butter-soft: #faf3dc;
-  --tilouki-icy: #dcebf3;
-  --tilouki-plum: #5b2a3e;
+  /* Alias historiques → palette logo (composants existants) */
+  --tilouki-teal: var(--tilouki-navy);
+  --tilouki-teal-dark: var(--tilouki-navy-dark);
+  --tilouki-jade: var(--tilouki-mint);
+  --tilouki-jade-soft: var(--tilouki-mint-soft);
+
+  /* Accents éditoriaux — réutilisent la marque */
+  --tilouki-powder: var(--tilouki-peach-soft);
+  --tilouki-powder-soft: #fff5f0;
+  --tilouki-butter: #f5c878;
+  --tilouki-butter-soft: var(--tilouki-peach-soft);
+  --tilouki-butter-ink: var(--tilouki-navy-dark);
+  --tilouki-icy: var(--tilouki-brand-blue-soft);
+  --tilouki-plum: var(--tilouki-navy);
+  --tilouki-plum-soft: var(--tilouki-brand-blue-soft);
 
   /* Promo & urgence commerciale uniquement */
   --tilouki-persimmon: #e56f4f;
   --tilouki-persimmon-dark: #9e3d24;
   --tilouki-persimmon-soft: #fbe8e3;
 
-  /* Alias legacy (composants existants) */
-  --tilouki-rose: var(--tilouki-powder);
-  --tilouki-rose-soft: var(--tilouki-powder-soft);
-  --tilouki-blue: var(--tilouki-icy);
-  --tilouki-blue-soft: var(--tilouki-jade-soft);
-  --tilouki-sage: var(--tilouki-jade);
-  --tilouki-sage-light: var(--tilouki-jade-soft);
-  --tilouki-sage-dark: var(--tilouki-teal-dark);
-  --tilouki-navy: var(--tilouki-plum);
-  --tilouki-navy-soft: var(--tilouki-jade-soft);
-  --tilouki-sky: var(--tilouki-teal);
-  --tilouki-sky-soft: var(--tilouki-jade-soft);
-  --tilouki-coral: var(--tilouki-persimmon);
+  /* Alias legacy */
+  --tilouki-rose: var(--tilouki-peach);
+  --tilouki-rose-soft: var(--tilouki-peach-soft);
+  --tilouki-blue: var(--tilouki-brand-blue);
+  --tilouki-blue-soft: var(--tilouki-brand-blue-soft);
+  --tilouki-sage: var(--tilouki-mint);
+  --tilouki-sage-light: var(--tilouki-mint-soft);
+  --tilouki-sage-dark: var(--tilouki-navy-dark);
+  --tilouki-navy-soft: var(--tilouki-brand-blue-soft);
+  --tilouki-sky: var(--tilouki-brand-blue);
+  --tilouki-sky-soft: var(--tilouki-brand-blue-soft);
+  --tilouki-coral: var(--tilouki-peach);
 
-  /* Liens & info — teal foncé (pas de bleu pastel dominant) */
-  --tilouki-info: var(--tilouki-teal-dark);
-  --tilouki-info-soft: var(--tilouki-icy);
+  /* Liens & info */
+  --tilouki-info: var(--tilouki-brand-blue);
+  --tilouki-info-soft: var(--tilouki-brand-blue-soft);
 
   /* Texte */
-  --tilouki-ink: #2e2a25;
-  --tilouki-ink-muted: #6f6a62;
-  --tilouki-ink-subtle: #8a847b;
+  --tilouki-ink: #2f3d52;
+  --tilouki-ink-muted: #5c6778;
+  --tilouki-ink-subtle: #7a8494;
 
-  /* CTA principal — deep teal (surchargeable admin) */
-  --shop-primary: var(--tilouki-teal);
-  --shop-primary-light: #3a8a82;
-  --shop-primary-dark: var(--tilouki-teal-dark);
+  /* CTA principal — marine logo (surchargeable admin) */
+  --shop-primary: var(--tilouki-navy);
+  --shop-primary-light: var(--tilouki-brand-blue);
+  --shop-primary-dark: var(--tilouki-navy-dark);
   --shop-primary-foreground: var(--tilouki-milk);
 
   /* Layout */
@@ -79,13 +90,27 @@
   --radius-button: 0.5rem;
   --radius-card: 0.625rem;
 
-  /* Ombres — encre chaude */
-  --shadow-soft: 0 1px 2px rgb(46 42 37 / 0.06), 0 4px 16px rgb(46 42 37 / 0.05);
-  --shadow-card: 0 2px 8px rgb(46 42 37 / 0.07), 0 8px 24px rgb(46 42 37 / 0.06);
-  --shadow-card-hover: 0 4px 12px rgb(46 42 37 / 0.1), 0 12px 32px rgb(46 42 37 / 0.08);
+  /* Ombres — marine doux */
+  --shadow-soft: 0 1px 2px rgb(47 61 82 / 0.06), 0 4px 16px rgb(47 61 82 / 0.05);
+  --shadow-card: 0 2px 8px rgb(47 61 82 / 0.07), 0 8px 24px rgb(47 61 82 / 0.06);
+  --shadow-card-hover: 0 4px 12px rgb(47 61 82 / 0.1), 0 12px 32px rgb(47 61 82 / 0.08);
   --shadow-cta:
-    0 1px 2px rgb(46 42 37 / 0.1),
+    0 1px 2px rgb(47 61 82 / 0.1),
     0 4px 14px color-mix(in srgb, var(--shop-primary), transparent 72%);
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Micro-interactions */
+  --motion-fast: 180ms;
+  --motion-base: 320ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Accueil */
+  --home-hero-min-height: 48vh;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --home-hero-min-height: 52vh;
+  }
 }

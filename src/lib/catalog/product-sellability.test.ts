@@ -81,6 +81,24 @@ describe("isCommercialProductImage", () => {
     expect(isCommercialProductImage(commercialUrl, "Photo à venir")).toBe(false);
     expect(isCommercialProductImage("/products/robe.svg", descriptiveAlt)).toBe(false);
   });
+
+  it("refuse les photos stock et éditoriales comme produit", () => {
+    expect(isCommercialProductImage("/editorial/hero-home.webp", descriptiveAlt)).toBe(
+      false,
+    );
+    expect(
+      isCommercialProductImage(
+        "https://images.pexels.com/photos/123/pexels-photo-123.jpeg",
+        descriptiveAlt,
+      ),
+    ).toBe(false);
+    expect(
+      isCommercialProductImage(
+        "https://images.unsplash.com/photo-123",
+        descriptiveAlt,
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("isDescriptiveCommercialAlt", () => {

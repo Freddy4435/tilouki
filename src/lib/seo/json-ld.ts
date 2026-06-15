@@ -152,3 +152,43 @@ export function buildItemListJsonLd(items: { name: string; url: string }[]) {
     })),
   };
 }
+
+export interface ArticleJsonLdInput {
+  title: string;
+  description: string;
+  slug: string;
+  publishedAt: string;
+  categoryLabel: string;
+  imageUrl: string;
+}
+
+export function buildArticleJsonLd(input: ArticleJsonLdInput) {
+  const articleUrl = absoluteUrl(`/blog/${input.slug}`);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: input.title,
+    description: input.description,
+    image: [input.imageUrl],
+    datePublished: input.publishedAt,
+    dateModified: input.publishedAt,
+    inLanguage: "fr-FR",
+    articleSection: input.categoryLabel,
+    author: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+    url: articleUrl,
+  };
+}

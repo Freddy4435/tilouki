@@ -90,12 +90,17 @@ export function OrderTrackingForm({ action, initialToken }: OrderTrackingFormPro
   };
 
   useEffect(() => {
-    if (!resolvedInitialToken) return;
-    if (autoLookupToken.current === resolvedInitialToken) return;
-    autoLookupToken.current = resolvedInitialToken;
-    runLookup(resolvedInitialToken);
+    const urlToken = resolveInitialTrackingToken(
+      initialToken,
+      tokenFromSearchParams,
+      readTrackingTokenFromBrowserUrl(),
+    );
+    if (!urlToken) return;
+    if (autoLookupToken.current === urlToken) return;
+    autoLookupToken.current = urlToken;
+    runLookup(urlToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-lookup piloté par le token URL
-  }, [resolvedInitialToken]);
+  }, [initialToken, tokenFromSearchParams]);
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();

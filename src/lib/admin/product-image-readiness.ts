@@ -1,8 +1,8 @@
 import { PRODUCT_IMAGE_PROFILE } from "@/lib/admin/image-upload";
 import {
-  classifyProductImage,
   countCommercialStorefrontImages,
   isCommercialProductImage,
+  isDescriptiveCommercialAlt,
   isProductReadyToSell,
   STOREFRONT_READY_TO_SELL_PHOTOS_MIN,
   type ProductImageKind,
@@ -28,6 +28,8 @@ export interface ProductReadinessImage {
 }
 
 const DETAIL_ALT_PATTERN = /détail|detail|matière|matiere|texture|couture/i;
+const SCENE_ALT_PATTERN =
+  /pliage|plié|plie|porté|porte|flat\s*lay|mise\s*en\s*scene|mise\s*en\s*scène|cintre/i;
 const DEFECT_ALT_PATTERN = /défaut|defaut|imperfection|trace/i;
 const COLOR_ALT_PATTERN =
   /couleur|coloris|teinte|bleu|rouge|rose|vert|jaune|noir|blanc|gris|beige|marine|violet|orange|multicolore/i;
@@ -90,7 +92,9 @@ function altMatches(images: ProductReadinessImage[], pattern: RegExp): boolean {
 
 export type ProductPhotoChecklistId =
   | "face-avant"
+  | "alt-descriptif"
   | "detail-matiere"
+  | "mise-en-scene"
   | "couleur-fidele"
   | "defaut-documente"
   | "ratio-portrait";
@@ -124,17 +128,31 @@ export function buildProductPhotoChecklist(
   return [
     {
       id: "face-avant",
-      label: "Photo face avant (image principale)",
+      label: "Photo face / produit entier",
       tier: "required",
       filled: Boolean(mainCommercial),
-      hint: "Première photo : vêtement porté à plat ou sur cintre, fond neutre, lumière naturelle. Alt descriptif obligatoire (min. 8 caractères).",
+      hint: "Première photo : vêtement entier à plat ou sur cintre, fond clair chaud, lumière naturelle.",
+    },
+    {
+      id: "alt-descriptif",
+      label: "Description photo (alt text)",
+      tier: "required",
+      filled: Boolean(mainCommercial?.alt && isDescriptiveCommercialAlt(mainCommercial.alt)),
+      hint: "Décrivez la vue réelle (ex. « Body bébé face avant, coton écru »). Minimum 8 caractères — pas « Photo à venir ».",
     },
     {
       id: "detail-matiere",
-      label: "Détail matière ou couture",
+      label: "Détail matière ou finition",
       tier: "recommended",
       filled: commercial.length >= 2 || altMatches(commercial, DETAIL_ALT_PATTERN),
-      hint: "Ajoutez un gros plan tissu, maille ou finition — renseignez « détail matière » dans la description photo.",
+      hint: "Ajoutez un gros plan tissu, maille ou couture — mentionnez « détail matière » dans la description.",
+    },
+    {
+      id: "mise-en-scene",
+      label: "Mise en scène ou pliage",
+      tier: "recommended",
+      filled: commercial.length >= 3 || altMatches(commercial, SCENE_ALT_PATTERN),
+      hint: "Montrez le vêtement plié, sur cintre ou en contexte doux — aide à visualiser le volume.",
     },
     {
       id: "couleur-fidele",

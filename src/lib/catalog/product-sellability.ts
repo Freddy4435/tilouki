@@ -30,6 +30,20 @@ const PLACEHOLDER_ALT_PATTERN =
 const PLACEHOLDER_URL_PATTERN =
   /placeholder|placehold\.co|via\.placeholder|dummyimage|lorempixel|picsum\.photos/i;
 
+const STOCK_PHOTO_HOST_PATTERN =
+  /(?:pexels\.com|unsplash\.com|pixabay\.com|images\.pexels\.com)/i;
+const EDITORIAL_ASSET_PATH_PATTERN = /^\/editorial\//i;
+
+/** URLs interdites comme photo produit (stock ou éditorial local). */
+export function isStockOrEditorialImageUrl(url: string): boolean {
+  const trimmed = url?.trim() ?? "";
+  if (!trimmed) return false;
+
+  const pathname = normalizePathname(trimmed);
+  if (EDITORIAL_ASSET_PATH_PATTERN.test(pathname)) return true;
+  return STOCK_PHOTO_HOST_PATTERN.test(trimmed);
+}
+
 const DEMO_CATALOG_SVG_PATTERN = /^\/products\/[a-z0-9-]+\.svg$/i;
 const DEMO_PRODUCTS_PATH_PATTERN = /^\/demo-products\//i;
 
@@ -69,6 +83,8 @@ export function classifyProductImage(
 ): ProductImageKind {
   const trimmed = url?.trim() ?? "";
   if (!trimmed) return "placeholder";
+
+  if (isStockOrEditorialImageUrl(trimmed)) return "technical";
 
   if (alt && DEV_ALT_PATTERN.test(alt)) return "dev-marked";
   if (PLACEHOLDER_URL_PATTERN.test(trimmed)) return "placeholder";

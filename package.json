@@ -26,6 +26,7 @@
     "generate:demo-images": "node scripts/generate-demo-images.mjs",
     "check": "npm run audit:secrets && npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build",
     "fonts:fetch": "node scripts/fetch-fonts.mjs",
+    "editorial:fetch": "node scripts/fetch-editorial-images.mjs",
     "e2e": "node scripts/run-playwright.mjs",
     "e2e:journey": "node scripts/run-playwright.mjs e2e/sales-journey.spec.ts",
     "e2e:ui": "playwright test --ui",
@@ -33,6 +34,7 @@
     "qa": "npm run typecheck && npm run lint && npm run test && npm run build && node scripts/run-e2e.mjs",
     "verify:deploy": "node scripts/verify-deploy.mjs",
     "verify:deploy:prod": "node scripts/verify-deploy.mjs --production",
+    "go-live:preflight": "node scripts/go-live-preflight.mjs",
     "email:preview": "node scripts/preview-emails.mjs"
   },
   "dependencies": {
@@ -75,6 +77,7 @@
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "sharp": "^0.35.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.8"

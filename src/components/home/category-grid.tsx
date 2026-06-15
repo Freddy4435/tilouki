@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { EditorialSurface } from "@/components/home/editorial-surface";
 import { isRealEditorialImage } from "@/lib/editorial/images";
+import { resolveUniverseEditorialImage } from "@/lib/media/editorial-images";
 import type { Category } from "@/types/catalog";
 
 const SURFACE_TONES = ["jade", "powder", "cloud", "butter", "teal", "teal"] as const;
@@ -24,11 +25,13 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
   if (categories.length === 0) return null;
 
   return (
-    <section className="border-border/50 bg-card/30 border-y py-8 md:py-10">
+    <section className="border-border/40 bg-tilouki-milk border-y py-8 md:py-10">
       <div className="container-tilouki">
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-section-title">Par où commencer ?</h2>
+            <div className="brand-accent-bar mb-2" aria-hidden />
+            <p className="text-retail-label text-tilouki-brand-blue mb-1">Nos univers</p>
+            <h2 className="text-section-title text-tilouki-navy">Par où commencer ?</h2>
             <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
               Bébé, fille, garçon, pyjamas… Choisissez l&apos;univers qui vous
               correspond aujourd&apos;hui.
@@ -45,7 +48,11 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
 
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
           {categories.map((category, index) => {
-            const hasPhoto = isRealEditorialImage(category.imageUrl);
+            const editorialFallback = resolveUniverseEditorialImage(category.slug);
+            const imageSrc = isRealEditorialImage(category.imageUrl)
+              ? category.imageUrl!
+              : (editorialFallback?.src ?? null);
+            const hasPhoto = Boolean(imageSrc);
             const tone = SURFACE_TONES[index % SURFACE_TONES.length];
 
             return (
@@ -56,8 +63,8 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
               >
                 {hasPhoto ? (
                   <Image
-                    src={category.imageUrl!}
-                    alt=""
+                    src={imageSrc!}
+                    alt={editorialFallback?.alt ?? category.name}
                     fill
                     loading="lazy"
                     sizes="(max-width: 640px) 45vw, 20vw"

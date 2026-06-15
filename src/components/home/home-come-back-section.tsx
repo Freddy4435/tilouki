@@ -8,7 +8,7 @@ const RETURN_CARDS = [
     title: "Chaque mercredi",
     description:
       "De nouvelles pièces peuvent arriver en boutique — passez voir les nouveautés du mercredi.",
-    href: "#home-nouveautes",
+    href: "#home-vestiaire",
     cta: "Voir les nouveautés",
   },
   {

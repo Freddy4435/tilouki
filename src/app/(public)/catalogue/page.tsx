@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { CatalogueActiveFilters } from "@/components/catalogue/catalogue-active-filters";
 import { CatalogueEmptyState } from "@/components/catalogue/catalogue-empty-state";
+import { CatalogueLaunchState } from "@/components/catalogue/catalogue-launch-state";
 import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
 import { CatalogueFilters } from "@/components/catalogue/catalogue-filters";
 import { CatalogueFiltersMobile } from "@/components/catalogue/catalogue-filters-mobile";
@@ -25,7 +26,10 @@ import {
   buildPageMetadata,
 } from "@/lib/seo/metadata";
 import { getCategories } from "@/lib/supabase/queries/categories";
-import { getActiveProductsPaginated } from "@/lib/supabase/queries/products";
+import {
+  getActiveProductsPaginated,
+  hasActiveCatalogueProducts,
+} from "@/lib/supabase/queries/products";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
 import type { PaginatedCatalogueResult } from "@/types/catalog";
 
@@ -50,10 +54,15 @@ export async function generateMetadata({
 
   const query = parseCatalogueQuery(resolved);
   const hasActiveFilters = hasCatalogueFiltersInQuery(query) || (query.page ?? 1) > 1;
+  const catalogueHasProducts = await hasActiveCatalogueProducts();
 
   return buildPageMetadata({
-    title: "Catalogue vêtements enfants",
-    description: CATALOGUE_SEO_DESCRIPTION.replace("Tilouki", name),
+    title: catalogueHasProducts
+      ? "Catalogue vêtements enfants"
+      : "Le vestiaire Tilouki arrive bientôt",
+    description: catalogueHasProducts
+      ? CATALOGUE_SEO_DESCRIPTION.replace("Tilouki", name)
+      : `Le vestiaire ${name} se prépare — conseils tailles, rituels doux et newsletter en attendant les premières pièces.`,
     path: canonicalPath,
     noIndex: hasActiveFilters,
   });
@@ -95,6 +104,7 @@ function CatalogueResults({
         total={result.total}
         page={result.page}
         totalPages={result.totalPages}
+        showSort={result.total > 0}
       />
       <CatalogueActiveFilters categories={categories} />
       {result.items.length > 0 ? (
@@ -114,11 +124,29 @@ function CatalogueResults({
 export default async function CataloguePage({ searchParams }: CataloguePageProps) {
   const resolvedParams = await searchParams;
   const query = parseCatalogueQuery(resolvedParams);
-  const [categories, result, settings] = await Promise.all([
+  const [categories, result, settings, catalogueHasProducts] = await Promise.all([
     getCategories(),
     getActiveProductsPaginated(query),
     getShopSettings(),
+    hasActiveCatalogueProducts(),
   ]);
+
+  if (!catalogueHasProducts) {
+    return (
+      <div className="container-tilouki section-tilouki pb-10 md:pb-14">
+        <header className="mb-6 space-y-2 sm:mb-8">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+            Catalogue vêtements enfants
+          </h1>
+          <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm">
+            Le vestiaire se remplit au fil des mercredis — en attendant, voici comment
+            préparer la garde-robe de votre enfant.
+          </p>
+        </header>
+        <CatalogueLaunchState />
+      </div>
+    );
+  }
 
   const activeCategoryCount = Object.values(
     settings.navigation.categoryProductCounts,

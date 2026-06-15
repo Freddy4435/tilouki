@@ -55,7 +55,7 @@ const EDITORIAL_LOOKS_FALLBACK: ReadyLook[] = [
     title: "Bien choisir la taille",
     hook: "Entre deux âges ? Montez d'un cran : vos enfants grandissent vite.",
     tip: "Chaque fiche indique la taille ou l'âge en stock — pas de surprise au panier.",
-    href: "#home-guide-tailles",
+    href: "/guide-tailles",
     products: [],
     editorialOnly: true,
   },

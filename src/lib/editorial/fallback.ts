@@ -1,4 +1,5 @@
 import { isRealEditorialImage } from "@/lib/editorial/images";
+import { resolveUniverseEditorialImage } from "@/lib/media/editorial-images";
 import type { EditorialBlock } from "@/lib/editorial/types";
 import type { Category } from "@/types/catalog";
 
@@ -25,7 +26,9 @@ export function buildEditorialBlocksFromCategories(
   categories: Category[],
 ): EditorialBlock[] {
   return categories.slice(0, 3).map((category) => {
-    const imageUrl = isRealEditorialImage(category.imageUrl) ? category.imageUrl : null;
+    const imageUrl = isRealEditorialImage(category.imageUrl)
+      ? category.imageUrl
+      : (resolveUniverseEditorialImage(category.slug)?.src ?? null);
 
     return {
       title: category.name,

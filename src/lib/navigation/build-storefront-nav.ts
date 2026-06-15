@@ -1,5 +1,4 @@
 import { filterLowPriceProducts } from "@/lib/catalog/sort-products";
-import { buildCatalogueHref } from "@/lib/navigation/catalog-href";
 import {
   buildAgePanel,
   buildNeedPanel,
@@ -127,6 +126,7 @@ function buildMobileSections(
   });
 
   const reassurance: NavMobileLink[] = [
+    { label: "Le Carnet", href: NAV_HREF.blog, icon: "sparkles" },
     { label: "Livraison point relais", href: NAV_HREF.livraison, icon: "truck" },
     { label: "Retours 14 jours", href: NAV_HREF.livraison, icon: "rotate-ccw" },
     { label: "Mes favoris", href: NAV_HREF.favoris, icon: "heart" },

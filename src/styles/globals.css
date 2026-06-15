@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "./tilouki-theme.css";
+@import "./maison-surfaces.css";
+@import "./micro-interactions.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -53,6 +55,14 @@
   --color-tilouki-teal-dark: var(--tilouki-teal-dark);
   --color-tilouki-jade: var(--tilouki-jade);
   --color-tilouki-jade-soft: var(--tilouki-jade-soft);
+  --color-tilouki-navy: var(--tilouki-navy);
+  --color-tilouki-navy-dark: var(--tilouki-navy-dark);
+  --color-tilouki-brand-blue: var(--tilouki-brand-blue);
+  --color-tilouki-brand-blue-soft: var(--tilouki-brand-blue-soft);
+  --color-tilouki-mint: var(--tilouki-mint);
+  --color-tilouki-mint-soft: var(--tilouki-mint-soft);
+  --color-tilouki-peach: var(--tilouki-peach);
+  --color-tilouki-peach-soft: var(--tilouki-peach-soft);
   --color-tilouki-plum: var(--tilouki-plum);
   --color-tilouki-persimmon: var(--tilouki-persimmon);
   --color-tilouki-persimmon-dark: var(--tilouki-persimmon-dark);
@@ -61,7 +71,9 @@
   --color-tilouki-powder-soft: var(--tilouki-powder-soft);
   --color-tilouki-butter: var(--tilouki-butter);
   --color-tilouki-butter-soft: var(--tilouki-butter-soft);
+  --color-tilouki-butter-ink: var(--tilouki-butter-ink);
   --color-tilouki-icy: var(--tilouki-icy);
+  --color-tilouki-plum-soft: var(--tilouki-plum-soft);
   --color-tilouki-rose: var(--tilouki-rose);
   --color-tilouki-rose-soft: var(--tilouki-rose-soft);
   --color-tilouki-blue: var(--tilouki-blue);
@@ -86,7 +98,7 @@
 }
 
 :root {
-  --background: var(--tilouki-cream);
+  --background: var(--tilouki-milk);
   --foreground: var(--tilouki-ink);
   --card: var(--tilouki-white);
   --card-foreground: var(--tilouki-ink);
@@ -94,14 +106,14 @@
   --popover-foreground: var(--tilouki-ink);
   --primary: var(--shop-primary);
   --primary-foreground: var(--shop-primary-foreground);
-  --secondary: var(--tilouki-jade-soft);
-  --secondary-foreground: var(--tilouki-teal-dark);
-  --muted: var(--tilouki-sand);
+  --secondary: var(--tilouki-mint-soft);
+  --secondary-foreground: var(--tilouki-navy-dark);
+  --muted: var(--tilouki-cloud);
   --muted-foreground: var(--tilouki-ink-muted);
-  --accent: var(--tilouki-jade-soft);
-  --accent-foreground: var(--tilouki-teal-dark);
+  --accent: var(--tilouki-peach-soft);
+  --accent-foreground: var(--tilouki-navy-dark);
   --destructive: var(--tilouki-persimmon-dark);
-  --border: #e4dfd6;
+  --border: #e2e6ec;
   --input: var(--tilouki-milk);
   --ring: var(--shop-primary-light);
   --chart-1: var(--shop-primary);
@@ -163,7 +175,7 @@
 
   .product-image-frame {
     aspect-ratio: var(--product-image-ratio);
-    @apply bg-tilouki-jade-soft relative overflow-hidden rounded-[var(--radius-product)];
+    @apply bg-tilouki-mint-soft relative overflow-hidden rounded-[var(--radius-product)];
   }
 
   .product-scroll-row > * {
@@ -271,6 +283,11 @@
   }
 
   .tilouki-product-card:hover {
+    transform: none;
+  }
+
+  .material-card-group:hover,
+  a.group:hover {
     transform: none;
   }
 }

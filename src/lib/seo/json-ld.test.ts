@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildProductJsonLd } from "@/lib/seo/json-ld";
+import { buildProductJsonLd, buildArticleJsonLd } from "@/lib/seo/json-ld";
 import type { ProductDetail } from "@/types/catalog";
 
 function product(overrides: Partial<ProductDetail> = {}): ProductDetail {
@@ -63,6 +63,28 @@ describe("buildProductJsonLd", () => {
       reviewCount: 12,
       bestRating: "5",
       worstRating: "1",
+    });
+  });
+});
+
+describe("buildArticleJsonLd", () => {
+  it("expose les champs Article essentiels", () => {
+    const json = buildArticleJsonLd({
+      title: "Comment choisir la bonne taille",
+      description: "Conseils tailles enfants",
+      slug: "choisir-bonne-taille-vetement-enfant",
+      publishedAt: "2026-03-19",
+      categoryLabel: "Tailles",
+      imageUrl: "https://tilouki.fr/editorial/size-guide.webp",
+    });
+
+    expect(json["@type"]).toBe("Article");
+    expect(json.headline).toBe("Comment choisir la bonne taille");
+    expect(json.articleSection).toBe("Tailles");
+    expect(json.datePublished).toBe("2026-03-19");
+    expect(json.mainEntityOfPage).toMatchObject({
+      "@type": "WebPage",
+      "@id": expect.stringContaining("/blog/choisir-bonne-taille-vetement-enfant"),
     });
   });
 });

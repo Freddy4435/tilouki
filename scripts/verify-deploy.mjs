@@ -48,8 +48,13 @@ function parseEnvFile(filePath) {
 const env = {
   ...parseEnvFile(resolve(root, ".env.example")),
   ...parseEnvFile(resolve(root, ".env.local")),
+  ...(isProduction
+    ? parseEnvFile(resolve(root, ".env.production.local"))
+    : {}),
   ...process.env,
 };
+
+const productionEnvFile = resolve(root, ".env.production.local");
 
 /** @type {import("./lib/verify-deploy-checks.mjs").DeployCheck[]} */
 let allChecks = [];
@@ -71,6 +76,18 @@ function printCheck(check) {
 console.log(
   `\nTilouki — vérification déploiement (${isProduction ? "production" : "local"})\n`,
 );
+
+if (isProduction) {
+  if (existsSync(productionEnvFile)) {
+    console.log(
+      "  ℹ Variables chargées depuis .env.production.local (prioritaire sur .env.local)\n",
+    );
+  } else {
+    console.log(
+      "  ℹ Astuce : copiez .env.production.local.example → .env.production.local pour tester les secrets prod en local.\n",
+    );
+  }
+}
 
 if (isProduction) {
   allChecks = runProductionEnvChecks(env);

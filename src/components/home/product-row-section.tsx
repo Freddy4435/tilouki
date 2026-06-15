@@ -40,7 +40,7 @@ export function ProductRowSection({
       id={id}
       className={
         variant === "tinted"
-          ? "border-tilouki-jade/15 bg-tilouki-cloud/40 scroll-mt-20 border-y py-10 md:py-12"
+          ? "border-tilouki-mint/20 bg-tilouki-peach-soft/35 scroll-mt-20 border-y py-10 md:py-12"
           : "scroll-mt-20 py-10 md:py-12"
       }
       style={

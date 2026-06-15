@@ -42,7 +42,7 @@ export function ProductPhotoReadinessChecklist({
           <h3 className="text-sm font-semibold">Photos prêtes à vendre</h3>
           <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
             Minimum 1 photo réelle avec description pour le catalogue.{" "}
-            {summary.targetCount} photos recommandées (face, matière, couleur fidèle).
+            {summary.targetCount} photos recommandées (face, matière, mise en scène).
             Les SVG catalogue, placeholders et « Photo à venir » sont interdits en
             vitrine.
           </p>

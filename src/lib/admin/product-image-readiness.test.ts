@@ -72,7 +72,9 @@ describe("product-image-readiness", () => {
       },
     ]);
     expect(ready.find((item) => item.id === "face-avant")?.filled).toBe(true);
+    expect(ready.find((item) => item.id === "alt-descriptif")?.filled).toBe(true);
     expect(ready.find((item) => item.id === "detail-matiere")?.filled).toBe(true);
+    expect(ready.find((item) => item.id === "mise-en-scene")?.filled).toBe(false);
     expect(ready.find((item) => item.id === "couleur-fidele")?.filled).toBe(false);
     expect(ready.find((item) => item.id === "ratio-portrait")?.filled).toBe(true);
   });

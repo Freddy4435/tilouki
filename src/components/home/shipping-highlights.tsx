@@ -6,7 +6,7 @@ interface ShippingHighlightsProps {
 
 export function ShippingHighlights({ shopName }: ShippingHighlightsProps) {
   return (
-    <section className="bg-tilouki-cloud/60 border-y">
+    <section className="maison-surface maison-surface-icy border-y border-tilouki-icy/50">
       <div className="container-tilouki grid gap-4 py-6 sm:gap-6 sm:py-8 md:grid-cols-2 md:py-12 lg:py-16">
         <article className="bg-card flex gap-4 rounded-[var(--radius-card)] p-6 shadow-[var(--shadow-soft)]">
           <div className="bg-primary/10 text-primary flex size-12 shrink-0 items-center justify-center rounded-[var(--radius-button)]">

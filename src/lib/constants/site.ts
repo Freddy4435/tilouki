@@ -1,3 +1,27 @@
+/** Assets marque — pack `tilouki_logo_pack_web` (public/brand). */
+export const brandAssets = {
+  header: {
+    webp: "/brand/tilouki_logo_header_1200.webp",
+    png: "/brand/tilouki_logo_header_1200.png",
+    width: 1200,
+    height: 471,
+  },
+  /** Pictogramme carré (favicon pack) — admin, espaces étroits. */
+  mark: {
+    png: "/brand/tilouki_favicon_192.png",
+    width: 192,
+    height: 192,
+  },
+  favicon: {
+    ico: "/brand/tilouki_favicon.ico",
+    png32: "/brand/tilouki_favicon_32.png",
+    png64: "/brand/tilouki_favicon_64.png",
+    png180: "/brand/tilouki_favicon_180.png",
+    png192: "/brand/tilouki_favicon_192.png",
+    png512: "/brand/tilouki_favicon_512.png",
+  },
+} as const;
+
 export const siteConfig = {
   name: "Tilouki",
   legalName: "Tilouki",
@@ -12,6 +36,7 @@ export const siteConfig = {
 export const mainNavItems = [
   { label: "Accueil", href: "/" },
   { label: "Catalogue", href: "/catalogue" },
+  { label: "Le Carnet", href: "/blog" },
   { label: "Suivi commande", href: "/suivi-commande" },
   { label: "Livraison & retours", href: "/livraison-retours" },
 ] as const;
@@ -19,6 +44,7 @@ export const mainNavItems = [
 export const footerNavItems = {
   boutique: [
     { label: "Catalogue", href: "/catalogue" },
+    { label: "Le Carnet", href: "/blog" },
     { label: "Panier", href: "/panier" },
     { label: "Commande", href: "/commande" },
   ],

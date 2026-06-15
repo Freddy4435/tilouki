@@ -3,7 +3,7 @@ import { HOME_VALUE_PROPS } from "@/lib/constants/reassurance";
 export function HomeValueProps() {
   return (
     <section
-      className="bg-tilouki-cloud/50 border-y"
+      className="maison-surface maison-surface-beige border-y border-tilouki-sand/80"
       aria-labelledby="why-tilouki-title"
     >
       <div className="container-tilouki section-tilouki py-12 md:py-14">
@@ -29,7 +29,7 @@ export function HomeValueProps() {
                     index % 4 === 0
                       ? "var(--tilouki-jade-soft)"
                       : index % 4 === 1
-                        ? "var(--tilouki-powder-soft)"
+                        ? "var(--tilouki-icy)"
                         : index % 4 === 2
                           ? "var(--tilouki-butter-soft)"
                           : "color-mix(in srgb, var(--tilouki-teal), white 88%)",
@@ -39,9 +39,9 @@ export function HomeValueProps() {
                   className="size-5"
                   style={{
                     color:
-                      index % 4 === 0
+                      index % 4 === 0 || index % 4 === 2
                         ? "var(--tilouki-teal-dark)"
-                        : index % 4 === 2
+                        : index % 4 === 1
                           ? "var(--tilouki-teal-dark)"
                           : "var(--tilouki-ink)",
                   }}

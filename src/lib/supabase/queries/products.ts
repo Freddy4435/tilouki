@@ -10,7 +10,6 @@ import {
 } from "@/lib/catalog/catalogue-facets";
 import { sortStorefrontListedFirst } from "@/lib/catalog/product-card-data";
 import {
-  filterStorefrontListedProducts,
   hasCommercialStorefrontImages,
   isStorefrontBlockedSlug,
 } from "@/lib/catalog/product-sellability";
@@ -344,6 +343,28 @@ export async function getProductsBySlugs(slugs: string[]): Promise<ProductListIt
   return unstable_cache(
     () => fetchProductsBySlugs(normalized),
     ["products-by-slugs", cacheKey],
+    {
+      tags: [CACHE_TAGS.products],
+      revalidate: REVALIDATE.catalog,
+    },
+  )();
+}
+
+export async function hasActiveCatalogueProducts(): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+
+  return unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { count, error } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active");
+
+      assertNoError(error, "hasActiveCatalogueProducts");
+      return (count ?? 0) > 0;
+    },
+    ["has-active-catalogue-products"],
     {
       tags: [CACHE_TAGS.products],
       revalidate: REVALIDATE.catalog,

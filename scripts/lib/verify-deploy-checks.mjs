@@ -1,6 +1,6 @@
 /**
  * Contrôles verify:deploy — garder synchronisé avec
- * src/lib/deploy/verify-deploy.test.ts et docs/PRODUCTION_CHECKLIST.md
+ * src/lib/deploy/verify-deploy-checks.ts et docs/PRODUCTION_CHECKLIST.md
  */
 
 export const PRODUCTION_REQUIRED_STRING_KEYS = [

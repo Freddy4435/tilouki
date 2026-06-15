@@ -1,0 +1,119 @@
+/**
+ * Surfaces boutique — fonds clairs, accents logo (menthe + pêche).
+ * Pas de textures photo : vitrine e-commerce, pas magazine.
+ */
+
+@layer utilities {
+  .maison-surface {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .maison-surface > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /** Bandeau accent logo — menthe → pêche */
+  .brand-accent-bar {
+    height: 3px;
+    width: 2.75rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--tilouki-mint), var(--tilouki-peach));
+  }
+
+  .maison-surface-milk {
+    background-color: var(--tilouki-milk);
+  }
+
+  .maison-surface-milk-texture {
+    background-color: var(--tilouki-milk);
+  }
+
+  /* Nouveautés mercredi — pêche douce */
+  .maison-surface-butter {
+    background: linear-gradient(
+      165deg,
+      var(--tilouki-peach-soft) 0%,
+      var(--tilouki-milk) 55%,
+      var(--tilouki-mint-soft) 100%
+    );
+  }
+
+  /* Sections produit — menthe très légère */
+  .maison-surface-jade {
+    background: linear-gradient(
+      180deg,
+      var(--tilouki-mint-soft) 0%,
+      var(--tilouki-milk) 70%
+    );
+  }
+
+  .maison-surface-cloud-texture {
+    background-color: var(--tilouki-cloud);
+  }
+
+  /* Carnet / blog — bleu logo, pas bordeaux */
+  .maison-surface-plum {
+    background: linear-gradient(
+      148deg,
+      var(--tilouki-brand-blue-soft) 0%,
+      var(--tilouki-milk) 100%
+    );
+  }
+
+  .maison-surface-icy {
+    background: linear-gradient(
+      180deg,
+      var(--tilouki-brand-blue-soft) 0%,
+      var(--tilouki-milk) 100%
+    );
+  }
+
+  .maison-surface-beige {
+    background-color: var(--tilouki-cloud);
+  }
+
+  .text-wednesday-label {
+    font-family: var(--font-body), system-ui, sans-serif;
+    font-size: var(--type-retail-label);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tilouki-peach);
+  }
+
+  .text-carnet-label {
+    font-family: var(--font-body), system-ui, sans-serif;
+    font-size: var(--type-retail-label);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tilouki-brand-blue);
+  }
+
+  .text-section-title-plum {
+    color: var(--tilouki-navy);
+  }
+
+  .wednesday-accent-bar {
+    height: 3px;
+    width: 2.75rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--tilouki-mint), var(--tilouki-peach));
+  }
+
+  /** Bandeau header — rappel des couleurs logo */
+  .brand-header-stripe {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--tilouki-mint) 0%,
+      var(--tilouki-mint) 38%,
+      var(--tilouki-peach) 62%,
+      var(--tilouki-brand-blue) 100%
+    );
+  }
+}

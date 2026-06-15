@@ -1,23 +1,22 @@
 import type { Metadata } from "next";
 
+import { CategoryGrid } from "@/components/home/category-grid";
 import { HeroSection } from "@/components/home/hero-section";
-import { HomeBelowFold } from "@/components/home/home-below-fold";
-import { HomeYourSelectionSection } from "@/components/home/home-your-selection-section";
+import { HomeCarnetSection } from "@/components/home/home-carnet-section";
+import { HomeReassuranceSection } from "@/components/home/home-reassurance-section";
+import { HomeRitualsSection } from "@/components/home/home-rituals-section";
+import { HomeSizeGuideSection } from "@/components/home/home-size-guide-section";
+import { HomeVestiaireSection } from "@/components/home/home-vestiaire-section";
 import { ProductRowSection } from "@/components/home/product-row-section";
-import { ShippingHighlights } from "@/components/home/shipping-highlights";
+import { getPublishedBlogArticles } from "@/content/blog/articles";
 import {
-  buildReadyLooks,
-  pickCategoryProducts,
-  pickLastPieceProducts,
   pickLowPriceHomeProducts,
   pickWednesdayNewProducts,
 } from "@/lib/catalog/home-sections";
-import { resolveEditorialBlocks } from "@/lib/editorial/fallback";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getCategories } from "@/lib/supabase/queries/categories";
-import { getActiveProductsForHome } from "@/lib/supabase/queries/products";
-import { hasPublishedProductReviews } from "@/lib/supabase/queries/reviews";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
+import { getActiveProductsForHome } from "@/lib/supabase/queries/products";
 
 export const revalidate = 300;
 
@@ -32,68 +31,45 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [settings, categories, allProducts, hasPublishedReviews] = await Promise.all([
+  const [settings, allProducts, categories, latestArticles] = await Promise.all([
     getShopSettings(),
-    getCategories(),
     getActiveProductsForHome(),
-    hasPublishedProductReviews(),
+    getCategories(),
+    Promise.resolve(getPublishedBlogArticles().slice(0, 3)),
   ]);
 
   const wednesdayNewProducts = pickWednesdayNewProducts(allProducts);
   const lowPriceProducts = pickLowPriceHomeProducts(allProducts);
-  const lastPieceProducts = pickLastPieceProducts(allProducts);
-  const babyProducts = pickCategoryProducts(allProducts, "bebe");
-  const pyjamaProducts = pickCategoryProducts(allProducts, "pyjamas");
-  const readyLooks = buildReadyLooks(allProducts);
-
-  const editorialBlocks = resolveEditorialBlocks(
-    settings.editorialBlocks ?? [],
-    categories,
-  );
-
-  const featuredForHero = allProducts
-    .filter((p) => p.primaryImageUrl)
-    .slice(0, 4)
-    .map((p) => ({
-      slug: p.slug,
-      name: p.name,
-      primaryImageUrl: p.primaryImageUrl,
-      minPriceCents: p.minPriceCents,
-      categoryName: p.categoryName,
-    }));
 
   return (
     <>
-      <HeroSection
-        shopName={settings.name}
-        heroImageUrl={settings.heroImageUrl}
-        featuredProducts={featuredForHero}
-        categoryLinks={categories.map((c) => ({ slug: c.slug, label: c.name }))}
-      />
+      <HeroSection shopName={settings.name} heroImageUrl={settings.heroImageUrl} />
 
-      <ShippingHighlights shopName={settings.name} />
-
-      <HomeYourSelectionSection />
-
-      <ProductRowSection
-        id="home-nouveautes"
-        title="Les nouveautés du mercredi"
-        description="Chaque mercredi, de nouvelles pièces peuvent rejoindre la boutique — voici les dernières arrivées, prêtes à rejoindre la garde-robe."
+      <HomeVestiaireSection
         products={wednesdayNewProducts}
         viewAllHref="/catalogue?tri=newest"
-        priorityLimit={2}
       />
 
-      <HomeBelowFold
-        lowPriceProducts={lowPriceProducts}
-        lastPieceProducts={lastPieceProducts}
-        babyProducts={babyProducts}
-        pyjamaProducts={pyjamaProducts}
-        readyLooks={readyLooks}
-        categories={categories}
-        editorialBlocks={editorialBlocks}
-        hasPublishedReviews={hasPublishedReviews}
+      <CategoryGrid categories={categories} />
+
+      <ProductRowSection
+        id="home-petits-prix"
+        title="Petits prix du quotidien"
+        description="Les essentiels à prix doux — tee-shirts, bodies et leggings pour compléter la garde-robe."
+        products={lowPriceProducts}
+        viewAllHref="/catalogue?promo=petit-prix"
+        variant="tinted"
+        priorityLimit={0}
+        deferRender
       />
+
+      <HomeRitualsSection />
+
+      <HomeReassuranceSection shopName={settings.name} />
+
+      <HomeSizeGuideSection />
+
+      <HomeCarnetSection articles={latestArticles} />
     </>
   );
 }

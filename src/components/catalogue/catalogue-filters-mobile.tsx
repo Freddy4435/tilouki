@@ -61,10 +61,12 @@ export function CatalogueFiltersMobile({
         </SheetHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
-          <div className="mb-5 space-y-2">
-            <p className="text-xs font-semibold tracking-wide uppercase">Tri</p>
-            <CatalogueSortSelect id="catalogue-sort-mobile" showLabel={false} />
-          </div>
+          {total > 0 ? (
+            <div className="mb-5 space-y-2">
+              <p className="text-xs font-semibold tracking-wide uppercase">Tri</p>
+              <CatalogueSortSelect id="catalogue-sort-mobile" showLabel={false} />
+            </div>
+          ) : null}
 
           <CatalogueFilters
             categories={categories}

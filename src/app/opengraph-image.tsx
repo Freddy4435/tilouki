@@ -1,12 +1,19 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
 import { ImageResponse } from "next/og";
 
-import { siteConfig } from "@/lib/constants/site";
+import { brandAssets, siteConfig } from "@/lib/constants/site";
 
 export const alt = `${siteConfig.name} — vêtements enfants`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
+  const logoPath = join(process.cwd(), "public", brandAssets.header.png.replace(/^\//, ""));
+  const logoBuffer = await readFile(logoPath);
+  const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+
   return new ImageResponse(
     <div
       style={{
@@ -14,32 +21,26 @@ export default function OpenGraphImage() {
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        alignItems: "flex-start",
         justifyContent: "center",
-        padding: "72px",
+        gap: 28,
+        padding: "64px 72px",
         background: "linear-gradient(135deg, #f8f6f0 0%, #e4efe8 55%, #fffcf7 100%)",
         color: "#2e2a25",
         fontFamily: "system-ui, sans-serif",
       }}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse OG */}
+      <img
+        src={logoSrc}
+        alt=""
+        width={520}
+        height={204}
+        style={{ objectFit: "contain" }}
+      />
       <div
         style={{
-          fontSize: 28,
-          fontWeight: 600,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "#78716c",
-          marginBottom: 20,
-        }}
-      >
-        Boutique française
-      </div>
-      <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.05, maxWidth: 900 }}>
-        {siteConfig.name}
-      </div>
-      <div
-        style={{
-          fontSize: 34,
-          marginTop: 24,
+          fontSize: 30,
           color: "#57534e",
           maxWidth: 820,
           lineHeight: 1.35,
