@@ -5,7 +5,9 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
 
 function requireAdminForWebhooks(): void {
   if (!isSupabaseAdminConfigured() && process.env.NODE_ENV === "production") {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY requis pour traiter les webhooks Stripe.");
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY requis pour traiter les webhooks Stripe.",
+    );
   }
 }
 
@@ -48,7 +50,10 @@ export async function rollbackStripeWebhookEvent(eventId: string): Promise<void>
   }
 
   const admin = createAdminClient();
-  const { error } = await admin.from("stripe_webhook_events").delete().eq("id", eventId);
+  const { error } = await admin
+    .from("stripe_webhook_events")
+    .delete()
+    .eq("id", eventId);
 
   if (error) {
     throw error;
@@ -74,7 +79,10 @@ export async function isStripeWebhookEventProcessed(eventId: string): Promise<bo
 }
 
 /** @deprecated Réservation atomique via tryBeginStripeWebhookEvent. */
-export async function claimStripeWebhookEvent(eventId: string, eventType: string): Promise<void> {
+export async function claimStripeWebhookEvent(
+  eventId: string,
+  eventType: string,
+): Promise<void> {
   const begun = await tryBeginStripeWebhookEvent(eventId, eventType);
   if (!begun) {
     return;

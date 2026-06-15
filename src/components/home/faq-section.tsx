@@ -4,14 +4,12 @@ export function FaqSection() {
   return (
     <section className="container-tilouki py-12 md:py-16">
       <div className="mx-auto max-w-2xl">
-        <h2 className="font-heading mb-6 text-center text-2xl font-semibold sm:text-3xl">
-          Questions fréquentes
-        </h2>
+        <h2 className="text-section-title mb-6 text-center">Questions fréquentes</h2>
         <div className="space-y-3">
           {HOME_FAQ.map((item) => (
             <details
               key={item.question}
-              className="bg-card group rounded-xl border px-5 py-4 shadow-[var(--shadow-soft)]"
+              className="bg-card group rounded-[var(--radius-card)] border px-5 py-4 shadow-[var(--shadow-soft)]"
             >
               <summary className="cursor-pointer list-none font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-4">
@@ -21,7 +19,9 @@ export function FaqSection() {
                   </span>
                 </span>
               </summary>
-              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{item.answer}</p>
+              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
+                {item.answer}
+              </p>
             </details>
           ))}
         </div>

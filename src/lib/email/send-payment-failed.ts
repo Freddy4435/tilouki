@@ -19,6 +19,7 @@ export async function sendPaymentFailedEmail(
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      previewTag: "payment-failed",
     });
   } catch (error) {
     logEmail("error", "Échec envoi e-mail paiement refusé", {

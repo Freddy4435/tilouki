@@ -39,7 +39,9 @@ function monthStartIso(): string {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 }
 
-async function getCatalogHealthCounts(supabase: NonNullable<Awaited<ReturnType<typeof getAdminSupabase>>>) {
+async function getCatalogHealthCounts(
+  supabase: NonNullable<Awaited<ReturnType<typeof getAdminSupabase>>>,
+) {
   const [productsResult, imageRows, variantRows] = await Promise.all([
     supabase.from("products").select("id, status").neq("status", "archived"),
     supabase.from("product_images").select("product_id"),
@@ -125,7 +127,10 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .select("total_cents")
       .eq("payment_status", "paid")
       .gte("created_at", since),
-    supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "paid"),
+    supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "paid"),
     supabase
       .from("orders")
       .select("id", { count: "exact", head: true })

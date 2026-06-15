@@ -1,6 +1,16 @@
-import { getLegalComplianceSummary, type LegalComplianceInput } from "@/lib/legal/compliance";
+import {
+  getLegalComplianceSummary,
+  type LegalComplianceInput,
+} from "@/lib/legal/compliance";
 
 export type AdminDashboardAlertSeverity = "critical" | "warning";
+
+export type AdminDashboardAlertActionId = "deactivate-demo-products";
+
+export interface AdminDashboardAlertAction {
+  label: string;
+  action: AdminDashboardAlertActionId;
+}
 
 export interface AdminDashboardAlert {
   id: string;
@@ -9,6 +19,7 @@ export interface AdminDashboardAlert {
   description: string;
   href: string;
   hrefLabel: string;
+  actions?: AdminDashboardAlertAction[];
 }
 
 export interface AdminDashboardAlertContext {
@@ -20,9 +31,11 @@ export interface AdminDashboardAlertContext {
   storageConfigured: boolean;
   stripeConfigured: boolean;
   adminEmailConfigured: boolean;
+  transactionEmailConfigured: boolean;
   mondialRelayConfigured: boolean;
   chronopostConfigured: boolean;
   devMockShipping: boolean;
+  activeDevSeedProductCount: number;
 }
 
 export interface AdminDashboardPriority {
@@ -34,9 +47,13 @@ export interface AdminDashboardPriority {
   emphasis?: boolean;
 }
 
-export function buildAdminConfigurationAlerts(ctx: AdminDashboardAlertContext): AdminDashboardAlert[] {
+export function buildAdminConfigurationAlerts(
+  ctx: AdminDashboardAlertContext,
+): AdminDashboardAlert[] {
   const alerts: AdminDashboardAlert[] = [];
-  const legal = getLegalComplianceSummary(ctx.legalSettings);
+  const legal = getLegalComplianceSummary(ctx.legalSettings, {
+    includeInfrastructure: false,
+  });
 
   if (!ctx.stripeConfigured) {
     alerts.push({
@@ -62,6 +79,18 @@ export function buildAdminConfigurationAlerts(ctx: AdminDashboardAlertContext): 
     });
   }
 
+  if (!ctx.transactionEmailConfigured) {
+    alerts.push({
+      id: "email-provider",
+      severity: "critical",
+      title: "E-mails transactionnels non configurés",
+      description:
+        "Aucun fournisseur e-mail actif (Resend ou SMTP). Les clients ne recevront pas de confirmation ni de suivi d'expédition.",
+      href: "/admin/parametres",
+      hrefLabel: "Voir les paramètres",
+    });
+  }
+
   if (!ctx.adminEmailConfigured) {
     alerts.push({
       id: "admin-email",
@@ -75,13 +104,17 @@ export function buildAdminConfigurationAlerts(ctx: AdminDashboardAlertContext): 
   }
 
   if (!legal.isComplete) {
+    const preview = legal.missingRequired
+      .slice(0, 3)
+      .map((item) => item.label)
+      .join(", ");
     alerts.push({
       id: "legal",
       severity: "critical",
-      title: "Pages légales incomplètes",
-      description: `${legal.missingRequired.length} information${legal.missingRequired.length > 1 ? "s" : ""} obligatoire${legal.missingRequired.length > 1 ? "s" : ""} manquante${legal.missingRequired.length > 1 ? "s" : ""} dans les paramètres boutique.`,
+      title: "Socle légal incomplet",
+      description: `${legal.missingRequired.length} élément${legal.missingRequired.length > 1 ? "s" : ""} obligatoire${legal.missingRequired.length > 1 ? "s" : ""} manquant${legal.missingRequired.length > 1 ? "s" : ""}${preview ? ` : ${preview}${legal.missingRequired.length > 3 ? "…" : ""}` : ""}. Le checkout production reste bloqué.`,
       href: "/admin/pages-legales",
-      hrefLabel: "Compléter les pages légales",
+      hrefLabel: "Voir la checklist légale",
     });
   }
 
@@ -111,12 +144,31 @@ export function buildAdminConfigurationAlerts(ctx: AdminDashboardAlertContext): 
     });
   }
 
+  if (ctx.activeDevSeedProductCount > 0) {
+    const n = ctx.activeDevSeedProductCount;
+    alerts.push({
+      id: "demo-products",
+      severity: "critical",
+      title: "Produits de démonstration détectés",
+      description: `${n} produit${n > 1 ? "s" : ""} de démo encore actif${n > 1 ? "s" : ""} sur le site. Ces articles ne doivent jamais être vendus en production.`,
+      href: "/admin/produits?demo=1",
+      hrefLabel: "Voir les produits démo",
+      actions: [
+        {
+          label: "Désactiver tous les produits démo",
+          action: "deactivate-demo-products",
+        },
+      ],
+    });
+  }
+
   if (ctx.activeProductCount === 0) {
     alerts.push({
       id: "no-active-products",
       severity: "critical",
       title: "Aucun produit actif",
-      description: "Votre catalogue en ligne est vide. Ajoutez et publiez au moins un produit.",
+      description:
+        "Votre catalogue en ligne est vide. Ajoutez et publiez au moins un produit.",
       href: "/admin/produits/nouveau",
       hrefLabel: "Ajouter un produit",
     });

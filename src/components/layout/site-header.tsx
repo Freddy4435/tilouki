@@ -1,26 +1,43 @@
+import Link from "next/link";
+import { Suspense } from "react";
+
+import { AnnouncementBar } from "@/components/layout/announcement-bar";
+import { HeaderReassuranceNav } from "@/components/layout/header-reassurance-nav";
 import { CartTrigger } from "@/components/cart/cart-trigger";
+import { FavoritesTrigger } from "@/components/favorites/favorites-trigger";
 import { CategoryMenu } from "@/components/layout/category-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
-import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { SearchBar } from "@/components/layout/search-bar";
 import { SiteLogo } from "@/components/layout/site-logo";
 import { cn } from "@/lib/utils";
+import type { ShopAnnouncement } from "@/lib/announcements/types";
 
 interface SiteHeaderProps {
   className?: string;
+  announcementsEnabled?: boolean;
+  announcements?: ShopAnnouncement[];
 }
 
-export function SiteHeader({ className }: SiteHeaderProps) {
+export function SiteHeader({
+  className,
+  announcementsEnabled = false,
+  announcements = [],
+}: SiteHeaderProps) {
   return (
     <header className={cn("bg-background sticky top-0 z-50 w-full", className)}>
-      <div className="from-tilouki-blue-soft/50 to-tilouki-sage-light/40 border-tilouki-blue/10 hidden border-b bg-gradient-to-r py-2 md:block">
-        <div className="container-tilouki">
-          <ReassuranceStrip variant="compact" />
+      <AnnouncementBar enabled={announcementsEnabled} announcements={announcements} />
+      <div className="border-border/40 bg-tilouki-cloud/70 hidden border-b py-2 md:block">
+        <div className="container-tilouki flex items-center justify-between gap-4">
+          <p className="text-muted-foreground text-xs leading-snug sm:text-sm">
+            Boutique indépendante — vêtements enfants sélectionnés avec soin, expédiés
+            depuis la France.
+          </p>
+          <HeaderReassuranceNav />
         </div>
       </div>
 
       <div
-        className="border-border/80 border-b backdrop-blur supports-[backdrop-filter]:bg-background/95"
+        className="border-border/80 supports-[backdrop-filter]:bg-background/95 border-b backdrop-blur"
         style={{ height: "var(--header-height)" }}
       >
         <div className="container-tilouki flex h-full items-center gap-3 md:gap-6">
@@ -29,17 +46,28 @@ export function SiteHeader({ className }: SiteHeaderProps) {
           <SiteLogo className="shrink-0" />
 
           <div className="hidden flex-1 justify-center md:flex">
-            <SearchBar />
+            <Suspense
+              fallback={
+                <div className="bg-muted h-10 max-w-md flex-1 animate-pulse rounded-full" />
+              }
+            >
+              <SearchBar />
+            </Suspense>
           </div>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <SearchBar compact className="md:hidden" />
+            <Suspense fallback={null}>
+              <SearchBar compact className="md:hidden" />
+            </Suspense>
+            <FavoritesTrigger />
             <CartTrigger />
           </div>
         </div>
       </div>
 
-      <CategoryMenu />
+      <Suspense fallback={null}>
+        <CategoryMenu />
+      </Suspense>
     </header>
   );
 }

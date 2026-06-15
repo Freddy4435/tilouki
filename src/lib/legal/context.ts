@@ -1,6 +1,11 @@
 import "server-only";
 
 import { siteConfig } from "@/lib/constants/site";
+import {
+  buildLegalDeliveryDelaysHtml,
+  LEGAL_DELIVERY_METHOD,
+  LEGAL_SHIPPING_FEES,
+} from "@/lib/shipping/delivery-copy";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
 import type { ShopSettings } from "@/lib/shop/types";
 
@@ -25,6 +30,7 @@ export interface LegalRenderContext {
   vat_section: string;
   rep_section: string;
   mediation_section: string;
+  rcs_section: string;
   payment_method: string;
   delivery_method: string;
   shipping_info: string;
@@ -33,6 +39,7 @@ export interface LegalRenderContext {
   exchange_section: string;
   analytics_section: string;
   recipients_section: string;
+  delivery_delays_info: string;
 }
 
 const ADMIN_PLACEHOLDER = (label: string) => `[À renseigner : ${label}]`;
@@ -52,11 +59,56 @@ const DEFAULT_EXCHANGE =
 const DEFAULT_PAYMENT =
   "Le paiement s'effectue en ligne par carte bancaire (Visa, Mastercard, etc.) via la plateforme sécurisée Stripe. Les données bancaires sont traitées directement par Stripe ; le Vendeur n'a pas accès aux numéros de carte complets.";
 
-const DEFAULT_DELIVERY =
-  "Les commandes sont expédiées depuis la France en point relais (Mondial Relay et/ou Chronopost selon votre choix au checkout), en France métropolitaine uniquement.";
+const DEFAULT_DELIVERY = LEGAL_DELIVERY_METHOD;
 
-const DEFAULT_SHIPPING =
-  "Les frais de livraison sont calculés automatiquement selon le poids total des articles et affichés en euros (€) avant validation définitive de la commande.";
+const DEFAULT_SHIPPING = LEGAL_SHIPPING_FEES;
+
+function extractCityFromAddress(address: string | null | undefined): string | null {
+  const trimmed = address?.trim();
+  if (!trimmed) return null;
+
+  const postalCityMatch = trimmed.match(/\b(\d{5})\s+([A-Za-zÀ-ÿ' -]+)\s*$/);
+  if (postalCityMatch?.[2]) return postalCityMatch[2].trim();
+
+  const parts = trimmed
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts.at(-1) ?? null;
+}
+
+function buildRcsSection(
+  settings: ShopSettings | null,
+  audience: LegalContextAudience,
+): string {
+  const siret = settings?.siret?.replace(/\D/g, "") ?? "";
+  const legalStatus = settings?.legalStatus?.trim().toLowerCase() ?? "";
+  const legalName = settings?.legalName?.trim();
+
+  if (!siret || siret.length < 9 || !legalName) {
+    return audience === "admin"
+      ? `<p><strong>RCS :</strong> ${ADMIN_PLACEHOLDER("SIRET et nom légal dans Paramètres boutique")}</p>`
+      : "";
+  }
+
+  const siren = siret.slice(0, 9);
+  const isIndividual =
+    legalStatus.includes("auto-entrepreneur") ||
+    legalStatus.includes("micro-entreprise") ||
+    legalStatus.includes("entrepreneur individuel") ||
+    legalStatus.includes("entreprise individuelle");
+
+  if (isIndividual) {
+    return `<p><strong>RCS :</strong> dispensé d'immatriculation au registre du commerce et des sociétés (entreprise individuelle).</p>`;
+  }
+
+  const city = extractCityFromAddress(settings?.address);
+  if (city) {
+    return `<p><strong>RCS :</strong> ${city} ${siren}</p>`;
+  }
+
+  return `<p><strong>RCS :</strong> SIREN ${siren}</p>`;
+}
 
 function fieldValue(
   value: string | null | undefined,
@@ -89,7 +141,8 @@ export function buildLegalContext(
 
   const mediationSection =
     mediationName && mediationUrl
-      ? `<p>Conformément aux articles L612-1 et suivants du Code de la consommation, en cas de litige non résolu avec le Vendeur, vous pouvez saisir gratuitement le médiateur de la consommation suivant : <strong>${mediationName}</strong> — <a href="${mediationUrl}" rel="noopener noreferrer">${mediationUrl}</a>.</p>`
+      ? `<p>Conformément aux articles L612-1 et suivants du Code de la consommation, en cas de litige non résolu avec le Vendeur, vous pouvez saisir gratuitement le médiateur de la consommation suivant : <strong>${mediationName}</strong> — <a href="${mediationUrl}" rel="noopener noreferrer">${mediationUrl}</a>.</p>
+<p>Plateforme européenne de règlement en ligne des litiges (RLL) : <a href="https://ec.europa.eu/consumers/odr" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr</a>.</p>`
       : audience === "admin"
         ? `<p><strong>Médiation de la consommation :</strong> ${ADMIN_PLACEHOLDER("nom et URL du médiateur dans Paramètres boutique")}</p>`
         : "";
@@ -98,12 +151,12 @@ export function buildLegalContext(
     ? `<p><strong>Éco-participation / REP textile :</strong> identifiant unique (IDU) : ${repIdu}.</p>`
     : audience === "admin"
       ? `<p><strong>Éco-participation / REP textile :</strong> ${ADMIN_PLACEHOLDER("identifiant unique REP si vous êtes inscrit à un éco-organisme textile")}</p>`
-      : `<p class="legal-review"><em>À valider avec un professionnel du droit :</em> si vous êtes producteur de textiles, vérifiez vos obligations REP et l'affichage de l'éco-participation.</p>`;
+      : "";
 
   const analyticsSection = analyticsEnabled
     ? `<p>Des cookies de mesure d'audience peuvent être déposés <strong>uniquement après votre consentement</strong> via le bandeau cookies. Vous pouvez retirer votre consentement à tout moment en supprimant les cookies du site dans votre navigateur.</p>
 <p class="legal-review"><em>À valider avec un professionnel du droit :</em> précisez ici le nom de l'outil analytics utilisé (ex. Plausible, Matomo) et sa politique de confidentialité.</p>`
-    : `<p>Aucun outil de mesure d'audience tiers n'est utilisé sur ce site à ce jour. Seuls les cookies strictement nécessaires au fonctionnement de la boutique et ceux liés au paiement sécurisé (Stripe) sont déposés.</p>`;
+    : `<p>Aucun outil de mesure d'audience tiers n'est utilisé sur ce site à ce jour. Seuls les cookies strictement nécessaires au fonctionnement de la boutique et ceux liés au paiement sécurisé (Stripe) sont déposés, conformément aux recommandations de la CNIL.</p>`;
 
   const exchangePolicy = settings?.exchangePolicy?.trim() || DEFAULT_EXCHANGE;
   const exchangeSection = `<p>${exchangePolicy}</p>`;
@@ -118,10 +171,22 @@ export function buildLegalContext(
 
   return {
     shop_name: shopName,
-    legal_name: fieldValue(settings?.legalName, "nom légal ou raison sociale", audience),
-    legal_status: fieldValue(settings?.legalStatus, "statut juridique, ex. Auto-entrepreneur", audience),
+    legal_name: fieldValue(
+      settings?.legalName,
+      "nom légal ou raison sociale",
+      audience,
+    ),
+    legal_status: fieldValue(
+      settings?.legalStatus,
+      "statut juridique, ex. Auto-entrepreneur",
+      audience,
+    ),
     siret: fieldValue(settings?.siret, "numéro SIRET à 14 chiffres", audience),
-    address: fieldValue(settings?.address, "adresse professionnelle complète", audience),
+    address: fieldValue(
+      settings?.address,
+      "adresse professionnelle complète",
+      audience,
+    ),
     email: fieldValue(settings?.contactEmail, "adresse e-mail de contact", audience),
     phone: fieldValue(settings?.phone, "numéro de téléphone", audience),
     host_name: fieldValue(settings?.hostName, "nom de l'hébergeur", audience),
@@ -135,16 +200,20 @@ export function buildLegalContext(
     vat_section: vatNotice ? `<p><strong>TVA :</strong> ${vatNotice}</p>` : "",
     rep_section: repSection,
     mediation_section: mediationSection,
+    rcs_section: buildRcsSection(settings, audience),
     payment_method: DEFAULT_PAYMENT,
     delivery_method: DEFAULT_DELIVERY,
     shipping_info: DEFAULT_SHIPPING,
-    withdrawal_info: settings?.returnPolicy?.trim() || DEFAULT_WITHDRAWAL,
+    withdrawal_info: DEFAULT_WITHDRAWAL,
     return_info:
       settings?.returnPolicy?.trim() ||
-      (audience === "admin" ? ADMIN_PLACEHOLDER("politique retours dans Paramètres boutique") : DEFAULT_RETURN),
+      (audience === "admin"
+        ? ADMIN_PLACEHOLDER("politique retours dans Paramètres boutique")
+        : DEFAULT_RETURN),
     exchange_section: exchangeSection,
     analytics_section: analyticsSection,
     recipients_section: recipientsSection,
+    delivery_delays_info: buildLegalDeliveryDelaysHtml(),
   };
 }
 

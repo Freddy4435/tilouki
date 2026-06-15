@@ -14,11 +14,18 @@ export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   resetAt: number;
+  /**
+   * true si le rate limiting est indisponible en production (Upstash absent ou en échec).
+   * Les routes sensibles doivent répondre 503, pas 429.
+   */
+  unavailable?: boolean;
 }
+
+export type RateLimitBackend = "upstash" | "memory" | "unavailable";
 
 // ---------------------------------------------------------------------------
 // Fallback mémoire — dev local sans Redis. Inopérant en serverless multi-
-// instance (chaque instance a sa propre Map) : Upstash prend le relais en prod.
+// instance (chaque instance a sa propre Map) : interdit en production.
 // ---------------------------------------------------------------------------
 
 interface RateLimitEntry {
@@ -44,18 +51,53 @@ function checkRateLimitMemory(config: RateLimitConfig): RateLimitResult {
   }
 
   entry.count += 1;
-  return { allowed: true, remaining: config.limit - entry.count, resetAt: entry.resetAt };
+  return {
+    allowed: true,
+    remaining: config.limit - entry.count,
+    resetAt: entry.resetAt,
+  };
 }
 
 // ---------------------------------------------------------------------------
 // Upstash — sliding window partagé entre toutes les instances serverless.
 // ---------------------------------------------------------------------------
 
-function isUpstashConfigured(): boolean {
+export function isUpstashRateLimitConfigured(): boolean {
   return Boolean(
     process.env.UPSTASH_REDIS_REST_URL?.trim() &&
-      process.env.UPSTASH_REDIS_REST_TOKEN?.trim(),
+    process.env.UPSTASH_REDIS_REST_TOKEN?.trim(),
   );
+}
+
+/**
+ * Autorise le fallback mémoire en serveur production local (Playwright uniquement).
+ * Ne jamais définir sur Vercel — `verify:deploy:prod` exige toujours Upstash.
+ */
+export function isE2eMemoryRateLimitAllowed(): boolean {
+  return process.env.E2E_ALLOW_MEMORY_RATE_LIMIT === "1";
+}
+
+/** En production, le fallback mémoire est interdit (serverless Vercel). */
+export function isProductionRateLimitStrict(): boolean {
+  if (isE2eMemoryRateLimitAllowed()) return false;
+  return process.env.NODE_ENV === "production";
+}
+
+export function getRateLimitBackend(): RateLimitBackend {
+  if (isProductionRateLimitStrict() && !isUpstashRateLimitConfigured()) {
+    return "unavailable";
+  }
+  if (isUpstashRateLimitConfigured()) return "upstash";
+  return "memory";
+}
+
+function unavailableRateLimitResult(): RateLimitResult {
+  return {
+    allowed: false,
+    remaining: 0,
+    resetAt: Date.now() + 60_000,
+    unavailable: true,
+  };
 }
 
 let redis: Redis | null = null;
@@ -84,12 +126,16 @@ function getUpstashLimiter(limit: number, windowSec: number): Ratelimit {
 }
 
 /**
- * Façade : Upstash Redis si UPSTASH_REDIS_REST_URL/TOKEN sont présents,
- * sinon Map mémoire (dev local). En cas d'erreur Redis, bascule sur la
- * Map mémoire plutôt que de bloquer la requête.
+ * Façade : Upstash Redis en production (obligatoire hors e2e local explicite).
+ * En développement ou e2e local (`E2E_ALLOW_MEMORY_RATE_LIMIT=1`) : Map mémoire si Upstash absent.
  */
-export async function checkRateLimit(config: RateLimitConfig): Promise<RateLimitResult> {
-  if (!isUpstashConfigured()) {
+export async function checkRateLimit(
+  config: RateLimitConfig,
+): Promise<RateLimitResult> {
+  if (!isUpstashRateLimitConfigured()) {
+    if (isProductionRateLimitStrict()) {
+      return unavailableRateLimitResult();
+    }
     return checkRateLimitMemory(config);
   }
 
@@ -101,8 +147,19 @@ export async function checkRateLimit(config: RateLimitConfig): Promise<RateLimit
 
     return { allowed: success, remaining, resetAt: reset };
   } catch {
+    if (isProductionRateLimitStrict()) {
+      return unavailableRateLimitResult();
+    }
     return checkRateLimitMemory(config);
   }
+}
+
+/** Message utilisateur selon le résultat du rate limit. */
+export function rateLimitDeniedMessage(result: RateLimitResult): string {
+  if (result.unavailable) {
+    return "Service temporairement indisponible. Réessayez plus tard.";
+  }
+  return "Trop de requêtes. Réessayez dans quelques instants.";
 }
 
 export function getClientIp(request: Request): string {

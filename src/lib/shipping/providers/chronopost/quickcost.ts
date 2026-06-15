@@ -6,23 +6,19 @@ import {
   getChronopostPassword,
   isChronopostQuickCostEnabled,
 } from "@/lib/shipping/env";
+import {
+  CHRONOPOST_QUICKCOST_ENDPOINT,
+  CHRONOPOST_QUICKCOST_NAMESPACE,
+  postChronopostSoap,
+} from "@/lib/shipping/providers/chronopost/soap";
+import { extractTagValue } from "@/lib/shipping/providers/chronopost/xml";
 
 /**
- * Cotation Chronopost via le web service QuickCost (GET → XML).
- *
- * Doc officielle (espace développeur chronopost.fr — « Web Services Chronopost ») :
- * service `quickCost` sur https://ws.chronopost.fr/quickcost-cxf/QuickcostServiceWS
- * Paramètres : accountNumber, password, depCode (CP départ), arrCode (CP arrivée),
- * weight (kg), productCode (86 = Chrono Relais), type (M = marchandise).
- * Réponse : ResultQuickCostV2 { errorCode (0 = OK), amount (HT), amountTTC, amountTVA }.
+ * Cotation Chronopost via QuickcostServiceWS — SOAP 1.1 POST (WSDL officiel).
+ * Opération `quickCost` : depCode, arrCode, weight (kg), productCode 86 (Chrono Relais), type M.
  */
-const QUICKCOST_ENDPOINT =
-  "https://ws.chronopost.fr/quickcost-cxf/QuickcostServiceWS/quickCost";
-
 /** Code produit Chronopost « Chrono Relais » (livraison en point Pickup). */
 const CHRONO_RELAIS_PRODUCT_CODE = "86";
-
-const QUICKCOST_TIMEOUT_MS = 8_000;
 
 /** Cache mémoire 10 minutes par couple (code postal, tranche de poids). */
 const QUICKCOST_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -45,13 +41,6 @@ function buildCacheKey(zip: string, weightGrams: number): string {
 /** Réinitialise le cache (tests). */
 export function resetQuickCostCache(): void {
   quickCostCache.clear();
-}
-
-function extractTagValue(xml: string, tag: string): string | null {
-  const match = new RegExp(`<(?:\\w+:)?${tag}[^>]*>([^<]*)</(?:\\w+:)?${tag}>`, "i").exec(
-    xml,
-  );
-  return match?.[1]?.trim() ?? null;
 }
 
 /** Montant TTC en euros → centimes, arrondi au centime. */
@@ -92,36 +81,29 @@ export async function getQuickCostPriceCents(
     return cached.priceCents;
   }
 
-  const params = new URLSearchParams({
+  const fields: Record<string, string> = {
     accountNumber: account,
     password,
     depCode: getDepartureZip(),
     arrCode: zip,
-    // QuickCost attend un poids en kilogrammes.
     weight: (Math.max(weightGrams, 1) / 1000).toFixed(3),
     productCode: CHRONO_RELAIS_PRODUCT_CODE,
     type: "M",
-  });
+  };
 
   try {
-    const response = await fetch(`${QUICKCOST_ENDPOINT}?${params.toString()}`, {
-      method: "GET",
-      signal: AbortSignal.timeout(QUICKCOST_TIMEOUT_MS),
-      cache: "no-store",
+    const xml = await postChronopostSoap({
+      endpoint: CHRONOPOST_QUICKCOST_ENDPOINT,
+      namespace: CHRONOPOST_QUICKCOST_NAMESPACE,
+      operation: "quickCost",
+      fields,
     });
 
-    if (!response.ok) {
-      logSecure("warn", "chronopost-quickcost: HTTP non OK, fallback barème DB", {
-        status: response.status,
-      });
-      return null;
-    }
-
-    const xml = await response.text();
     const errorCode = extractTagValue(xml, "errorCode");
 
     if (errorCode !== "0") {
       logSecure("warn", "chronopost-quickcost: erreur API, fallback barème DB", {
+        operation: "quickCost",
         errorCode: errorCode ?? "absent",
         errorMessage: extractTagValue(xml, "errorMessage") ?? undefined,
       });
@@ -133,7 +115,9 @@ export async function getQuickCostPriceCents(
       parseAmountToCents(extractTagValue(xml, "amount"));
 
     if (priceCents === null) {
-      logSecure("warn", "chronopost-quickcost: montant absent, fallback barème DB", {});
+      logSecure("warn", "chronopost-quickcost: montant absent, fallback barème DB", {
+        operation: "quickCost",
+      });
       return null;
     }
 
@@ -145,6 +129,7 @@ export async function getQuickCostPriceCents(
     return priceCents;
   } catch (error) {
     logSecure("warn", "chronopost-quickcost: appel en échec, fallback barème DB", {
+      operation: "quickCost",
       error: error instanceof Error ? error.message : String(error),
     });
     return null;

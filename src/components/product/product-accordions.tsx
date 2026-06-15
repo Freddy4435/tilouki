@@ -2,32 +2,47 @@ import type { ProductDetail } from "@/types/catalog";
 
 interface ProductAccordionsProps {
   product: ProductDetail;
+  /** Description sans le bloc « Pourquoi on l'a choisi » */
+  descriptionOverride?: string | null;
 }
 
-export function ProductAccordions({ product }: ProductAccordionsProps) {
+export function ProductAccordions({
+  product,
+  descriptionOverride,
+}: ProductAccordionsProps) {
+  const description =
+    descriptionOverride?.trim() ||
+    product.description?.trim() ||
+    product.shortDescription?.trim() ||
+    null;
+
   const sections = [
-    {
-      title: "Description",
-      content: product.description ?? "Description à venir.",
-    },
+    ...(description ? [{ title: "Description" as const, content: description }] : []),
     {
       title: "Livraison",
       content:
-        "Livraison en point relais Mondial Relay. Préparation depuis mon stock en France. Les délais exacts sont confirmés lors de la commande.",
+        "Expédition depuis la France en point relais (Mondial Relay ou Chronopost selon votre choix). Les frais et délais exacts sont confirmés avant paiement.",
     },
     {
       title: "Retours",
       content:
-        "Retour possible sous 14 jours pour les articles non portés, non lavés et dans leur état d'origine. Consultez nos conditions de retour pour la procédure complète.",
+        "Retour possible sous 14 jours après réception pour les articles non portés, non lavés et dans leur état d'origine. Consultez la page Livraison & retours pour la procédure.",
     },
-    {
-      title: "Entretien",
-      content: product.careInstructions ?? "Suivre les instructions de l'étiquette du vêtement.",
-    },
+    ...(product.careInstructions
+      ? []
+      : [
+          {
+            title: "Entretien" as const,
+            content: "Suivre les instructions de l'étiquette du vêtement.",
+          },
+        ]),
   ];
+
+  if (sections.length === 0) return null;
 
   return (
     <div className="space-y-3 border-t pt-6">
+      <h2 className="text-base font-semibold">Informations complémentaires</h2>
       {sections.map((section) => (
         <details
           key={section.title}

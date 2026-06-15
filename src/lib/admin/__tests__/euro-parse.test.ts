@@ -25,7 +25,35 @@ REF;Robes;Robe;Desc;coton;été;FR;fille;rose;4A;4 ans;19,90;8,00;2;120,`;
   });
 });
 
+describe("validateCsvHeaders", () => {
+  it("accepte les en-têtes français via alias", () => {
+    const csv = `reference;categorie;nom;description;composition;saison;genre;couleur;taille;age;prix;stock;poids;image
+REF;Bébé;Body;Desc;100% coton;toute-saison;mixte;Naturel;3 mois;0-3 mois;12,90;5;145;/products/body.svg`;
+    const parsed = parseCsvContent(csv);
+    expect(validateCsvHeaders(parsed.headers)).toBeNull();
+    expect(parsed.headers).toContain("category");
+    expect(parsed.headers).toContain("price_eur");
+    expect(parsed.headers).toContain("weight_grams");
+  });
+});
+
 describe("importRowSchema", () => {
+  it("accepte un chemin image local", () => {
+    const result = importRowSchema.safeParse({
+      reference: "BODY-01",
+      category: "Bébé",
+      name: "Body",
+      gender: "mixte",
+      price_eur: "12,90",
+      stock_quantity: "3",
+      image_url: "/products/body-bebe-coton-bio.svg",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.image_url).toBe("/products/body-bebe-coton-bio.svg");
+    }
+  });
+
   it("convertit price_eur en price_cents", () => {
     const result = importRowSchema.safeParse({
       reference: "TSH-01",

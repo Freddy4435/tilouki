@@ -28,11 +28,15 @@ import {
   executeProductImportAction,
   previewProductImportAction,
 } from "@/server/actions/admin/import";
-import type { ImportExecuteResult, ImportPreviewResult } from "@/lib/validations/product-import";
+import type {
+  ImportExecuteResult,
+  ImportPreviewResult,
+} from "@/lib/validations/product-import";
 
 type Step = "upload" | "preview" | "done";
 
 const TEMPLATE_URL = "/import-produits-exemple.csv";
+const CATALOG_TEMPLATE_URL = "/import-catalogue-tilouki.csv";
 
 function statusBadge(status: string) {
   switch (status) {
@@ -125,26 +129,42 @@ export function ProductImportFlow() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p className="text-muted-foreground">
-            Une ligne = une variante (taille/âge). Même <strong>reference</strong> = même
-            modèle, tailles différentes.
+            Une ligne = une variante (taille/âge). Même <strong>reference</strong> =
+            même modèle, tailles différentes.
           </p>
           <p className="text-muted-foreground text-xs">
-            Colonnes :{" "}
-            <code className="text-xs">{CSV_IMPORT_HEADERS.join(",")}</code>
+            Colonnes (anglais ou alias français : référence, catégorie, nom,
+            composition, saison, genre, couleur, taille, âge, prix, stock, poids, image)
+            : <code className="text-xs">{CSV_IMPORT_HEADERS.join(",")}</code>
           </p>
           <ul className="text-muted-foreground list-inside list-disc space-y-1 text-xs">
             <li>Encodage UTF-8 — séparateur virgule ou point-virgule (Excel FR)</li>
-            <li>Prix en euros avec virgule française : <code>19,90</code></li>
+            <li>
+              Prix en euros avec virgule française : <code>19,90</code>
+            </li>
+            <li>
+              Image : URL https ou chemin local <code>/products/…</code>
+            </li>
             <li>Doublons refusés : reference + size_label + color</li>
           </ul>
-          <a
-            href={TEMPLATE_URL}
-            download="import-produits-exemple.csv"
-            className="border-input bg-background hover:bg-muted inline-flex h-8 items-center gap-2 rounded-lg border px-3 text-sm font-medium"
-          >
-            <Download className="size-4" />
-            Télécharger le modèle CSV
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={TEMPLATE_URL}
+              download="import-produits-exemple.csv"
+              className="border-input bg-background hover:bg-muted inline-flex h-8 items-center gap-2 rounded-lg border px-3 text-sm font-medium"
+            >
+              <Download className="size-4" />
+              Modèle court (2 produits)
+            </a>
+            <a
+              href={CATALOG_TEMPLATE_URL}
+              download="import-catalogue-tilouki.csv"
+              className="border-input bg-background hover:bg-muted inline-flex h-8 items-center gap-2 rounded-lg border px-3 text-sm font-medium"
+            >
+              <Download className="size-4" />
+              Catalogue complet (20 produits)
+            </a>
+          </div>
         </CardContent>
       </Card>
 
@@ -160,10 +180,14 @@ export function ProductImportFlow() {
             />
             <FileUp className="text-muted-foreground size-10" />
             <p className="text-muted-foreground max-w-md text-center text-sm">
-              Importez un export Excel / CSV. La prévisualisation affiche les erreurs ligne
-              par ligne avant validation.
+              Importez un export Excel / CSV. La prévisualisation affiche les erreurs
+              ligne par ligne avant validation.
             </p>
-            <Button type="button" onClick={() => fileRef.current?.click()} disabled={isPending}>
+            <Button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={isPending}
+            >
               {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
@@ -259,7 +283,12 @@ export function ProductImportFlow() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={reset} disabled={isPending}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={reset}
+              disabled={isPending}
+            >
               Changer de fichier
             </Button>
             <Button
@@ -290,21 +319,27 @@ export function ProductImportFlow() {
               <div className="flex items-center gap-2 rounded-lg border p-3">
                 <Package className="text-primary size-5" />
                 <div>
-                  <p className="text-2xl font-semibold tabular-nums">{result.productsCreated}</p>
+                  <p className="text-2xl font-semibold tabular-nums">
+                    {result.productsCreated}
+                  </p>
                   <p className="text-muted-foreground text-xs">Produit(s) créé(s)</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 rounded-lg border p-3">
                 <CheckCircle2 className="text-primary size-5" />
                 <div>
-                  <p className="text-2xl font-semibold tabular-nums">{result.variantsCreated}</p>
+                  <p className="text-2xl font-semibold tabular-nums">
+                    {result.variantsCreated}
+                  </p>
                   <p className="text-muted-foreground text-xs">Variante(s) créée(s)</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 rounded-lg border p-3">
                 <SkipForward className="text-muted-foreground size-5" />
                 <div>
-                  <p className="text-2xl font-semibold tabular-nums">{result.skipped}</p>
+                  <p className="text-2xl font-semibold tabular-nums">
+                    {result.skipped}
+                  </p>
                   <p className="text-muted-foreground text-xs">Ligne(s) ignorée(s)</p>
                 </div>
               </div>
@@ -318,8 +353,8 @@ export function ProductImportFlow() {
             </div>
 
             <p className="text-muted-foreground text-sm">
-              {result.categoriesCreated} catégorie(s) créée(s) · {result.imported} ligne(s)
-              importée(s) au total
+              {result.categoriesCreated} catégorie(s) créée(s) · {result.imported}{" "}
+              ligne(s) importée(s) au total
             </p>
 
             {result.details.length > 0 ? (

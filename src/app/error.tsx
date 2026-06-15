@@ -25,9 +25,12 @@ export default function Error({
       <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
         Erreur inattendue
       </p>
-      <h1 className="font-heading mt-2 text-3xl font-semibold">Un problème est survenu</h1>
+      <h1 className="font-heading mt-2 text-3xl font-semibold">
+        Un problème est survenu
+      </h1>
       <p className="text-muted-foreground mt-3 max-w-md text-sm">
-        Nous n&apos;avons pas pu afficher cette page. Vous pouvez réessayer ou revenir au catalogue.
+        Nous n&apos;avons pas pu afficher cette page. Vous pouvez réessayer ou revenir
+        au catalogue.
       </p>
       <div className="mt-8 flex gap-3">
         <Button type="button" onClick={reset} className="rounded-full">

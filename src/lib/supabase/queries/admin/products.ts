@@ -50,7 +50,9 @@ export interface AdminProductDetail {
   hasOrders: boolean;
 }
 
-export async function listAdminProducts(query?: string): Promise<AdminProductListItem[]> {
+export async function listAdminProducts(
+  query?: string,
+): Promise<AdminProductListItem[]> {
   const supabase = await getAdminSupabase();
   if (!supabase) return [];
 
@@ -126,7 +128,9 @@ export async function getAdminProduct(id: string): Promise<AdminProductDetail | 
   const [productResult, hasOrders] = await Promise.all([
     supabase
       .from("products")
-      .select(`*, category:categories(name), images:product_images(*), variants:product_variants(*)`)
+      .select(
+        `*, category:categories(name), images:product_images(*), variants:product_variants(*)`,
+      )
       .eq("id", id)
       .maybeSingle(),
     productHasOrders(id),

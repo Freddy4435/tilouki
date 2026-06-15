@@ -1,7 +1,9 @@
 import { ConsentGatedAnalytics } from "@/components/analytics/consent-gated-analytics";
+import { SkipToContent } from "@/components/layout/skip-to-content";
 import { AppProviders } from "@/components/providers/app-providers";
 import { ShopProvider } from "@/components/providers/shop-provider";
 import { CookieConsent } from "@/components/layout/cookie-consent";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteJsonLd } from "@/components/seo/site-json-ld";
@@ -21,14 +23,19 @@ export default async function PublicLayout({
       <SiteJsonLd settings={settings} />
       <div className="flex min-h-screen flex-col" style={themeStyle}>
         <AppProviders>
-          <SiteHeader />
+          <SkipToContent />
+          <SiteHeader
+            announcementsEnabled={settings.announcementsEnabled ?? false}
+            announcements={settings.announcements ?? []}
+          />
           <main
             id="contenu-principal"
-            className="flex-1 pb-[var(--cookie-banner-height,0px)]"
+            className="flex-1 pb-[calc(var(--cookie-banner-height,0px)+var(--mobile-bottom-nav-height,0px))] md:pb-[var(--cookie-banner-height,0px)]"
           >
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter className="pb-[var(--mobile-bottom-nav-height,0px)] md:pb-0" />
+          <MobileBottomNav />
           <CookieConsent />
           <ConsentGatedAnalytics />
         </AppProviders>

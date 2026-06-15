@@ -18,60 +18,77 @@ export interface ReassuranceItem {
   description?: string;
 }
 
-/** Microcopy courte — affichée en pills / bandeaux (prix livraison dynamique). */
-export function getReassuranceMicrocopy(minShippingCents: number): ReassuranceItem[] {
-  return [
+export interface ReassuranceMicrocopyOptions {
+  minShippingCents: number;
+  hasReturnPolicy?: boolean;
+}
+
+/** Microcopy courte — affichée en pills / bandeaux (aucune promesse non configurée). */
+export function getReassuranceMicrocopy({
+  minShippingCents,
+  hasReturnPolicy = false,
+}: ReassuranceMicrocopyOptions): ReassuranceItem[] {
+  const items: ReassuranceItem[] = [
     {
       id: "payment",
       icon: ShieldCheck,
       label: "Paiement sécurisé Stripe",
     },
-    {
+  ];
+
+  if (minShippingCents > 0) {
+    items.push({
       id: "relay",
       icon: Truck,
       label: `Livraison point relais dès ${formatPrice(minShippingCents)}`,
-    },
-    {
+    });
+  }
+
+  if (hasReturnPolicy) {
+    items.push({
       id: "returns",
       icon: RotateCcw,
-      label: "Retours sous 14 jours",
-    },
-    {
-      id: "france",
-      icon: MapPin,
-      label: "Boutique française",
-    },
-  ];
+      label: "Retours — voir conditions",
+    });
+  }
+
+  items.push({
+    id: "france",
+    icon: MapPin,
+    label: "Boutique française",
+  });
+
+  return items;
 }
 
-/** Blocs valeur page d'accueil */
+/** Blocs valeur page d'accueil — Pourquoi Tilouki */
 export const HOME_VALUE_PROPS: ReassuranceItem[] = [
-  {
-    id: "relay",
-    icon: Truck,
-    label: "Livraison en point relais",
-    description:
-      "Choisissez le relais le plus pratique. Idéal pour récupérer votre colis quand vous le souhaitez.",
-  },
-  {
-    id: "payment",
-    icon: CreditCard,
-    label: "Paiement sécurisé Stripe",
-    description:
-      "Règlement protégé par Stripe. Vos coordonnées bancaires ne sont jamais stockées sur notre site.",
-  },
   {
     id: "stock",
     icon: PackageCheck,
-    label: "Stock réel",
+    label: "Stock réel, taille par taille",
     description:
-      "La disponibilité est affichée par taille. Le stock est mis à jour en temps réel à chaque commande.",
+      "Vous voyez ce qui est disponible avant d'ajouter au panier. Fini les mauvaises surprises à la caisse.",
+  },
+  {
+    id: "relay",
+    icon: Truck,
+    label: "Point relais près de chez vous",
+    description:
+      "Récupérez le colis quand ça vous arrange — pratique avec un bébé ou après l'école.",
   },
   {
     id: "care",
     icon: Heart,
-    label: "Vêtements sélectionnés avec soin",
+    label: "Pièces choisies pour le quotidien",
     description:
-      "Des pièces choisies pour le confort et la durabilité — pensées pour accompagner le quotidien des enfants.",
+      "Matières indiquées, entretien clair : des vêtements pensés pour durer aux goûters et aux siestes.",
+  },
+  {
+    id: "payment",
+    icon: CreditCard,
+    label: "Paiement sécurisé",
+    description:
+      "Règlement protégé par Stripe. Vos coordonnées bancaires ne sont jamais stockées sur le site.",
   },
 ];

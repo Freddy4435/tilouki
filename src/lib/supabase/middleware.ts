@@ -1,8 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { applySecurityHeaders, buildCsp, generateCspNonce } from "@/lib/security/headers";
-import { checkRateLimit, rateLimitKey } from "@/lib/security/rate-limit";
+import {
+  applySecurityHeaders,
+  buildCsp,
+  generateCspNonce,
+} from "@/lib/security/headers";
+import {
+  checkRateLimit,
+  rateLimitDeniedMessage,
+  rateLimitKey,
+} from "@/lib/security/rate-limit";
 import type { Database } from "@/types/database";
 
 const ADMIN_PUBLIC_PATHS = ["/admin/login"];
@@ -35,9 +43,9 @@ async function applyRateLimit(request: NextRequest): Promise<NextResponse | null
 
   if (!result.allowed) {
     return NextResponse.json(
-      { error: "Trop de requêtes." },
+      { error: rateLimitDeniedMessage(result) },
       {
-        status: 429,
+        status: result.unavailable ? 503 : 429,
         headers: {
           "Retry-After": String(
             Math.max(1, Math.ceil((result.resetAt - Date.now()) / 1000)),

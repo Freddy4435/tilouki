@@ -5,10 +5,15 @@ export const CACHE_TAGS = {
   shopSettings: "shop-settings",
   shippingRates: "shipping-rates",
   legal: "legal",
+  reviews: "reviews",
 } as const;
 
 export function productTag(slug: string): string {
   return `product:${slug}`;
+}
+
+export function productReviewsTag(productId: string): string {
+  return `product-reviews:${productId}`;
 }
 
 export function legalTag(slug: string): string {

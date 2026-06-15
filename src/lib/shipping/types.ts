@@ -11,10 +11,7 @@ export type Carrier = "mondial_relay" | "chronopost";
 /** @alias Carrier — nom historique utilisé dans le code existant. */
 export type CarrierName = Carrier;
 
-export type ShippingProviderName =
-  | Carrier
-  | "dev_mock"
-  | "unconfigured";
+export type ShippingProviderName = Carrier | "dev_mock" | "unconfigured";
 
 /** Mode de livraison (ex. point retrait). Stocké dans orders.shipping_method. */
 export type ShippingServiceId = "relay_point";
@@ -60,6 +57,8 @@ export interface PickupPoint {
   zip: string;
   city: string;
   country: string;
+  /** Distance en mètres depuis l'origine de recherche (WSI4 Mondial Relay). */
+  distanceMeters?: number;
   openingHours?: string;
   isDevMock?: boolean;
 }
@@ -148,6 +147,8 @@ export interface CreateShipmentLabelInput {
 export interface ShipmentLabel {
   shipmentNumber: string;
   labelUrl: string;
+  /** Chemin storage d'un PDF archivé (optionnel). */
+  labelPdfPath?: string | null;
   isDevMock?: boolean;
 }
 

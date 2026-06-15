@@ -25,7 +25,10 @@ export function OrderInternalNotesForm({
     event.preventDefault();
     startTransition(async () => {
       setError(null);
-      const result = await updateOrderInternalNotesAction({ orderId, internalNotes: notes });
+      const result = await updateOrderInternalNotesAction({
+        orderId,
+        internalNotes: notes,
+      });
       if (result.error) setError(result.error);
       else router.refresh();
     });

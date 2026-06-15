@@ -11,7 +11,9 @@ import type { OrderEmailPayload, RenderedEmail } from "@/lib/email/types";
 
 export function renderAdminNewOrderEmail(order: OrderEmailPayload): RenderedEmail {
   const orderNumber = escapeHtml(order.orderNumber);
-  const customerName = escapeHtml(`${order.customerFirstName} ${order.customerLastName}`.trim());
+  const customerName = escapeHtml(
+    `${order.customerFirstName} ${order.customerLastName}`.trim(),
+  );
   const customerEmail = escapeHtml(order.customerEmail);
   const customerPhone = escapeHtml(order.customerPhone?.trim() || "—");
   const adminUrl = `${order.siteUrl}/admin/commandes/${order.orderId}`;

@@ -9,7 +9,11 @@ import {
 } from "@/lib/catalog/dev-seed.fixture";
 import type { ProductListItem } from "@/types/catalog";
 
-function mockProduct(slug: string, minPriceCents: number, badges: ProductListItem["badges"] = []): ProductListItem {
+function mockProduct(
+  slug: string,
+  minPriceCents: number,
+  badges: ProductListItem["badges"] = [],
+): ProductListItem {
   return {
     id: slug,
     slug,
@@ -55,7 +59,8 @@ describe("dev-seed.fixture", () => {
       const price = slug === "chaussettes-coton-lot3" ? 990 : 1190;
       return mockProduct(slug, price, ["low-price"]);
     });
-    lowPriceMocks.find((p) => p.slug === "short-garcon-promo")!.compareAtPriceCents = 1990;
+    lowPriceMocks.find((p) => p.slug === "short-garcon-promo")!.compareAtPriceCents =
+      1990;
 
     const filtered = filterLowPriceProducts(lowPriceMocks);
     expect(filtered.map((p) => p.slug).sort()).toEqual(

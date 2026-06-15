@@ -30,10 +30,7 @@ export default async function AdminProduitDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <AdminPageHeader
-        title={product.name}
-        description={`Slug : ${product.slug}`}
-      />
+      <AdminPageHeader title={product.name} description={`Slug : ${product.slug}`} />
 
       <ProductForm
         product={product}

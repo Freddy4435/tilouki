@@ -28,11 +28,11 @@ function main() {
     console.warn("  ⚠ Dépôt git non détecté — poursuite quand même.\n");
   }
 
-  const result = spawnSync(
-    "supabase",
-    ["db", "execute", "--file", productsSeed],
-    { cwd: root, stdio: "inherit", shell: process.platform === "win32" },
-  );
+  const result = spawnSync("supabase", ["db", "execute", "--file", productsSeed], {
+    cwd: root,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
 
   if (result.status !== 0) {
     console.error(

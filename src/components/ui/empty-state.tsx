@@ -29,19 +29,19 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "bg-card flex flex-col items-center gap-5 rounded-2xl border border-dashed px-6 py-14 text-center shadow-[var(--shadow-soft)]",
+        "bg-card flex flex-col items-center gap-5 rounded-[var(--radius-card)] border border-dashed px-6 py-14 text-center shadow-[var(--shadow-soft)]",
         className,
       )}
     >
-      <div className="from-tilouki-rose-soft to-tilouki-blue-soft flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br">
-        <Icon className="text-primary size-7" aria-hidden />
+      <div className="bg-tilouki-jade-soft flex size-16 items-center justify-center rounded-[var(--radius-card)]">
+        <Icon className="text-tilouki-teal-dark size-7" aria-hidden />
       </div>
       <div className="max-w-md space-y-2">
-        <p className="font-heading text-xl font-semibold">{title}</p>
+        <p className="text-section-title">{title}</p>
         <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
       </div>
       {action ? (
-        <ButtonLink href={action.href} size="lg" className="rounded-full">
+        <ButtonLink href={action.href} size="lg">
           {action.label}
         </ButtonLink>
       ) : null}

@@ -1,16 +1,21 @@
 import type { Page, Route } from "@playwright/test";
 
-/** Accepte ou refuse les cookies optionnels pour débloquer le parcours. */
-export async function dismissCookieBanner(page: Page, choice: "accept" | "reject" = "reject") {
-  const banner = page.getByRole("dialog", { name: /consentement cookies|gestion des cookies/i });
+/** Ferme le bandeau cookies s'il est encore visible (secours si init script absent). */
+export async function dismissCookieBanner(
+  page: Page,
+  choice: "accept" | "reject" = "reject",
+) {
+  const banner = page.getByRole("dialog", { name: /gestion des cookies/i });
   const visible = await banner.isVisible().catch(() => false);
   if (!visible) return;
 
   if (choice === "accept") {
-    await page.getByRole("button", { name: /tout accepter/i }).click();
+    await banner.getByRole("button", { name: /^ok$/i }).click();
   } else {
-    await page.getByRole("button", { name: /refuser les cookies optionnels/i }).click();
+    await banner.getByRole("button", { name: /^refuser$/i }).click();
   }
+
+  await banner.waitFor({ state: "hidden", timeout: 5_000 }).catch(() => undefined);
 }
 
 export async function mockCartValidation(page: Page) {
@@ -37,10 +42,14 @@ export async function mockCartValidation(page: Page) {
         valid: true,
         items,
         messages: [],
-        subtotalCents: items.reduce((sum, i) => sum + i.unitPriceCents * i.requestedQuantity, 0),
+        subtotalCents: items.reduce(
+          (sum, i) => sum + i.unitPriceCents * i.requestedQuantity,
+          0,
+        ),
         shippingCents: 490,
         totalCents:
-          items.reduce((sum, i) => sum + i.unitPriceCents * i.requestedQuantity, 0) + 490,
+          items.reduce((sum, i) => sum + i.unitPriceCents * i.requestedQuantity, 0) +
+          490,
       }),
     });
   });
@@ -70,7 +79,11 @@ function buildDevMockRelayPoints(zip: string, city: string) {
     "[E2E] Supérette Proximité",
     "[E2E] Locker Relais Express",
   ];
-  const addresses = ["12 rue de la Paix", "45 avenue Jean Jaurès", "8 place de la Mairie"];
+  const addresses = [
+    "12 rue de la Paix",
+    "45 avenue Jean Jaurès",
+    "8 place de la Mairie",
+  ];
 
   return names.map((name, index) => ({
     id: `E2E-RELAY-${normalizedZip}-0${index + 1}`,

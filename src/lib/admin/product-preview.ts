@@ -58,8 +58,12 @@ export function buildProductPreview(
     categoryId: product?.categoryId ?? null,
     season: input.season ?? null,
     material: input.material ?? null,
-    sizes: [...new Set(activeVariants.map((v) => v.sizeLabel).filter(Boolean))] as string[],
-    ageLabels: [...new Set(activeVariants.map((v) => v.ageLabel).filter(Boolean))] as string[],
+    sizes: [
+      ...new Set(activeVariants.map((v) => v.sizeLabel).filter(Boolean)),
+    ] as string[],
+    ageLabels: [
+      ...new Set(activeVariants.map((v) => v.ageLabel).filter(Boolean)),
+    ] as string[],
     totalStock: activeVariants.reduce((s, v) => s + v.stockQuantity, 0),
     badges: [],
     createdAt: product?.id ? new Date().toISOString() : new Date().toISOString(),

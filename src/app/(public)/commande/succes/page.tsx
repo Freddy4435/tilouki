@@ -32,12 +32,17 @@ export default async function CommandeSuccesPage({ searchParams }: SuccessPagePr
           <div className="bg-tilouki-sage-light text-tilouki-sage-dark mx-auto flex size-14 items-center justify-center rounded-full">
             <CheckCircle2 className="size-7" />
           </div>
-          <h1 className="font-heading text-2xl font-semibold">Merci pour votre commande !</h1>
+          <h1 className="font-heading text-2xl font-semibold">
+            Merci pour votre commande !
+          </h1>
 
           {order && isPaid ? (
             <div className="text-muted-foreground space-y-2 text-sm leading-relaxed">
               <p>
-                Commande <span className="text-foreground font-semibold">{order.orderNumber}</span>
+                Commande{" "}
+                <span className="text-foreground font-semibold">
+                  {order.orderNumber}
+                </span>
               </p>
               <p>
                 Total réglé :{" "}
@@ -45,11 +50,14 @@ export default async function CommandeSuccesPage({ searchParams }: SuccessPagePr
                   {formatPrice(order.totalCents)}
                 </span>
               </p>
-              <p>Un e-mail de confirmation vous sera envoyé avec votre numéro de suivi.</p>
+              <p>
+                Un e-mail de confirmation vous sera envoyé avec votre numéro de suivi.
+              </p>
             </div>
           ) : order && !isPaid ? (
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Votre paiement est en cours de confirmation. Vous recevrez un e-mail dès validation.
+              Votre paiement est en cours de confirmation. Vous recevrez un e-mail dès
+              validation.
             </p>
           ) : (
             <p className="text-muted-foreground text-sm leading-relaxed">

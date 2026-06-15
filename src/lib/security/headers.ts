@@ -8,7 +8,7 @@ const SECURITY_HEADERS: Record<string, string> = {
   "X-DNS-Prefetch-Control": "on",
 };
 
-/** Génère le nonce CSP par requête (middleware) — 128 bits encodés base64. */
+/** Génère le nonce CSP par requête (proxy) — 128 bits encodés base64. */
 export function generateCspNonce(): string {
   return Buffer.from(crypto.randomUUID()).toString("base64");
 }
@@ -80,7 +80,10 @@ export function buildCsp(nonce: string): string {
   return directives.join("; ");
 }
 
-export function applySecurityHeaders(response: NextResponse, csp: string): NextResponse {
+export function applySecurityHeaders(
+  response: NextResponse,
+  csp: string,
+): NextResponse {
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     response.headers.set(key, value);
   }

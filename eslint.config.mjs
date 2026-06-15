@@ -13,7 +13,23 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "dist/**",
     "next-env.d.ts",
+    // Dépendances et hébergeur (jamais lintés)
+    "node_modules/**",
+    ".vercel/**",
+    ".turbo/**",
+    // Playwright : fixture `use()` déclenche react-hooks/rules-of-hooks à tort
+    "e2e/**",
+    "playwright/.cache/**",
+    // Artefacts locaux (gitignorés — ne pas linter les rapports / exports)
+    "playwright-report/**",
+    "test-results/**",
+    "blob-report/**",
+    "coverage/**",
+    "archives/**",
+    ".email-preview/**",
+    "supabase/.temp/**",
   ]),
 ]);
 

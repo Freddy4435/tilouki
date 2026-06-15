@@ -7,7 +7,9 @@ function getMondialRelayBrandIdFromEnv(): string | undefined {
 }
 
 export function isMondialRelayApiConfigured(): boolean {
-  return Boolean(getMondialRelayBrandIdFromEnv() && process.env.MONDIAL_RELAY_PRIVATE_KEY?.trim());
+  return Boolean(
+    getMondialRelayBrandIdFromEnv() && process.env.MONDIAL_RELAY_PRIVATE_KEY?.trim(),
+  );
 }
 
 /** Widget Mondial Relay (recherche carte) — clé publique côté client. */

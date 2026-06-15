@@ -10,14 +10,14 @@
 
 Préparez ces éléments une seule fois :
 
-| Élément | Détail |
-|--------|--------|
-| Navigateur | Chrome ou Firefox, fenêtre normale (pas forcément mobile) |
-| Carte bancaire test | `4242 4242 4242 4242` — date future, CVC quelconque (ex. 123) |
-| E-mail de test | Une adresse que vous consultez (ex. votre boîte perso) |
-| Téléphone | Numéro valide (10 chiffres minimum) |
-| Compte admin | Identifiants pour https://tilouki.vercel.app/admin |
-| Produit en stock | Au moins un article **publié** avec stock ≥ 2 sur une taille connue (notez la taille et le stock avant le test) |
+| Élément             | Détail                                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Navigateur          | Chrome ou Firefox, fenêtre normale (pas forcément mobile)                                                       |
+| Carte bancaire test | `4242 4242 4242 4242` — date future, CVC quelconque (ex. 123)                                                   |
+| E-mail de test      | Une adresse que vous consultez (ex. votre boîte perso)                                                          |
+| Téléphone           | Numéro valide (10 chiffres minimum)                                                                             |
+| Compte admin        | Identifiants pour https://tilouki.vercel.app/admin                                                              |
+| Produit en stock    | Au moins un article **publié** avec stock ≥ 2 sur une taille connue (notez la taille et le stock avant le test) |
 
 **Conseil :** notez sur un papier le **nom du produit**, la **taille choisie** et le **stock affiché** avant d’acheter. Vous en aurez besoin aux étapes 14 et 15.
 
@@ -195,37 +195,37 @@ Cochez chaque case une fois le résultat vérifié. En cas d’échec, décrivez
 
 ## Scénarios complémentaires (recommandés)
 
-| Scénario | Action | Résultat attendu |
-|----------|--------|------------------|
-| Panier vide | Aller à `/commande` sans article | Redirection ou message invitant à remplir le panier |
-| Paiement annulé | Sur Stripe, cliquer « Retour » | Page d’échec ou retour commande ; commande non payée en admin |
-| Double achat | Rejouer le parcours avec le même produit | Stock décrémenté une seule fois par commande payée |
-| Stock épuisé | Commander la dernière unité puis réessayer | Deuxième tentative refusée ou taille indisponible |
+| Scénario        | Action                                     | Résultat attendu                                              |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| Panier vide     | Aller à `/commande` sans article           | Redirection ou message invitant à remplir le panier           |
+| Paiement annulé | Sur Stripe, cliquer « Retour »             | Page d’échec ou retour commande ; commande non payée en admin |
+| Double achat    | Rejouer le parcours avec le même produit   | Stock décrémenté une seule fois par commande payée            |
+| Stock épuisé    | Commander la dernière unité puis réessayer | Deuxième tentative refusée ou taille indisponible             |
 
 ---
 
 ## Grille de synthèse
 
-| # | Étape | OK | KO | Commentaire |
-|---|-------|:--:|:--:|-------------|
-| 1 | Accueil | ☐ | ☐ | |
-| 2 | Catalogue | ☐ | ☐ | |
-| 3 | Filtres / taille | ☐ | ☐ | |
-| 4 | Fiche produit | ☐ | ☐ | |
-| 5 | Choix taille | ☐ | ☐ | |
-| 6 | Ajout panier | ☐ | ☐ | |
-| 7 | Quantité | ☐ | ☐ | |
-| 8 | Page commande | ☐ | ☐ | |
-| 9 | Infos client | ☐ | ☐ | |
-| 10 | Point relais | ☐ | ☐ | |
-| 11 | CGV | ☐ | ☐ | |
-| 12 | Paiement Stripe | ☐ | ☐ | |
-| 13 | Confirmation | ☐ | ☐ | |
-| 14 | Stock | ☐ | ☐ | |
-| 15 | Admin | ☐ | ☐ | |
+| #   | Étape            | OK  | KO  | Commentaire |
+| --- | ---------------- | :-: | :-: | ----------- |
+| 1   | Accueil          |  ☐  |  ☐  |             |
+| 2   | Catalogue        |  ☐  |  ☐  |             |
+| 3   | Filtres / taille |  ☐  |  ☐  |             |
+| 4   | Fiche produit    |  ☐  |  ☐  |             |
+| 5   | Choix taille     |  ☐  |  ☐  |             |
+| 6   | Ajout panier     |  ☐  |  ☐  |             |
+| 7   | Quantité         |  ☐  |  ☐  |             |
+| 8   | Page commande    |  ☐  |  ☐  |             |
+| 9   | Infos client     |  ☐  |  ☐  |             |
+| 10  | Point relais     |  ☐  |  ☐  |             |
+| 11  | CGV              |  ☐  |  ☐  |             |
+| 12  | Paiement Stripe  |  ☐  |  ☐  |             |
+| 13  | Confirmation     |  ☐  |  ☐  |             |
+| 14  | Stock            |  ☐  |  ☐  |             |
+| 15  | Admin            |  ☐  |  ☐  |             |
 
-**Testeur :** _______________  
-**Date :** _______________  
+**Testeur :** **\*\***\_\_\_**\*\***  
+**Date :** **\*\***\_\_\_**\*\***  
 **Environnement :** production / préproduction / local  
 **Verdict global :** ☐ Validé ☐ Validé avec réserves ☐ Refusé
 
@@ -239,13 +239,13 @@ Les règles métier ci-dessus sont aussi couvertes par des tests lancés avec :
 npm run test
 ```
 
-| Fichier | Ce qui est vérifié |
-|---------|-------------------|
-| `src/lib/cart/calculations.test.ts` | Sous-total, total, quantités, alertes stock panier |
-| `src/lib/shipping/rates.test.ts` | Poids panier, tranches de frais de livraison par transporteur |
-| `src/lib/validations/checkout.test.ts` | Formulaire client, relais, CGV, payload API |
-| `src/lib/admin/order-transitions.test.ts` | Changements de statut commande (préparation, expédition…) |
-| `src/app/api/checkout/create-session/route.test.ts` | Réponses API checkout (succès, erreurs, limite de requêtes) |
+| Fichier                                             | Ce qui est vérifié                                            |
+| --------------------------------------------------- | ------------------------------------------------------------- |
+| `src/lib/cart/calculations.test.ts`                 | Sous-total, total, quantités, alertes stock panier            |
+| `src/lib/shipping/rates.test.ts`                    | Poids panier, tranches de frais de livraison par transporteur |
+| `src/lib/validations/checkout.test.ts`              | Formulaire client, relais, CGV, payload API                   |
+| `src/lib/admin/order-transitions.test.ts`           | Changements de statut commande (préparation, expédition…)     |
+| `src/app/api/checkout/create-session/route.test.ts` | Réponses API checkout (succès, erreurs, limite de requêtes)   |
 
 Pour les tests Stripe détaillés (webhooks, sandbox), voir aussi [STRIPE_SANDBOX_CHECKLIST.md](./STRIPE_SANDBOX_CHECKLIST.md).
 

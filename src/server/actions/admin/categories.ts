@@ -7,7 +7,9 @@ import { getAdminSupabase } from "@/lib/supabase/queries/admin/client";
 import { slugify } from "@/lib/utils/slug";
 import { requireAdmin } from "@/server/auth";
 
-export async function saveCategoryAction(formData: FormData): Promise<{ error?: string }> {
+export async function saveCategoryAction(
+  formData: FormData,
+): Promise<{ error?: string }> {
   await requireAdmin();
   const supabase = await getAdminSupabase();
   if (!supabase) return { error: "Base de données indisponible." };
@@ -19,7 +21,13 @@ export async function saveCategoryAction(formData: FormData): Promise<{ error?: 
   const sortOrder = Number(formData.get("sortOrder") ?? 0);
   const isActive = formData.get("isActive") === "on";
 
-  const payload = { name, slug, description, sort_order: sortOrder, is_active: isActive };
+  const payload = {
+    name,
+    slug,
+    description,
+    sort_order: sortOrder,
+    is_active: isActive,
+  };
 
   const { error } = id
     ? await supabase.from("categories").update(payload).eq("id", id)

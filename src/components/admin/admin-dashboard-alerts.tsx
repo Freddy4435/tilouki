@@ -1,6 +1,7 @@
 import { AlertTriangle, CircleAlert } from "lucide-react";
 import Link from "next/link";
 
+import { AdminDashboardAlertActionButton } from "@/components/admin/admin-dashboard-alert-action";
 import type { AdminDashboardAlert } from "@/lib/admin/dashboard-alerts";
 import { cn } from "@/lib/utils";
 
@@ -40,17 +41,30 @@ export function AdminDashboardAlerts({ alerts }: AdminDashboardAlertsProps) {
               className={cn("rounded-xl border px-4 py-3", style.container)}
               role="alert"
             >
-              <p className={cn("flex items-start gap-2 text-sm font-medium", style.title)}>
+              <p
+                className={cn(
+                  "flex items-start gap-2 text-sm font-medium",
+                  style.title,
+                )}
+              >
                 <Icon className="mt-0.5 size-4 shrink-0" />
                 {alert.title}
               </p>
               <p className={cn("mt-1 text-sm", style.text)}>{alert.description}</p>
-              <Link
-                href={alert.href}
-                className="text-primary mt-2 inline-block text-sm font-medium underline"
-              >
-                {alert.hrefLabel} →
-              </Link>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <Link
+                  href={alert.href}
+                  className="text-primary text-sm font-medium underline"
+                >
+                  {alert.hrefLabel} →
+                </Link>
+                {alert.actions?.map((action) => (
+                  <AdminDashboardAlertActionButton
+                    key={action.action}
+                    action={action}
+                  />
+                ))}
+              </div>
             </div>
           );
         })}

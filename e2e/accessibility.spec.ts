@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 import {
   expectLabeledInputs,
@@ -18,7 +18,9 @@ test.describe("Accessibilité — formulaire checkout", () => {
     await ensureSeededCartOnPage(page);
   });
 
-  test("formulaire client — labels, boutons nommés, focus visible", async ({ page }) => {
+  test("formulaire client — labels, boutons nommés, focus visible", async ({
+    page,
+  }) => {
     await openCheckoutFromCart(page);
 
     await expectLabeledInputs(page, ["Prénom", "Nom", "E-mail", "Téléphone"]);
@@ -37,11 +39,21 @@ test.describe("Accessibilité — fiche produit", () => {
 
   test("bouton d'achat nommé", async ({ page }) => {
     await page.goto("/catalogue");
-    const productLink = page.locator('a[href^="/produit/"]').first();
-    test.skip((await productLink.count()) === 0, "Aucun produit actif — exécutez npm run seed:dev");
+    const productLink = page
+      .getByRole("link", { name: /choisir la taille|voir le produit/i })
+      .first();
+    test.skip(
+      (await productLink.count()) === 0,
+      "Aucun produit vendable — photo commerciale requise",
+    );
 
     await productLink.click();
-    await expect(page.locator("main").getByRole("button", { name: /ajouter/i }).first()).toBeVisible();
+    await expect(
+      page
+        .locator("main")
+        .getByRole("button", { name: /ajouter/i })
+        .first(),
+    ).toBeVisible();
     await expectNoSeriousAxeViolations(page);
   });
 });

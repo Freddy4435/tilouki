@@ -12,18 +12,22 @@ export interface RateRange {
   isActive: boolean;
 }
 
-const eurosToCents = z
-  .union([z.string(), z.number()])
-  .transform((v, ctx) => {
-    const cents = parseEuroToCents(v);
-    if (cents === null) {
-      ctx.addIssue({ code: "custom", message: "Prix invalide (montant en euros ≥ 0)." });
-      return z.NEVER;
-    }
-    return cents;
-  });
+const eurosToCents = z.union([z.string(), z.number()]).transform((v, ctx) => {
+  const cents = parseEuroToCents(v);
+  if (cents === null) {
+    ctx.addIssue({ code: "custom", message: "Prix invalide (montant en euros ≥ 0)." });
+    return z.NEVER;
+  }
+  if (cents <= 0) {
+    ctx.addIssue({ code: "custom", message: "Le prix doit être strictement positif." });
+    return z.NEVER;
+  }
+  return cents;
+});
 
-export const SHIPPING_METHOD_IDS = ["relay_point"] as const satisfies readonly ShippingServiceId[];
+export const SHIPPING_METHOD_IDS = [
+  "relay_point",
+] as const satisfies readonly ShippingServiceId[];
 
 export const adminShippingRateSchema = z
   .object({
@@ -112,4 +116,61 @@ export function computeReorderUpdates(
 export function suggestNextSortOrder(rates: SortableRate[]): number {
   if (rates.length === 0) return 1;
   return Math.max(...rates.map((rate) => rate.sortOrder)) + 1;
+}
+
+/**
+ * Fusionne une tranche candidate dans la liste existante (édition ou création).
+ * Les tranches inactives sont exclues du résultat si la candidate est inactive.
+ */
+export function mergeRateIntoGrid(
+  existing: RateRange[],
+  candidate: RateRange & { id?: string },
+): RateRange[] {
+  const withoutSelf = candidate.id
+    ? existing.filter((rate) => rate.id !== candidate.id)
+    : existing;
+
+  if (!candidate.isActive) return withoutSelf;
+
+  return [
+    ...withoutSelf,
+    {
+      id: candidate.id,
+      label: candidate.label,
+      minWeightGrams: candidate.minWeightGrams,
+      maxWeightGrams: candidate.maxWeightGrams,
+      isActive: true,
+    },
+  ];
+}
+
+/**
+ * Vérifie qu'une grille de tranches actives est continue à partir de 0 g
+ * (bornes adjacentes : max + 1 = min suivant). Retourne un message d'erreur ou null.
+ */
+export function validateContinuousRateGrid(rates: RateRange[]): string | null {
+  const active = rates
+    .filter((rate) => rate.isActive)
+    .sort(
+      (a, b) =>
+        a.minWeightGrams - b.minWeightGrams || a.maxWeightGrams - b.maxWeightGrams,
+    );
+
+  if (active.length === 0) return null;
+
+  if (active[0]!.minWeightGrams !== 0) {
+    return "La grille active doit commencer à 0 g.";
+  }
+
+  for (let index = 1; index < active.length; index += 1) {
+    const previous = active[index - 1]!;
+    const current = active[index]!;
+    const expectedMin = previous.maxWeightGrams + 1;
+
+    if (current.minWeightGrams > expectedMin) {
+      return `Trou dans la grille entre ${previous.maxWeightGrams} g et ${current.minWeightGrams} g (la tranche suivante doit commencer à ${expectedMin} g).`;
+    }
+  }
+
+  return null;
 }

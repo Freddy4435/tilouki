@@ -5,8 +5,14 @@ import { Loader2, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
+import { ImageUploadFeedback } from "@/components/admin/image-upload-feedback";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  HERO_IMAGE_PROFILE,
+  IMAGE_UPLOAD_LIMITS,
+  validateImageFileForUpload,
+} from "@/lib/admin/image-upload";
 import { createClient } from "@/lib/supabase/client";
 import {
   extractStoragePathFromPublicUrl,
@@ -24,6 +30,7 @@ export function HeroImageUpload({ currentUrl }: HeroImageUploadProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState(currentUrl);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -45,9 +52,17 @@ export function HeroImageUpload({ currentUrl }: HeroImageUploadProps) {
 
   const uploadFile = async (file: File) => {
     setError(null);
+    setWarning(null);
     setUploading(true);
 
     try {
+      const validation = await validateImageFileForUpload(file, HERO_IMAGE_PROFILE);
+      if (!validation.ok) {
+        setError(validation.error ?? "Fichier refusé.");
+        return;
+      }
+      if (validation.warning) setWarning(validation.warning);
+
       const supabase = createClient();
       const path = getShopHeroStoragePath(file.name);
       const { error: uploadError } = await supabase.storage
@@ -68,6 +83,7 @@ export function HeroImageUpload({ currentUrl }: HeroImageUploadProps) {
   const removeImage = async () => {
     if (!previewUrl) return;
     setError(null);
+    setWarning(null);
 
     const path = extractStoragePathFromPublicUrl(previewUrl);
     if (path) {
@@ -82,9 +98,9 @@ export function HeroImageUpload({ currentUrl }: HeroImageUploadProps) {
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Photo hero (page d&apos;accueil)</Label>
-        <p className="text-muted-foreground text-xs">
-          Format paysage recommandé (4:5 ou 3:4), JPEG/WebP, max 10 Mo. Sans image, l&apos;illustration
-          CSS par défaut s&apos;affiche.
+        <p className="text-muted-foreground max-w-prose text-xs leading-relaxed">
+          {HERO_IMAGE_PROFILE.guidance} Sans image, l&apos;illustration CSS par défaut
+          s&apos;affiche.
         </p>
       </div>
 
@@ -108,7 +124,7 @@ export function HeroImageUpload({ currentUrl }: HeroImageUploadProps) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept={IMAGE_UPLOAD_LIMITS.acceptAttribute}
           className="sr-only"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -130,18 +146,19 @@ export function HeroImageUpload({ currentUrl }: HeroImageUploadProps) {
           {previewUrl ? "Remplacer" : "Téléverser une photo"}
         </Button>
         {previewUrl ? (
-          <Button type="button" variant="ghost" disabled={busy} onClick={() => void removeImage()}>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={busy}
+            onClick={() => void removeImage()}
+          >
             <Trash2 className="size-4" />
             Supprimer
           </Button>
         ) : null}
       </div>
 
-      {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <ImageUploadFeedback error={error} warning={warning} />
     </div>
   );
 }

@@ -73,6 +73,27 @@ describe("parseWsi4Response", () => {
     });
   });
 
+  it("parse la distance en mètres quand présente", () => {
+    const xml = soapEnvelope(`
+      <STAT>0</STAT>
+      <PointsRelais>
+        <PointRelais_Details>
+          <Num>012417</Num>
+          <LgAdr1>BODHI TELECOM</LgAdr1>
+          <LgAdr3>2 RUE DE MULHOUSE</LgAdr3>
+          <CP>75002</CP>
+          <Ville>PARIS</Ville>
+          <Pays>FR</Pays>
+          <Distance>1250</Distance>
+        </PointRelais_Details>
+      </PointsRelais>
+    `);
+
+    const result = parseWsi4Response(xml);
+
+    expect(result.points[0]?.distanceMeters).toBe(1250);
+  });
+
   it("parse les horaires d'ouverture quand présents", () => {
     const xml = soapEnvelope(`
       <STAT>0</STAT>

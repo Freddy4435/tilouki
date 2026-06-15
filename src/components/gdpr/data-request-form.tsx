@@ -73,7 +73,10 @@ export function DataRequestForm() {
 
       <p className="text-muted-foreground text-xs">
         Vous pouvez aussi nous contacter via les coordonnées des{" "}
-        <a href="/mentions-legales" className="text-primary underline-offset-4 hover:underline">
+        <a
+          href="/mentions-legales"
+          className="text-primary underline-offset-4 hover:underline"
+        >
           mentions légales
         </a>
         . Les commandes comptables peuvent être anonymisées plutôt que supprimées.

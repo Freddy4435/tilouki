@@ -55,7 +55,10 @@ export function buildBreadcrumbJsonLd(items: BreadcrumbItem[]) {
   };
 }
 
-export function buildProductJsonLd(product: ProductDetail) {
+export function buildProductJsonLd(
+  product: ProductDetail,
+  rating?: { average: number; count: number } | null,
+) {
   const images = product.images.map((image) => image.url).filter(Boolean);
   const primaryImage = images[0] ?? product.primaryImageUrl;
 
@@ -92,21 +95,30 @@ export function buildProductJsonLd(product: ProductDetail) {
           availability,
           url: productUrl,
         }
-      : offers[0] ?? {
+      : (offers[0] ?? {
           "@type": "Offer",
           price: (product.minPriceCents / 100).toFixed(2),
           priceCurrency: siteConfig.currency,
           availability,
           url: productUrl,
           itemCondition: "https://schema.org/NewCondition",
-        };
+        });
+
+  const ratingSummary =
+    rating ??
+    (product.ratingAverage && product.ratingCount
+      ? { average: product.ratingAverage, count: product.ratingCount }
+      : null);
 
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.seoDescription ?? product.shortDescription ?? product.description,
-    image: primaryImage ? [primaryImage, ...images.filter((url) => url !== primaryImage)] : undefined,
+    description:
+      product.seoDescription ?? product.shortDescription ?? product.description,
+    image: primaryImage
+      ? [primaryImage, ...images.filter((url) => url !== primaryImage)]
+      : undefined,
     sku: product.variants.find((v) => v.isActive)?.sku,
     brand: {
       "@type": "Brand",
@@ -114,6 +126,17 @@ export function buildProductJsonLd(product: ProductDetail) {
     },
     category: product.categoryName ?? undefined,
     offers: aggregateOffer,
+    ...(ratingSummary && ratingSummary.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: ratingSummary.average.toFixed(1),
+            reviewCount: ratingSummary.count,
+            bestRating: "5",
+            worstRating: "1",
+          },
+        }
+      : {}),
   };
 }
 

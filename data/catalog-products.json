@@ -1,0 +1,735 @@
+{
+  "notice": "Catalogue Tilouki — 20 produits enfants vendables (hors démo DEV).",
+  "products": [
+    {
+      "reference": "BODY-NAT-BIO",
+      "slug": "body-bebe-coton-bio",
+      "category": "Bébé",
+      "name": "Body bébé coton bio",
+      "shortDescription": "Body doux en coton bio, pressions à l'entrejambe.",
+      "description": "Body bébé en coton biologique certifié, idéal pour les premiers mois. Coupe confortable et finitions soignées.",
+      "material": "100 % coton bio",
+      "season": "Toute saison",
+      "madeIn": "Portugal",
+      "gender": "mixte",
+      "imageSlug": "body-bebe-coton-bio",
+      "accent": "#e8d4d8",
+      "variants": [
+        {
+          "size": "3 mois",
+          "age": "0-3 mois",
+          "color": "Naturel",
+          "priceEur": "12,90",
+          "costEur": "5,20",
+          "stock": 15,
+          "weight": 145,
+          "sku": "TK-BODY-3M"
+        },
+        {
+          "size": "6 mois",
+          "age": "3-6 mois",
+          "color": "Naturel",
+          "priceEur": "13,90",
+          "costEur": "5,50",
+          "stock": 12,
+          "weight": 155,
+          "sku": "TK-BODY-6M"
+        },
+        {
+          "size": "9 mois",
+          "age": "6-9 mois",
+          "color": "Naturel",
+          "priceEur": "14,90",
+          "costEur": "5,80",
+          "stock": 10,
+          "weight": 165,
+          "sku": "TK-BODY-9M"
+        }
+      ]
+    },
+    {
+      "reference": "GIG-NUAGES",
+      "slug": "gigoteuse-nuages-bebe",
+      "category": "Bébé",
+      "name": "Gigoteuse nuages",
+      "shortDescription": "Gigoteuse légère imprimée nuages, fermeture éclair.",
+      "description": "Gigoteuse douce pour des nuits sereines. Matière respirante et zip de sécurité.",
+      "material": "100 % coton",
+      "season": "Automne-hiver",
+      "madeIn": "France",
+      "gender": "mixte",
+      "imageSlug": "gigoteuse-nuages-bebe",
+      "accent": "#d4dce8",
+      "variants": [
+        {
+          "size": "0-6 mois",
+          "age": "0-6 mois",
+          "color": "Bleu nuage",
+          "priceEur": "34,90",
+          "costEur": "14,00",
+          "stock": 8,
+          "weight": 280,
+          "sku": "TK-GIG-0-6"
+        },
+        {
+          "size": "6-12 mois",
+          "age": "6-12 mois",
+          "color": "Bleu nuage",
+          "priceEur": "36,90",
+          "costEur": "14,50",
+          "stock": 6,
+          "weight": 300,
+          "sku": "TK-GIG-6-12"
+        }
+      ]
+    },
+    {
+      "reference": "COMB-BB-POL",
+      "slug": "combinaison-bebe-polaire",
+      "category": "Bébé",
+      "name": "Combinaison bébé polaire",
+      "shortDescription": "Combinaison chaude avec pieds intégrés.",
+      "description": "Combinaison bébé en polaire douce, parfaite pour les sorties fraîches. Ouverture pressions devant.",
+      "material": "100 % polyester recyclé doublé coton",
+      "season": "Automne-hiver",
+      "madeIn": "France",
+      "gender": "mixte",
+      "imageSlug": "combinaison-bebe-polaire",
+      "accent": "#d4e8dc",
+      "variants": [
+        {
+          "size": "3 mois",
+          "age": "0-3 mois",
+          "color": "Gris perle",
+          "priceEur": "39,90",
+          "costEur": "16,00",
+          "stock": 7,
+          "weight": 320,
+          "sku": "TK-COMB-3M"
+        },
+        {
+          "size": "6 mois",
+          "age": "3-6 mois",
+          "color": "Gris perle",
+          "priceEur": "41,90",
+          "costEur": "16,50",
+          "stock": 5,
+          "weight": 340,
+          "sku": "TK-COMB-6M"
+        }
+      ]
+    },
+    {
+      "reference": "ROB-LIBERTY",
+      "slug": "robe-liberty-fleurie",
+      "category": "Fille",
+      "name": "Robe liberty fleurie",
+      "shortDescription": "Robe légère imprimé liberty, parfaite pour le printemps.",
+      "description": "Robe fille en coton imprimé liberty. Coupe évasée et finitions délicates.",
+      "material": "100 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Portugal",
+      "gender": "fille",
+      "imageSlug": "robe-liberty-fleurie",
+      "accent": "#e8d4d8",
+      "variants": [
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Liberty rose",
+          "priceEur": "27,90",
+          "costEur": "11,00",
+          "stock": 6,
+          "weight": 180,
+          "sku": "TK-ROBE-LIB-4A"
+        },
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Liberty rose",
+          "priceEur": "29,90",
+          "costEur": "11,50",
+          "stock": 5,
+          "weight": 190,
+          "sku": "TK-ROBE-LIB-6A"
+        }
+      ]
+    },
+    {
+      "reference": "ROB-SMOCK",
+      "slug": "robe-smock-brodee",
+      "category": "Fille",
+      "name": "Robe smockée broderie",
+      "shortDescription": "Robe smockée avec broderie anglaise.",
+      "description": "Robe fille smockée, col rond et manches courtes. Broderie anglaise sur le buste.",
+      "material": "100 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Portugal",
+      "gender": "fille",
+      "imageSlug": "robe-smock-brodee",
+      "accent": "#f0e8dc",
+      "variants": [
+        {
+          "size": "3 ans",
+          "age": "2-3 ans",
+          "color": "Blanc cassé",
+          "priceEur": "32,90",
+          "costEur": "13,00",
+          "stock": 4,
+          "weight": 170,
+          "sku": "TK-SMOCK-3A"
+        },
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Blanc cassé",
+          "priceEur": "34,90",
+          "costEur": "13,50",
+          "stock": 4,
+          "weight": 175,
+          "sku": "TK-SMOCK-4A"
+        }
+      ]
+    },
+    {
+      "reference": "DEB-ETE-F",
+      "slug": "debardeur-fille-coton",
+      "category": "Fille",
+      "name": "Débardeur fille coton",
+      "shortDescription": "Débardeur léger en coton pour l'été.",
+      "description": "Débardeur fille en coton peigné, bretelles fines et coupe ajustée.",
+      "material": "100 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Portugal",
+      "gender": "fille",
+      "imageSlug": "debardeur-fille-coton",
+      "accent": "#e8d4d8",
+      "variants": [
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Corail",
+          "priceEur": "11,90",
+          "costEur": "4,50",
+          "stock": 14,
+          "weight": 70,
+          "sku": "TK-DEB-4A"
+        },
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Corail",
+          "priceEur": "12,90",
+          "costEur": "4,80",
+          "stock": 12,
+          "weight": 75,
+          "sku": "TK-DEB-6A"
+        }
+      ]
+    },
+    {
+      "reference": "JUP-TUTU",
+      "slug": "jupe-tutu-tulle",
+      "category": "Fille",
+      "name": "Jupe tutu tulle",
+      "shortDescription": "Jupe tutu en tulle doux, taille élastiquée.",
+      "description": "Jupe tutu fille en plusieurs couches de tulle doux. Parfaite pour les fêtes et le quotidien.",
+      "material": "100 % polyester tulle, doublure coton",
+      "season": "Toute saison",
+      "madeIn": "France",
+      "gender": "fille",
+      "imageSlug": "jupe-tutu-tulle",
+      "accent": "#e8d4e8",
+      "variants": [
+        {
+          "size": "3 ans",
+          "age": "2-3 ans",
+          "color": "Rose poudré",
+          "priceEur": "24,90",
+          "costEur": "9,50",
+          "stock": 8,
+          "weight": 120,
+          "sku": "TK-TUTU-3A"
+        },
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Rose poudré",
+          "priceEur": "26,90",
+          "costEur": "10,00",
+          "stock": 7,
+          "weight": 125,
+          "sku": "TK-TUTU-4A"
+        }
+      ]
+    },
+    {
+      "reference": "LEG-RIB-F",
+      "slug": "legging-coton-cotele",
+      "category": "Fille",
+      "name": "Legging coton côtelé",
+      "shortDescription": "Legging stretch en coton côtelé.",
+      "description": "Legging fille confortable, taille élastiquée et chevilles ajustées.",
+      "material": "95 % coton, 5 % élasthanne",
+      "season": "Automne-hiver",
+      "madeIn": "Turquie",
+      "gender": "fille",
+      "imageSlug": "legging-coton-cotele",
+      "accent": "#d4dce8",
+      "variants": [
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Marine",
+          "priceEur": "16,90",
+          "costEur": "6,50",
+          "stock": 10,
+          "weight": 110,
+          "sku": "TK-LEG-4A"
+        },
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Marine",
+          "priceEur": "17,90",
+          "costEur": "6,80",
+          "stock": 9,
+          "weight": 115,
+          "sku": "TK-LEG-6A"
+        }
+      ]
+    },
+    {
+      "reference": "SWEAT-CAP-F",
+      "slug": "sweat-capuche-fille-molleton",
+      "category": "Fille",
+      "name": "Sweat capuche fille",
+      "shortDescription": "Sweat molletonné doux avec capuche.",
+      "description": "Sweat fille confortable pour l'école et le week-end. Intérieur gratté tout doux.",
+      "material": "80 % coton, 20 % polyester",
+      "season": "Automne-hiver",
+      "madeIn": "Turquie",
+      "gender": "fille",
+      "imageSlug": "sweat-capuche-fille-molleton",
+      "accent": "#d4dce8",
+      "variants": [
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Rose poudré",
+          "priceEur": "24,90",
+          "costEur": "10,00",
+          "stock": 7,
+          "weight": 220,
+          "sku": "TK-SWEAT-F-6A"
+        },
+        {
+          "size": "8 ans",
+          "age": "7-8 ans",
+          "color": "Rose poudré",
+          "priceEur": "25,90",
+          "costEur": "10,50",
+          "stock": 5,
+          "weight": 240,
+          "sku": "TK-SWEAT-F-8A"
+        }
+      ]
+    },
+    {
+      "reference": "BLOUSE-LIN",
+      "slug": "blouse-lin-leger-fille",
+      "category": "Fille",
+      "name": "Blouse lin léger",
+      "shortDescription": "Blouse fille en lin mélangé, coupe ample.",
+      "description": "Blouse légère en lin et coton, idéale pour les journées chaudes.",
+      "material": "55 % lin, 45 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Portugal",
+      "gender": "fille",
+      "imageSlug": "blouse-lin-leger-fille",
+      "accent": "#f0ebe3",
+      "variants": [
+        {
+          "size": "5 ans",
+          "age": "4-5 ans",
+          "color": "Sable",
+          "priceEur": "28,90",
+          "costEur": "11,50",
+          "stock": 5,
+          "weight": 130,
+          "sku": "TK-BLOUSE-5A"
+        },
+        {
+          "size": "7 ans",
+          "age": "6-7 ans",
+          "color": "Sable",
+          "priceEur": "30,90",
+          "costEur": "12,00",
+          "stock": 4,
+          "weight": 140,
+          "sku": "TK-BLOUSE-7A"
+        }
+      ]
+    },
+    {
+      "reference": "TSH-DINO-G",
+      "slug": "tshirt-dinosaure-garcon",
+      "category": "Garçon",
+      "name": "T-shirt dinosaure",
+      "shortDescription": "T-shirt imprimé dinosaures, col rond.",
+      "description": "T-shirt garçon en coton peigné, imprimé résistant aux lavages.",
+      "material": "100 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Bangladesh",
+      "gender": "garcon",
+      "imageSlug": "tshirt-dinosaure-garcon",
+      "accent": "#c5d4c8",
+      "variants": [
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Vert sauge",
+          "priceEur": "18,90",
+          "costEur": "7,00",
+          "stock": 12,
+          "weight": 90,
+          "sku": "TK-TSH-DINO-4A"
+        },
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Vert sauge",
+          "priceEur": "19,90",
+          "costEur": "7,30",
+          "stock": 10,
+          "weight": 100,
+          "sku": "TK-TSH-DINO-6A"
+        }
+      ]
+    },
+    {
+      "reference": "PANT-JOG-G",
+      "slug": "pantalon-jogger-garcon",
+      "category": "Garçon",
+      "name": "Pantalon jogger garçon",
+      "shortDescription": "Jogger confortable avec taille élastiquée.",
+      "description": "Pantalon jogger garçon, coupe ample et chevilles resserrées.",
+      "material": "95 % coton, 5 % élasthanne",
+      "season": "Toute saison",
+      "madeIn": "Turquie",
+      "gender": "garcon",
+      "imageSlug": "pantalon-jogger-garcon",
+      "accent": "#d4dce8",
+      "variants": [
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Gris chiné",
+          "priceEur": "22,90",
+          "costEur": "9,00",
+          "stock": 8,
+          "weight": 200,
+          "sku": "TK-JOG-6A"
+        },
+        {
+          "size": "8 ans",
+          "age": "7-8 ans",
+          "color": "Gris chiné",
+          "priceEur": "23,90",
+          "costEur": "9,30",
+          "stock": 6,
+          "weight": 210,
+          "sku": "TK-JOG-8A"
+        }
+      ]
+    },
+    {
+      "reference": "SHORT-SURF-G",
+      "slug": "short-surf-garcon",
+      "category": "Garçon",
+      "name": "Short surf garçon",
+      "shortDescription": "Short léger avec cordon de serrage.",
+      "description": "Short garçon confortable pour jouer dehors. Séchage rapide.",
+      "material": "100 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Bangladesh",
+      "gender": "garcon",
+      "imageSlug": "short-surf-garcon",
+      "accent": "#c5d4c8",
+      "variants": [
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Bleu",
+          "priceEur": "14,90",
+          "costEur": "5,50",
+          "stock": 11,
+          "weight": 120,
+          "sku": "TK-SHORT-6A"
+        },
+        {
+          "size": "8 ans",
+          "age": "7-8 ans",
+          "color": "Bleu",
+          "priceEur": "15,90",
+          "costEur": "5,80",
+          "stock": 9,
+          "weight": 130,
+          "sku": "TK-SHORT-8A"
+        }
+      ]
+    },
+    {
+      "reference": "POLO-MARIN-G",
+      "slug": "polo-marin-garcon",
+      "category": "Garçon",
+      "name": "Polo marin garçon",
+      "shortDescription": "Polo rayé style marin, col boutonné.",
+      "description": "Polo garçon en piqué de coton, rayures marines intemporelles.",
+      "material": "100 % coton piqué",
+      "season": "Printemps-été",
+      "madeIn": "Portugal",
+      "gender": "garcon",
+      "imageSlug": "polo-marin-garcon",
+      "accent": "#d4dce8",
+      "variants": [
+        {
+          "size": "5 ans",
+          "age": "4-5 ans",
+          "color": "Marine/blanc",
+          "priceEur": "21,90",
+          "costEur": "8,50",
+          "stock": 7,
+          "weight": 130,
+          "sku": "TK-POLO-5A"
+        },
+        {
+          "size": "7 ans",
+          "age": "6-7 ans",
+          "color": "Marine/blanc",
+          "priceEur": "22,90",
+          "costEur": "8,80",
+          "stock": 6,
+          "weight": 140,
+          "sku": "TK-POLO-7A"
+        }
+      ]
+    },
+    {
+      "reference": "PYJ-ETOILES",
+      "slug": "pyjama-etoiles-coton",
+      "category": "Pyjamas",
+      "name": "Pyjama deux pièces étoiles",
+      "shortDescription": "Ensemble pyjama imprimé étoiles.",
+      "description": "Pyjama doux pour des nuits paisibles. Coton certifié Oeko-Tex.",
+      "material": "100 % coton",
+      "season": "Automne-hiver",
+      "madeIn": "Portugal",
+      "gender": "mixte",
+      "imageSlug": "pyjama-etoiles-coton",
+      "accent": "#d4dce8",
+      "variants": [
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Bleu nuit",
+          "priceEur": "26,90",
+          "costEur": "10,50",
+          "stock": 9,
+          "weight": 250,
+          "sku": "TK-PJ-ETO-4A"
+        },
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Bleu nuit",
+          "priceEur": "27,90",
+          "costEur": "10,80",
+          "stock": 8,
+          "weight": 260,
+          "sku": "TK-PJ-ETO-6A"
+        }
+      ]
+    },
+    {
+      "reference": "PYJ-COMBI-H",
+      "slug": "pyjama-combi-hiver",
+      "category": "Pyjamas",
+      "name": "Pyjama combi hiver",
+      "shortDescription": "Combinaison pyjama chaude, pieds intégrés.",
+      "description": "Pyjama combi bien chaud pour l'hiver. Ouverture pressions devant.",
+      "material": "100 % coton gratté",
+      "season": "Automne-hiver",
+      "madeIn": "France",
+      "gender": "mixte",
+      "imageSlug": "pyjama-combi-hiver",
+      "accent": "#c5d4c8",
+      "variants": [
+        {
+          "size": "12 mois",
+          "age": "9-12 mois",
+          "color": "Crème",
+          "priceEur": "31,90",
+          "costEur": "12,50",
+          "stock": 6,
+          "weight": 320,
+          "sku": "TK-PJ-COM-12M"
+        },
+        {
+          "size": "18 mois",
+          "age": "12-18 mois",
+          "color": "Crème",
+          "priceEur": "32,90",
+          "costEur": "12,80",
+          "stock": 5,
+          "weight": 340,
+          "sku": "TK-PJ-COM-18M"
+        }
+      ]
+    },
+    {
+      "reference": "PYJ-FLEURS-F",
+      "slug": "pyjama-fille-fleurs",
+      "category": "Pyjamas",
+      "name": "Pyjama fille fleurs",
+      "shortDescription": "Pyjama deux pièces imprimé fleurs.",
+      "description": "Pyjama fille doux avec imprimé floral. T-shirt et pantalon assortis.",
+      "material": "100 % coton",
+      "season": "Printemps-été",
+      "madeIn": "Portugal",
+      "gender": "fille",
+      "imageSlug": "pyjama-fille-fleurs",
+      "accent": "#e8d4d8",
+      "variants": [
+        {
+          "size": "4 ans",
+          "age": "3-4 ans",
+          "color": "Rose fleuri",
+          "priceEur": "25,90",
+          "costEur": "10,00",
+          "stock": 7,
+          "weight": 240,
+          "sku": "TK-PJ-FL-4A"
+        },
+        {
+          "size": "6 ans",
+          "age": "5-6 ans",
+          "color": "Rose fleuri",
+          "priceEur": "26,90",
+          "costEur": "10,30",
+          "stock": 6,
+          "weight": 250,
+          "sku": "TK-PJ-FL-6A"
+        }
+      ]
+    },
+    {
+      "reference": "CHAUS-LOT3",
+      "slug": "chaussettes-coton-lot3",
+      "category": "Accessoires",
+      "name": "Lot chaussettes coton x3",
+      "shortDescription": "Lot de 3 paires de chaussettes en coton.",
+      "description": "Chaussettes douces anti-glisse, lot de 3 coloris assortis.",
+      "material": "75 % coton, 23 % polyamide, 2 % élasthanne",
+      "season": "Toute saison",
+      "madeIn": "France",
+      "gender": "mixte",
+      "imageSlug": "chaussettes-coton-lot3",
+      "accent": "#f0ebe3",
+      "variants": [
+        {
+          "size": "12-18 mois",
+          "age": "12-18 mois",
+          "color": "Assorti",
+          "priceEur": "9,90",
+          "costEur": "3,50",
+          "stock": 20,
+          "weight": 60,
+          "sku": "TK-CHAUS-12-18"
+        },
+        {
+          "size": "2-3 ans",
+          "age": "2-3 ans",
+          "color": "Assorti",
+          "priceEur": "10,90",
+          "costEur": "3,80",
+          "stock": 18,
+          "weight": 65,
+          "sku": "TK-CHAUS-2-3A"
+        }
+      ]
+    },
+    {
+      "reference": "BONNET-MAIL",
+      "slug": "bonnet-maille-doux",
+      "category": "Accessoires",
+      "name": "Bonnet maille doux",
+      "shortDescription": "Bonnet en maille douce, revers côtelé.",
+      "description": "Bonnet doux pour protéger les oreilles. Maille extensible et confortable.",
+      "material": "100 % coton",
+      "season": "Automne-hiver",
+      "madeIn": "France",
+      "gender": "mixte",
+      "imageSlug": "bonnet-maille-doux",
+      "accent": "#e8d4d8",
+      "variants": [
+        {
+          "size": "0-12 mois",
+          "age": "0-12 mois",
+          "color": "Rose",
+          "priceEur": "12,90",
+          "costEur": "4,80",
+          "stock": 15,
+          "weight": 45,
+          "sku": "TK-BON-0-12"
+        },
+        {
+          "size": "1-3 ans",
+          "age": "1-3 ans",
+          "color": "Rose",
+          "priceEur": "13,90",
+          "costEur": "5,00",
+          "stock": 12,
+          "weight": 50,
+          "sku": "TK-BON-1-3A"
+        }
+      ]
+    },
+    {
+      "reference": "CACHE-COU-Z",
+      "slug": "cache-cou-zippe-polaire",
+      "category": "Accessoires",
+      "name": "Cache-cou zippé polaire",
+      "shortDescription": "Cache-cou polaire avec fermeture zip.",
+      "description": "Cache-cou chaud et pratique pour les sorties hivernales. Doublure polaire douce.",
+      "material": "100 % polyester polaire",
+      "season": "Automne-hiver",
+      "madeIn": "France",
+      "gender": "mixte",
+      "imageSlug": "cache-cou-zippe-polaire",
+      "accent": "#d4e8dc",
+      "variants": [
+        {
+          "size": "2-4 ans",
+          "age": "2-4 ans",
+          "color": "Bleu glacier",
+          "priceEur": "14,90",
+          "costEur": "5,50",
+          "stock": 10,
+          "weight": 55,
+          "sku": "TK-CACHE-2-4A"
+        },
+        {
+          "size": "4-6 ans",
+          "age": "4-6 ans",
+          "color": "Bleu glacier",
+          "priceEur": "15,90",
+          "costEur": "5,80",
+          "stock": 9,
+          "weight": 60,
+          "sku": "TK-CACHE-4-6A"
+        }
+      ]
+    }
+  ]
+}

@@ -1,53 +1,91 @@
 /**
- * Tilouki — design tokens
- * Palette lumineuse : crème, blanc, beige, rose poudré, bleu doux, sauge.
- * La couleur principale est surchargeable via --shop-primary (settings boutique).
+ * Tilouki — design tokens 2026
+ * Boutique enfant cocooning : fonds cloud/jade, encre chaude, CTA deep teal.
+ * Persimmon réservé aux promos, stock limité et alertes douces.
+ * --shop-primary surchargeable via les paramètres boutique (admin).
  */
 :root {
   /* Surfaces */
-  --tilouki-white: oklch(1 0.002 85);
-  --tilouki-cream: oklch(0.98 0.008 85);
-  --tilouki-beige: oklch(0.95 0.018 80);
-  --tilouki-sand: oklch(0.93 0.02 78);
+  --tilouki-cloud: #f8f6f0;
+  --tilouki-milk: #fffcf7;
+  --tilouki-white: var(--tilouki-milk);
+  --tilouki-cream: var(--tilouki-cloud);
+  --tilouki-beige: #f0ebe2;
+  --tilouki-sand: #e8e2d8;
 
-  /* Accents doux */
-  --tilouki-rose: oklch(0.88 0.04 10);
-  --tilouki-rose-soft: oklch(0.94 0.025 10);
-  --tilouki-blue: oklch(0.88 0.04 240);
-  --tilouki-blue-soft: oklch(0.94 0.025 240);
-  --tilouki-sage: oklch(0.78 0.06 155);
-  --tilouki-sage-light: oklch(0.9 0.035 155);
-  --tilouki-sage-dark: oklch(0.42 0.06 155);
+  /* Marque — teal & jade */
+  --tilouki-teal: #1f6f68;
+  --tilouki-teal-dark: #185b55;
+  --tilouki-jade: #afcbb9;
+  --tilouki-jade-soft: #e4efe8;
+
+  /* Accents éditoriaux (usage ponctuel) */
+  --tilouki-powder: #f2cad3;
+  --tilouki-powder-soft: #faf0f3;
+  --tilouki-butter: #f5d879;
+  --tilouki-butter-soft: #faf3dc;
+  --tilouki-icy: #dcebf3;
+  --tilouki-plum: #5b2a3e;
+
+  /* Promo & urgence commerciale uniquement */
+  --tilouki-persimmon: #e56f4f;
+  --tilouki-persimmon-dark: #9e3d24;
+  --tilouki-persimmon-soft: #fbe8e3;
+
+  /* Alias legacy (composants existants) */
+  --tilouki-rose: var(--tilouki-powder);
+  --tilouki-rose-soft: var(--tilouki-powder-soft);
+  --tilouki-blue: var(--tilouki-icy);
+  --tilouki-blue-soft: var(--tilouki-jade-soft);
+  --tilouki-sage: var(--tilouki-jade);
+  --tilouki-sage-light: var(--tilouki-jade-soft);
+  --tilouki-sage-dark: var(--tilouki-teal-dark);
+  --tilouki-navy: var(--tilouki-plum);
+  --tilouki-navy-soft: var(--tilouki-jade-soft);
+  --tilouki-sky: var(--tilouki-teal);
+  --tilouki-sky-soft: var(--tilouki-jade-soft);
+  --tilouki-coral: var(--tilouki-persimmon);
+
+  /* Liens & info — teal foncé (pas de bleu pastel dominant) */
+  --tilouki-info: var(--tilouki-teal-dark);
+  --tilouki-info-soft: var(--tilouki-icy);
 
   /* Texte */
-  --tilouki-ink: oklch(0.28 0.02 50);
-  --tilouki-ink-muted: oklch(0.52 0.02 50);
-  --tilouki-ink-subtle: oklch(0.65 0.02 50);
+  --tilouki-ink: #2e2a25;
+  --tilouki-ink-muted: #6f6a62;
+  --tilouki-ink-subtle: #8a847b;
 
-  /* Couleur principale — défaut corail doux, remplaçable par settings */
-  --shop-primary: oklch(0.62 0.12 30);
-  --shop-primary-light: color-mix(in oklch, var(--shop-primary), white 22%);
-  --shop-primary-dark: color-mix(in oklch, var(--shop-primary), black 12%);
-  --shop-primary-foreground: oklch(0.99 0.005 85);
+  /* CTA principal — deep teal (surchargeable admin) */
+  --shop-primary: var(--tilouki-teal);
+  --shop-primary-light: #3a8a82;
+  --shop-primary-dark: var(--tilouki-teal-dark);
+  --shop-primary-foreground: var(--tilouki-milk);
 
   /* Layout */
+  --announcement-bar-height: 0px;
   --header-height: 3.75rem;
-  --header-total-height: calc(var(--header-height) + var(--category-nav-height));
+  --header-total-height: calc(
+    var(--announcement-bar-height) + var(--header-height) + var(--category-nav-height)
+  );
   --category-nav-height: 2.75rem;
+  --mobile-bottom-nav-height: 3.5rem;
+  --cookie-banner-height: 0px;
   --container-max: 80rem;
   --section-gap: 4rem;
   --product-image-ratio: 4 / 5;
 
-  /* Rayons */
-  --radius-product: 1rem;
-  --radius-button: 0.75rem;
+  /* Rayons retail */
+  --radius-product: 0.625rem;
+  --radius-button: 0.5rem;
+  --radius-card: 0.625rem;
 
-  /* Ombres */
-  --shadow-soft: 0 2px 16px oklch(0.28 0.02 50 / 0.05);
-  --shadow-card: 0 4px 24px oklch(0.28 0.02 50 / 0.07);
-  --shadow-card-hover: 0 8px 32px oklch(0.28 0.02 50 / 0.1);
-
-  /* Transitions */
+  /* Ombres — encre chaude */
+  --shadow-soft: 0 1px 2px rgb(46 42 37 / 0.06), 0 4px 16px rgb(46 42 37 / 0.05);
+  --shadow-card: 0 2px 8px rgb(46 42 37 / 0.07), 0 8px 24px rgb(46 42 37 / 0.06);
+  --shadow-card-hover: 0 4px 12px rgb(46 42 37 / 0.1), 0 12px 32px rgb(46 42 37 / 0.08);
+  --shadow-cta:
+    0 1px 2px rgb(46 42 37 / 0.1),
+    0 4px 14px color-mix(in srgb, var(--shop-primary), transparent 72%);
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }

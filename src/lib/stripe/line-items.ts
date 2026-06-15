@@ -29,33 +29,36 @@ export function buildStripeCheckoutLineItems({
     throw new StripeCheckoutError("Aucun article dans la commande.");
   }
 
-  const productLines: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map((item) => {
-    if (item.unit_price_cents <= 0 || item.quantity <= 0) {
-      throw new StripeCheckoutError(`Prix invalide pour ${item.product_name}.`);
-    }
+  const productLines: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map(
+    (item) => {
+      if (item.unit_price_cents <= 0 || item.quantity <= 0) {
+        throw new StripeCheckoutError(`Prix invalide pour ${item.product_name}.`);
+      }
 
-    const expectedLineTotal = item.unit_price_cents * item.quantity;
-    if (expectedLineTotal !== item.total_price_cents) {
-      throw new StripeCheckoutError(`Incohérence de prix pour ${item.product_name}.`);
-    }
+      const expectedLineTotal = item.unit_price_cents * item.quantity;
+      if (expectedLineTotal !== item.total_price_cents) {
+        throw new StripeCheckoutError(`Incohérence de prix pour ${item.product_name}.`);
+      }
 
-    return {
-      price_data: {
-        currency: STRIPE_CURRENCY,
-        unit_amount: item.unit_price_cents,
-        product_data: {
-          name: item.product_name,
-          description:
-            [item.size_label, item.age_label].filter(Boolean).join(" · ") || undefined,
-          metadata: {
-            variant_id: item.variant_id ?? "",
-            sku: item.sku,
+      return {
+        price_data: {
+          currency: STRIPE_CURRENCY,
+          unit_amount: item.unit_price_cents,
+          product_data: {
+            name: item.product_name,
+            description:
+              [item.size_label, item.age_label].filter(Boolean).join(" · ") ||
+              undefined,
+            metadata: {
+              variant_id: item.variant_id ?? "",
+              sku: item.sku,
+            },
           },
         },
-      },
-      quantity: item.quantity,
-    };
-  });
+        quantity: item.quantity,
+      };
+    },
+  );
 
   const lines: Stripe.Checkout.SessionCreateParams.LineItem[] = [...productLines];
 
@@ -72,7 +75,10 @@ export function buildStripeCheckoutLineItems({
     });
   }
 
-  const computedSubtotal = orderItems.reduce((sum, item) => sum + item.total_price_cents, 0);
+  const computedSubtotal = orderItems.reduce(
+    (sum, item) => sum + item.total_price_cents,
+    0,
+  );
   const computedTotal = computedSubtotal + shippingCents - discountCents;
 
   if (computedTotal !== expectedTotalCents) {

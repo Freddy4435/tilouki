@@ -7,9 +7,16 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LEGAL_PAGE_ROUTES, LEGAL_PLACEHOLDER_KEYS, type LegalPageSlug } from "@/lib/legal/templates";
+import {
+  LEGAL_PAGE_ROUTES,
+  LEGAL_PLACEHOLDER_KEYS,
+  type LegalPageSlug,
+} from "@/lib/legal/templates";
 import type { AdminLegalPage } from "@/lib/supabase/queries/admin/legal";
-import { resetLegalPageTemplateAction, updateLegalPageAction } from "@/server/actions/admin/legal";
+import {
+  resetLegalPageTemplateAction,
+  updateLegalPageAction,
+} from "@/server/actions/admin/legal";
 
 interface LegalPageFormProps {
   page: AdminLegalPage;
@@ -76,22 +83,27 @@ export function LegalPageForm({ page }: LegalPageFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor={`title-${page.slug}`}>Titre</Label>
-        <Input id={`title-${page.slug}`} name="title" defaultValue={page.title} required />
+        <Input
+          id={`title-${page.slug}`}
+          name="title"
+          defaultValue={page.title}
+          required
+        />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor={`content-${page.slug}`}>Contenu (HTML)</Label>
         <p className="text-muted-foreground text-xs leading-relaxed">
-          Base structurée à personnaliser — ne remplace pas un avis juridique. Utilisez les variables{" "}
-          <code className="bg-muted rounded px-1">{"{{nom}}"}</code> remplies automatiquement depuis les
-          paramètres boutique :{" "}
+          Base structurée à personnaliser — ne remplace pas un avis juridique. Utilisez
+          les variables <code className="bg-muted rounded px-1">{"{{nom}}"}</code>{" "}
+          remplies automatiquement depuis les paramètres boutique :{" "}
           {LEGAL_PLACEHOLDER_KEYS.map((key) => (
             <code key={key} className="bg-muted mr-1 inline-block rounded px-1">
               {`{{${key}}}`}
             </code>
           ))}
-          . Les passages <em>« À valider avec un professionnel du droit »</em> doivent être relus avant
-          publication.
+          . Les passages <em>« À valider avec un professionnel du droit »</em> doivent
+          être relus avant publication.
         </p>
         <textarea
           id={`content-${page.slug}`}

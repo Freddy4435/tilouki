@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 import {
   addCurrentProductToCart,
@@ -7,7 +7,9 @@ import {
 import {
   acceptCgvAndPay,
   assertCgvBlocksPayment,
+  assertShippingRecapBeforePayment,
   fillCustomerStep,
+  FINAL_PAYMENT_BUTTON,
   openCheckoutFromCart,
   selectMockRelayPoint,
 } from "./helpers/checkout";
@@ -25,13 +27,14 @@ test.describe("Parcours achat principal", () => {
     page,
   }) => {
     const productHref = await openFirstProductFromCatalogue(page);
-    test.skip(!productHref, "Aucun produit actif — exécutez npm run seed:dev");
+    test.skip(!productHref, "Aucun produit vendable — photo commerciale requise");
 
     await addCurrentProductToCart(page);
     await openCheckoutFromCart(page);
 
     await fillCustomerStep(page);
     await selectMockRelayPoint(page);
+    await assertShippingRecapBeforePayment(page);
 
     await assertCgvBlocksPayment(page);
 
@@ -43,9 +46,11 @@ test.describe("Parcours achat principal", () => {
     await expect(page.getByRole("main")).toBeVisible();
   });
 
-  test("création session checkout — payload client et point relais mock", async ({ page }) => {
+  test("création session checkout — payload client et point relais mock", async ({
+    page,
+  }) => {
     const productHref = await openFirstProductFromCatalogue(page);
-    test.skip(!productHref, "Aucun produit actif — exécutez npm run seed:dev");
+    test.skip(!productHref, "Aucun produit vendable — photo commerciale requise");
 
     await addCurrentProductToCart(page);
     await openCheckoutFromCart(page);
@@ -56,7 +61,7 @@ test.describe("Parcours achat principal", () => {
 
     const [request] = await Promise.all([
       page.waitForRequest("**/api/checkout/create-session"),
-      page.getByRole("button", { name: /payer en toute sécurité/i }).click(),
+      page.getByRole("button", { name: FINAL_PAYMENT_BUTTON }).click(),
     ]);
 
     const body = request.postDataJSON() as {

@@ -1,15 +1,15 @@
 "use server";
 
 import { headers } from "next/headers";
-import { z } from "zod";
 
-import { checkRateLimit } from "@/lib/security/rate-limit";
+import { checkRateLimit, rateLimitDeniedMessage } from "@/lib/security/rate-limit";
 import { getOrderByTrackingToken } from "@/lib/supabase/queries/orders";
+import { validateTrackingTokenLookup } from "@/lib/validations/tracking";
 import type { OrderTrackingInfo } from "@/types/catalog";
 
-const trackingTokenSchema = z.string().uuid("Numéro de suivi invalide.");
-
-export async function trackOrderAction(token: string): Promise<OrderTrackingInfo | null> {
+export async function trackOrderAction(
+  token: string,
+): Promise<OrderTrackingInfo | null> {
   const headerStore = await headers();
   const ip =
     headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -23,13 +23,13 @@ export async function trackOrderAction(token: string): Promise<OrderTrackingInfo
   });
 
   if (!limit.allowed) {
-    throw new Error("Trop de tentatives. Réessayez dans une minute.");
+    throw new Error(rateLimitDeniedMessage(limit));
   }
 
-  const parsed = trackingTokenSchema.safeParse(token.trim());
-  if (!parsed.success) {
+  const validation = validateTrackingTokenLookup(token);
+  if (!validation.ok) {
     return null;
   }
 
-  return getOrderByTrackingToken(parsed.data);
+  return getOrderByTrackingToken(validation.token);
 }

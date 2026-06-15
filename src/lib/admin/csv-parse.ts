@@ -1,7 +1,8 @@
-/** Parse CSV avec support virgule/point-virgule, guillemets et BOM UTF-8. */
+/** Parse CSV avec support virgule/point-virgule, guillemets, BOM UTF-8 et alias d'en-têtes FR. */
 
 export type CsvSeparator = "," | ";";
 
+/** En-têtes canoniques (anglais) — utilisés en interne après normalisation. */
 export const CSV_IMPORT_HEADERS = [
   "reference",
   "category",
@@ -21,7 +22,56 @@ export const CSV_IMPORT_HEADERS = [
   "image_url",
 ] as const;
 
-const EXPECTED_HEADERS = CSV_IMPORT_HEADERS;
+/** Colonnes minimales pour un import valide. */
+export const CSV_REQUIRED_HEADERS = [
+  "reference",
+  "category",
+  "name",
+  "gender",
+  "price_eur",
+  "stock_quantity",
+] as const;
+
+/** Alias français (et variantes) → en-tête canonique. */
+export const CSV_HEADER_ALIASES: Record<string, (typeof CSV_IMPORT_HEADERS)[number]> = {
+  reference: "reference",
+  ref: "reference",
+  categorie: "category",
+  category: "category",
+  nom: "name",
+  name: "name",
+  description: "description",
+  composition: "material",
+  material: "material",
+  matiere: "material",
+  saison: "season",
+  season: "season",
+  origine: "made_in",
+  made_in: "made_in",
+  genre: "gender",
+  gender: "gender",
+  couleur: "color",
+  color: "color",
+  taille: "size_label",
+  size_label: "size_label",
+  age: "age_label",
+  age_label: "age_label",
+  prix: "price_eur",
+  price_eur: "price_eur",
+  prix_achat: "cost_eur",
+  cost_eur: "cost_eur",
+  stock: "stock_quantity",
+  stock_quantity: "stock_quantity",
+  poids: "weight_grams",
+  weight_grams: "weight_grams",
+  image: "image_url",
+  image_url: "image_url",
+};
+
+export function canonicalizeCsvHeader(header: string): string {
+  const normalized = header.toLowerCase().trim();
+  return CSV_HEADER_ALIASES[normalized] ?? normalized;
+}
 
 export function stripBom(text: string): string {
   return text.replace(/^\uFEFF/, "");
@@ -114,8 +164,8 @@ export function parseCsvContent(content: string): ParsedCsv {
 
   const rawLines = splitCsvLines(normalized);
   const separator = detectSeparator(rawLines[0] ?? "");
-  const headerFields = parseCsvRow(rawLines[0] ?? "", separator).map((h) =>
-    h.toLowerCase().trim(),
+  const headerFields = parseCsvRow(rawLines[0] ?? "", separator).map(
+    canonicalizeCsvHeader,
   );
 
   const rows: Record<string, string>[] = [];
@@ -134,16 +184,16 @@ export function parseCsvContent(content: string): ParsedCsv {
 }
 
 export function validateCsvHeaders(headers: string[]): string | null {
-  const missing = EXPECTED_HEADERS.filter((h) => !headers.includes(h));
+  const missing = CSV_REQUIRED_HEADERS.filter((h) => !headers.includes(h));
   if (missing.length > 0) {
-    return `Colonnes manquantes : ${missing.join(", ")}`;
+    return `Colonnes manquantes : ${missing.join(", ")} (ou alias français : référence, catégorie, nom, genre, prix, stock)`;
   }
   return null;
 }
 
 export const CSV_IMPORT_TEMPLATE = `reference,category,name,description,material,season,made_in,gender,color,size_label,age_label,price_eur,cost_eur,stock_quantity,weight_grams,image_url
-TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,3A,3 ans,"19,90","8,50",5,120,https://example.com/tshirt-rose.jpg
+TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,3A,3 ans,"19,90","8,50",5,120,/products/tshirt-licorne-rose.svg
 TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,4A,4 ans,"19,90","8,50",8,125,
 TSH-LICORNE,T-shirts,Tee-shirt licorne rose,"Tee-shirt coton imprimé licorne, doux et confortable",100% coton,toute-saison,Portugal,fille,Rose,5A,5 ans,"19,90","8,50",3,130,
-ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,S,4 ans,"29,90","12,00",2,180,https://example.com/robe.jpg
+ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,S,4 ans,"29,90","12,00",2,180,/products/robe-fleurie-ete.svg
 ROBE-FLEUR,Robes,Robe fleurie été,Robe légère en coton bio pour l'été,coton bio,printemps-été,France,fille,Imprimé,M,6 ans,"29,90","12,00",4,195,`;

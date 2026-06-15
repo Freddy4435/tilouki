@@ -2,12 +2,37 @@
 
 Environnement : [Stripe Dashboard (mode test)](https://dashboard.stripe.com/test) + [Stripe CLI](https://stripe.com/docs/stripe-cli) pour les webhooks locaux.
 
+## Critère d'acceptation
+
+Un paiement test (`4242…`) doit :
+
+1. Créer une commande `pending` avec stock **réservé** (`inventory_movements` type `sale`)
+2. Recevoir `checkout.session.completed` → **HTTP 200** sur `/api/webhooks/stripe`
+3. Passer la commande en `paid` sans double décrément stock
+4. Envoyer l'e-mail de confirmation (si Resend/SMTP configuré)
+
+```bash
+npm run verify:deploy
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+## Événements webhook → stock → e-mails
+
+| Événement Stripe                | Effet commande         | Stock                                | E-mail client                |
+| ------------------------------- | ---------------------- | ------------------------------------ | ---------------------------- |
+| `checkout.session.completed`    | `paid`                 | Déjà réservé à la création `pending` | Confirmation + admin notifié |
+| `checkout.session.expired`      | `cancelled` / `failed` | Libéré (`cancel-pending:…`)          | —                            |
+| `payment_intent.payment_failed` | `cancelled` / `failed` | Libéré                               | Paiement non abouti          |
+| `charge.refunded` (intégral)    | `refunded`             | Restauré (`refund:order:…`)          | Remboursement confirmé       |
+
+Configuration Dashboard / CLI : les **quatre** événements ci-dessus sont obligatoires.
+
 ## Prérequis
 
 - [ ] Variables Vercel / `.env.local` renseignées :
-  - `STRIPE_SECRET_KEY` (sk_test_…)
-  - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (pk_test_…)
-  - `STRIPE_WEBHOOK_SECRET` (whsec_… — Stripe CLI ou endpoint Dashboard)
+  - `STRIPE_SECRET_KEY` (sk*test*…)
+  - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (pk*test*…)
+  - `STRIPE_WEBHOOK_SECRET` (whsec\_… — Stripe CLI ou endpoint Dashboard)
   - `SUPABASE_SERVICE_ROLE_KEY`
   - `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] Au moins un produit actif avec stock > 0 dans Supabase
@@ -15,7 +40,7 @@ Environnement : [Stripe Dashboard (mode test)](https://dashboard.stripe.com/test
   - `checkout.session.completed`
   - `checkout.session.expired`
   - `payment_intent.payment_failed`
-  - `charge.refunded` (optionnel remboursements)
+  - `charge.refunded`
 
 ### Webhook local (développement)
 
@@ -124,22 +149,24 @@ stripe events resend evt_XXXXX
 
 ---
 
-## 10. Remboursement (optionnel)
+## 10. Remboursement
 
-- [ ] Rembourser le paiement dans Stripe Dashboard (remboursement total)
-- [ ] Webhook `charge.refunded` → `payment_status` = `refunded`
+- [ ] Rembourser le paiement dans Stripe Dashboard (remboursement **total**)
+- [ ] Webhook `charge.refunded` → HTTP 200
+- [ ] Commande : `payment_status` = `refunded`
 - [ ] Stock restauré via mouvements `cancel` note `refund:order:{orderId}:…`
-- [ ] Rejouer le webhook → idempotent
+- [ ] E-mail client « Remboursement confirmé »
+- [ ] Rejouer le webhook → idempotent (pas de double restauration stock)
 
 ---
 
 ## Cartes de test utiles
 
-| Scénario            | Numéro              |
-|---------------------|---------------------|
-| Paiement réussi     | 4242 4242 4242 4242 |
-| Paiement refusé     | 4000 0000 0000 0002 |
-| 3D Secure requis    | 4000 0027 6000 3184 |
+| Scénario         | Numéro              |
+| ---------------- | ------------------- |
+| Paiement réussi  | 4242 4242 4242 4242 |
+| Paiement refusé  | 4000 0000 0000 0002 |
+| 3D Secure requis | 4000 0027 6000 3184 |
 
 ---
 

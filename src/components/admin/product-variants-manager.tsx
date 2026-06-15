@@ -42,7 +42,9 @@ const emptyForm = (): VariantFormValues => ({
   isActive: true,
 });
 
-function toFormValues(variant: AdminProductDetail["variants"][number]): VariantFormValues {
+function toFormValues(
+  variant: AdminProductDetail["variants"][number],
+): VariantFormValues {
   return {
     id: variant.id,
     sku: variant.sku,
@@ -185,10 +187,7 @@ export function ProductVariantsManager({
           {variants.map((variant) => (
             <article
               key={variant.id}
-              className={cn(
-                "rounded-xl border p-4",
-                !variant.isActive && "opacity-60",
-              )}
+              className={cn("rounded-xl border p-4", !variant.isActive && "opacity-60")}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -196,9 +195,15 @@ export function ProductVariantsManager({
                     <GripVertical className="text-muted-foreground size-4 shrink-0" />
                     {variantTitle(variant)}
                   </p>
-                  <p className="text-muted-foreground mt-0.5 font-mono text-xs">{variant.sku}</p>
+                  <p className="text-muted-foreground mt-0.5 font-mono text-xs">
+                    {variant.sku}
+                  </p>
                 </div>
-                <button type="button" onClick={() => toggleActive(variant)} disabled={isPending}>
+                <button
+                  type="button"
+                  onClick={() => toggleActive(variant)}
+                  disabled={isPending}
+                >
                   <Badge variant={variant.isActive ? "default" : "secondary"}>
                     {variant.isActive ? "En ligne" : "Masquée"}
                   </Badge>
@@ -207,13 +212,15 @@ export function ProductVariantsManager({
               <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
                 <div>
                   <dt className="text-muted-foreground text-xs">Prix</dt>
-                  <dd className="tabular-nums font-medium">{formatPrice(variant.priceCents)}</dd>
+                  <dd className="font-medium tabular-nums">
+                    {formatPrice(variant.priceCents)}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground text-xs">Stock</dt>
                   <dd
                     className={cn(
-                      "tabular-nums font-medium",
+                      "font-medium tabular-nums",
                       variant.stockQuantity === 0 && "text-amber-600",
                     )}
                   >
@@ -224,7 +231,7 @@ export function ProductVariantsManager({
                   <dt className="text-muted-foreground text-xs">Poids</dt>
                   <dd
                     className={cn(
-                      "tabular-nums font-medium",
+                      "font-medium tabular-nums",
                       !variant.weightGrams && "text-amber-600",
                     )}
                   >
@@ -258,7 +265,10 @@ export function ProductVariantsManager({
       )}
 
       {editing ? (
-        <form onSubmit={onSubmit} className="space-y-4 rounded-xl border bg-muted/20 p-4">
+        <form
+          onSubmit={onSubmit}
+          className="bg-muted/20 space-y-4 rounded-xl border p-4"
+        >
           <p className="text-sm font-medium">
             {editing.id ? "Modifier la variante" : "Nouvelle variante"}
           </p>

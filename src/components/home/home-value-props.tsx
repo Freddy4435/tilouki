@@ -2,49 +2,56 @@ import { HOME_VALUE_PROPS } from "@/lib/constants/reassurance";
 
 export function HomeValueProps() {
   return (
-    <section className="bg-tilouki-beige/40 border-y" aria-label="Nos engagements">
+    <section
+      className="bg-tilouki-cloud/50 border-y"
+      aria-labelledby="why-tilouki-title"
+    >
       <div className="container-tilouki section-tilouki py-12 md:py-14">
         <div className="mb-8 text-center md:mb-10">
-          <h2 className="font-heading text-2xl font-semibold sm:text-3xl">
-            Une boutique pensée pour les parents
+          <h2 id="why-tilouki-title" className="text-section-title">
+            Pourquoi Tilouki
           </h2>
           <p className="text-muted-foreground mx-auto mt-2 max-w-xl text-sm leading-relaxed sm:text-base">
-            Simplicité, transparence et sérénité — de la sélection des vêtements à la réception du
-            colis.
+            Une boutique en ligne pensée pour les parents pressés : informations
+            claires, stock honnête et livraison simple.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {HOME_VALUE_PROPS.map((item, index) => (
             <article
               key={item.id}
-              className="bg-card group flex flex-col gap-4 rounded-2xl p-5 shadow-[var(--shadow-soft)] transition-shadow duration-[var(--transition-base)] hover:shadow-[var(--shadow-card)]"
+              className="group bg-card flex flex-col gap-4 rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-soft)] transition-shadow duration-[var(--transition-base)] hover:shadow-[var(--shadow-card)]"
             >
               <div
-                className="flex size-12 items-center justify-center rounded-2xl transition-colors duration-[var(--transition-base)] group-hover:scale-[1.02]"
+                className="flex size-12 items-center justify-center rounded-[var(--radius-card)] transition-colors duration-[var(--transition-base)] group-hover:scale-[1.02]"
                 style={{
                   background:
                     index % 4 === 0
-                      ? "color-mix(in oklch, var(--shop-primary), white 88%)"
+                      ? "var(--tilouki-jade-soft)"
                       : index % 4 === 1
-                        ? "var(--tilouki-blue-soft)"
+                        ? "var(--tilouki-powder-soft)"
                         : index % 4 === 2
-                          ? "var(--tilouki-sage-light)"
-                          : "var(--tilouki-rose-soft)",
+                          ? "var(--tilouki-butter-soft)"
+                          : "color-mix(in srgb, var(--tilouki-teal), white 88%)",
                 }}
               >
                 <item.icon
                   className="size-5"
                   style={{
                     color:
-                      index % 4 === 2
-                        ? "var(--tilouki-sage-dark)"
-                        : "var(--tilouki-ink)",
+                      index % 4 === 0
+                        ? "var(--tilouki-teal-dark)"
+                        : index % 4 === 2
+                          ? "var(--tilouki-teal-dark)"
+                          : "var(--tilouki-ink)",
                   }}
                   aria-hidden
                 />
               </div>
               <div>
-                <h3 className="text-sm font-semibold sm:text-base">{item.label}</h3>
+                <h3 className="font-display text-sm font-semibold sm:text-base">
+                  {item.label}
+                </h3>
                 {item.description ? (
                   <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
                     {item.description}

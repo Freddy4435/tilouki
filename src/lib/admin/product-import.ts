@@ -119,7 +119,9 @@ function buildPreviewRows(
   return preview;
 }
 
-export async function previewProductImport(csvContent: string): Promise<ImportPreviewResult> {
+export async function previewProductImport(
+  csvContent: string,
+): Promise<ImportPreviewResult> {
   const parsed = parseCsvContent(csvContent);
   const headerError = validateCsvHeaders(parsed.headers);
 
@@ -129,7 +131,8 @@ export async function previewProductImport(csvContent: string): Promise<ImportPr
       separator: parsed.separator,
       rows: [],
       summary: { total: 0, valid: 0, duplicate: 0, error: 0 },
-      headerError: headerError ?? (parsed.rows.length === 0 ? "Le fichier est vide." : undefined),
+      headerError:
+        headerError ?? (parsed.rows.length === 0 ? "Le fichier est vide." : undefined),
     };
   }
 
@@ -178,13 +181,16 @@ async function ensureCategory(
     .select("id")
     .single();
 
-  if (error || !created) throw new Error(error?.message ?? "Création catégorie impossible.");
+  if (error || !created)
+    throw new Error(error?.message ?? "Création catégorie impossible.");
 
   cache.set(slug, created.id);
   return { id: created.id, created: true };
 }
 
-export async function executeProductImport(csvContent: string): Promise<ImportExecuteResult> {
+export async function executeProductImport(
+  csvContent: string,
+): Promise<ImportExecuteResult> {
   const preview = await previewProductImport(csvContent);
 
   const result: ImportExecuteResult = {
@@ -324,18 +330,20 @@ export async function executeProductImport(csvContent: string): Promise<ImportEx
           });
           allSkus.push(sku);
 
-          const { error: variantError } = await supabase.from("product_variants").insert({
-            product_id: productId,
-            sku,
-            size_label: data.size_label?.trim() || null,
-            age_label: data.age_label?.trim() || null,
-            color: data.color?.trim() || null,
-            price_cents: data.price_cents,
-            cost_cents: data.cost_cents,
-            stock_quantity: data.stock_quantity,
-            weight_grams: data.weight_grams,
-            is_active: true,
-          });
+          const { error: variantError } = await supabase
+            .from("product_variants")
+            .insert({
+              product_id: productId,
+              sku,
+              size_label: data.size_label?.trim() || null,
+              age_label: data.age_label?.trim() || null,
+              color: data.color?.trim() || null,
+              price_cents: data.price_cents,
+              cost_cents: data.cost_cents,
+              stock_quantity: data.stock_quantity,
+              weight_grams: data.weight_grams,
+              is_active: true,
+            });
 
           if (variantError) throw new Error(variantError.message);
 

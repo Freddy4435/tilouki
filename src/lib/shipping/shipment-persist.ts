@@ -69,6 +69,7 @@ export async function persistShipmentLabel(
       tracking_number: label.shipmentNumber,
       carrier_shipment_number: label.shipmentNumber,
       label_url: label.labelUrl,
+      label_pdf_path: label.labelPdfPath?.trim() || null,
       status: shipmentStatus,
       label_created_at: now,
       shipped_at: shippedAt,
@@ -86,8 +87,14 @@ export async function persistExternalShipment(
   supabase: AdminClient,
   input: PersistExternalShipmentInput,
 ): Promise<{ error?: string }> {
-  const { order, trackingNumber, carrierShipmentNumber, labelUrl, orderStatus, shipmentStatus } =
-    input;
+  const {
+    order,
+    trackingNumber,
+    carrierShipmentNumber,
+    labelUrl,
+    orderStatus,
+    shipmentStatus,
+  } = input;
   const now = new Date().toISOString();
   const shippedAt = orderStatus === "shipped" ? now : null;
   const shipmentNumber = carrierShipmentNumber?.trim() || trackingNumber;

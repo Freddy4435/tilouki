@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { checkRateLimit } from "@/lib/security/rate-limit";
+import { checkRateLimit, rateLimitDeniedMessage } from "@/lib/security/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -41,7 +41,7 @@ export async function adminLoginAction(
   });
 
   if (!limit.allowed) {
-    return { error: "Trop de tentatives. Réessayez dans 15 minutes." };
+    return { error: rateLimitDeniedMessage(limit) };
   }
 
   if (!isSupabaseAdminConfigured()) {

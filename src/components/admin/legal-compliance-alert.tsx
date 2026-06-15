@@ -1,16 +1,28 @@
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
-import { getLegalComplianceSummary, type LegalComplianceInput } from "@/lib/legal/compliance";
+import {
+  getLegalComplianceAction,
+  getLegalComplianceSummary,
+  type LegalComplianceInput,
+} from "@/lib/legal/compliance";
 
 interface LegalComplianceAlertProps {
   settings: LegalComplianceInput | null;
 }
 
 export function LegalComplianceAlert({ settings }: LegalComplianceAlertProps) {
-  const { isComplete, missingRequired } = getLegalComplianceSummary(settings);
+  const { isComplete, missingRequired } = getLegalComplianceSummary(settings, {
+    includeInfrastructure: false,
+  });
 
   if (isComplete) return null;
+
+  const actionLinks = new Map<string, string>();
+  for (const item of missingRequired) {
+    const action = getLegalComplianceAction(item);
+    actionLinks.set(action.href, action.label);
+  }
 
   return (
     <div
@@ -19,28 +31,36 @@ export function LegalComplianceAlert({ settings }: LegalComplianceAlertProps) {
     >
       <p className="flex items-start gap-2 text-sm font-medium text-amber-950 dark:text-amber-100">
         <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-        Informations légales incomplètes
+        Informations légales incomplètes — checkout bloqué en production
       </p>
       <p className="mt-1 text-sm text-amber-900 dark:text-amber-50/90">
-        {missingRequired.length} champ{missingRequired.length > 1 ? "s" : ""} obligatoire
-        {missingRequired.length > 1 ? "s" : ""} manquant{missingRequired.length > 1 ? "s" : ""} dans les
-        paramètres boutique. Les pages publiques masquent les champs vides, mais votre boutique ne sera pas
-        conforme tant que ces informations ne sont pas renseignées et validées par un professionnel.
+        {missingRequired.length} élément{missingRequired.length > 1 ? "s" : ""}{" "}
+        obligatoire{missingRequired.length > 1 ? "s" : ""} à compléter avant
+        d&apos;ouvrir les ventes. Faites valider les textes finaux par la vendeuse ou un
+        professionnel du droit.
       </p>
-      <ul className="mt-2 list-inside list-disc text-sm text-amber-900 dark:text-amber-50/90">
-        {missingRequired.slice(0, 5).map((item) => (
-          <li key={item.id}>{item.label}</li>
+      <ul className="mt-2 space-y-1 text-sm text-amber-900 dark:text-amber-50/90">
+        {missingRequired.slice(0, 8).map((item) => (
+          <li key={item.id}>
+            <span className="font-medium">{item.label}</span>
+            {item.hint ? (
+              <span className="block text-xs text-amber-800/90 dark:text-amber-50/80">
+                {item.hint}
+              </span>
+            ) : null}
+          </li>
         ))}
-        {missingRequired.length > 5 ? (
-          <li>… et {missingRequired.length - 5} autre(s)</li>
+        {missingRequired.length > 8 ? (
+          <li className="text-xs">… et {missingRequired.length - 8} autre(s)</li>
         ) : null}
       </ul>
-      <Link
-        href="/admin/parametres"
-        className="text-primary mt-2 inline-block text-sm font-medium underline"
-      >
-        Compléter les paramètres →
-      </Link>
+      <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm">
+        {Array.from(actionLinks.entries()).map(([href, label]) => (
+          <Link key={href} href={href} className="text-primary font-medium underline">
+            {label} →
+          </Link>
+        ))}
+      </p>
     </div>
   );
 }

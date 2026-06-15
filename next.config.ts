@@ -8,8 +8,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   /**
    * En-têtes de base pour assets statiques.
-   * CSP, HSTS et Permissions-Policy sont appliqués sur les pages via le middleware
-   * (src/lib/security/headers.ts).
+   * CSP, HSTS et Permissions-Policy sont appliqués sur les pages via le proxy
+   * (src/proxy.ts → src/lib/security/headers.ts).
    */
   async headers() {
     return [
@@ -28,11 +28,23 @@ const nextConfig: NextConfig = {
       { source: "/checkout", destination: "/commande", permanent: true },
       { source: "/checkout/:path*", destination: "/commande/:path*", permanent: true },
       { source: "/catalogue/:slug", destination: "/produit/:slug", permanent: true },
-      { source: "/legal/mentions-legales", destination: "/mentions-legales", permanent: true },
+      {
+        source: "/legal/mentions-legales",
+        destination: "/mentions-legales",
+        permanent: true,
+      },
       { source: "/legal/cgv", destination: "/cgv", permanent: true },
-      { source: "/legal/confidentialite", destination: "/confidentialite", permanent: true },
+      {
+        source: "/legal/confidentialite",
+        destination: "/confidentialite",
+        permanent: true,
+      },
       { source: "/legal/cookies", destination: "/cookies", permanent: true },
-      { source: "/legal/livraison-retours", destination: "/livraison-retours", permanent: true },
+      {
+        source: "/legal/livraison-retours",
+        destination: "/livraison-retours",
+        permanent: true,
+      },
       { source: "/admin/legal", destination: "/admin/pages-legales", permanent: true },
     ];
   },

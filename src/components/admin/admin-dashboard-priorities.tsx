@@ -8,7 +8,9 @@ interface AdminDashboardPrioritiesProps {
   priorities: AdminDashboardPriority[];
 }
 
-export function AdminDashboardPriorities({ priorities }: AdminDashboardPrioritiesProps) {
+export function AdminDashboardPriorities({
+  priorities,
+}: AdminDashboardPrioritiesProps) {
   if (priorities.length === 0) {
     return (
       <section className="mb-8 rounded-xl border border-emerald-500/30 bg-emerald-50/60 px-4 py-4 dark:bg-emerald-950/20">
@@ -24,14 +26,16 @@ export function AdminDashboardPriorities({ priorities }: AdminDashboardPrioritie
 
   return (
     <section className="mb-8" aria-label="À faire maintenant">
-      <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">À faire maintenant</h2>
+      <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+        À faire maintenant
+      </h2>
       <div className="grid gap-3 sm:grid-cols-2">
         {priorities.map((item) => (
           <Link
             key={item.id}
             href={item.href}
             className={cn(
-              "group flex items-start justify-between gap-3 rounded-xl border px-4 py-3 transition-colors hover:bg-muted/40",
+              "group hover:bg-muted/40 flex items-start justify-between gap-3 rounded-xl border px-4 py-3 transition-colors",
               item.emphasis && "border-primary/30 bg-primary/5",
             )}
           >

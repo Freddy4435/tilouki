@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AdminDashboardAlerts } from "@/components/admin/admin-dashboard-alerts";
 import { AdminDashboardCta } from "@/components/admin/admin-dashboard-cta";
 import { AdminDashboardPriorities } from "@/components/admin/admin-dashboard-priorities";
+import { LegalComplianceChecklist } from "@/components/admin/legal-compliance-checklist";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { OrderStatusBadge, ProductStatusBadge } from "@/components/admin/status-badge";
@@ -21,6 +22,7 @@ import {
   buildAdminDashboardPriorities,
 } from "@/lib/admin/dashboard-alerts";
 import { buildAdminDashboardAlertContext } from "@/lib/admin/dashboard-config";
+import { loadAdminLegalComplianceInput } from "@/lib/admin/legal-compliance-context.server";
 import { getAdminShopSettings } from "@/lib/supabase/queries/admin/settings";
 import {
   getAdminDashboardStats,
@@ -63,7 +65,12 @@ export default async function AdminDashboardPage() {
     activeProductCount: stats.activeProductCount,
   });
 
-  const monthLabel = new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const monthLabel = new Date().toLocaleDateString("fr-FR", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const complianceInput = await loadAdminLegalComplianceInput(settings);
 
   return (
     <>
@@ -75,6 +82,8 @@ export default async function AdminDashboardPage() {
 
       <AdminDashboardPriorities priorities={priorities} />
       <AdminDashboardAlerts alerts={alerts} />
+
+      <LegalComplianceChecklist settings={complianceInput} className="mb-8" />
 
       <section className="mb-8" aria-label="Indicateurs du mois">
         <h2 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
@@ -146,7 +155,8 @@ export default async function AdminDashboardPage() {
         {stats.productsWithoutWeightCount > 0 ? (
           <p className="text-muted-foreground mt-3 text-sm">
             {stats.productsWithoutWeightCount} produit
-            {stats.productsWithoutWeightCount > 1 ? "s" : ""} avec variante(s) sans poids —{" "}
+            {stats.productsWithoutWeightCount > 1 ? "s" : ""} avec variante(s) sans
+            poids —{" "}
             <Link href="/admin/produits" className="text-primary font-medium underline">
               compléter les fiches
             </Link>
@@ -158,7 +168,10 @@ export default async function AdminDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Dernières commandes</CardTitle>
-            <Link href="/admin/commandes" className="text-primary text-sm font-medium hover:underline">
+            <Link
+              href="/admin/commandes"
+              className="text-primary text-sm font-medium hover:underline"
+            >
               Tout voir
             </Link>
           </CardHeader>
@@ -175,7 +188,10 @@ export default async function AdminDashboardPage() {
               <TableBody>
                 {recentOrders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
+                    <TableCell
+                      colSpan={4}
+                      className="text-muted-foreground py-8 text-center"
+                    >
                       Aucune commande
                     </TableCell>
                   </TableRow>
@@ -213,7 +229,10 @@ export default async function AdminDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Derniers produits ajoutés</CardTitle>
-            <Link href="/admin/produits" className="text-primary text-sm font-medium hover:underline">
+            <Link
+              href="/admin/produits"
+              className="text-primary text-sm font-medium hover:underline"
+            >
               Tout voir
             </Link>
           </CardHeader>
@@ -229,9 +248,15 @@ export default async function AdminDashboardPage() {
               <TableBody>
                 {recentProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-muted-foreground py-8 text-center">
+                    <TableCell
+                      colSpan={3}
+                      className="text-muted-foreground py-8 text-center"
+                    >
                       Aucun produit —{" "}
-                      <Link href="/admin/produits/nouveau" className="text-primary underline">
+                      <Link
+                        href="/admin/produits/nouveau"
+                        className="text-primary underline"
+                      >
                         créer le premier
                       </Link>
                     </TableCell>

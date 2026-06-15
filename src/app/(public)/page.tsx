@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
 
-import { CategoryGrid } from "@/components/home/category-grid";
-import { FaqSection } from "@/components/home/faq-section";
 import { HeroSection } from "@/components/home/hero-section";
-import { HomeValueProps } from "@/components/home/home-value-props";
+import { HomeBelowFold } from "@/components/home/home-below-fold";
+import { HomeYourSelectionSection } from "@/components/home/home-your-selection-section";
 import { ProductRowSection } from "@/components/home/product-row-section";
-import { filterLowPriceProducts } from "@/lib/catalog/sort-products";
+import { ShippingHighlights } from "@/components/home/shipping-highlights";
+import {
+  buildReadyLooks,
+  pickCategoryProducts,
+  pickLastPieceProducts,
+  pickLowPriceHomeProducts,
+  pickWednesdayNewProducts,
+} from "@/lib/catalog/home-sections";
+import { resolveEditorialBlocks } from "@/lib/editorial/fallback";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getCategories } from "@/lib/supabase/queries/categories";
-import { getActiveProducts } from "@/lib/supabase/queries/products";
+import { getActiveProductsForHome } from "@/lib/supabase/queries/products";
+import { hasPublishedProductReviews } from "@/lib/supabase/queries/reviews";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
 
 export const revalidate = 300;
@@ -24,14 +32,25 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [settings, categories, allProducts] = await Promise.all([
+  const [settings, categories, allProducts, hasPublishedReviews] = await Promise.all([
     getShopSettings(),
     getCategories(),
-    getActiveProducts(),
+    getActiveProductsForHome(),
+    hasPublishedProductReviews(),
   ]);
 
-  const newProducts = allProducts.slice(0, 8);
-  const lowPriceProducts = filterLowPriceProducts(allProducts).slice(0, 8);
+  const wednesdayNewProducts = pickWednesdayNewProducts(allProducts);
+  const lowPriceProducts = pickLowPriceHomeProducts(allProducts);
+  const lastPieceProducts = pickLastPieceProducts(allProducts);
+  const babyProducts = pickCategoryProducts(allProducts, "bebe");
+  const pyjamaProducts = pickCategoryProducts(allProducts, "pyjamas");
+  const readyLooks = buildReadyLooks(allProducts);
+
+  const editorialBlocks = resolveEditorialBlocks(
+    settings.editorialBlocks ?? [],
+    categories,
+  );
+
   const featuredForHero = allProducts
     .filter((p) => p.primaryImageUrl)
     .slice(0, 4)
@@ -47,37 +66,34 @@ export default async function HomePage() {
     <>
       <HeroSection
         shopName={settings.name}
-        tagline={settings.tagline}
-        description={settings.description}
         heroImageUrl={settings.heroImageUrl}
         featuredProducts={featuredForHero}
         categoryLinks={categories.map((c) => ({ slug: c.slug, label: c.name }))}
       />
 
-      <ProductRowSection
-        title="Nouveautés"
-        description="Les dernières pièces ajoutées — tailles et stock visibles sur chaque carte."
-        products={newProducts}
-        viewAllHref="/catalogue"
-        emptyTitle="Pas encore de nouveautés"
-        emptyDescription="Dès qu'un nouveau vêtement est publié, il apparaîtra ici. En attendant, parcourez le catalogue."
-      />
+      <ShippingHighlights shopName={settings.name} />
 
-      <CategoryGrid categories={categories} />
+      <HomeYourSelectionSection />
 
       <ProductRowSection
-        title="Petits prix"
-        description="Essentiels du quotidien à petits prix — idéal pour compléter la garde-robe."
-        products={lowPriceProducts}
-        viewAllHref="/catalogue?promo=petit-prix"
-        emptyTitle="Pas de petits prix pour le moment"
-        emptyDescription="Les bonnes affaires seront listées ici dès qu'elles seront disponibles."
-        variant="tinted"
+        id="home-nouveautes"
+        title="Les nouveautés du mercredi"
+        description="Chaque mercredi, de nouvelles pièces peuvent rejoindre la boutique — voici les dernières arrivées, prêtes à rejoindre la garde-robe."
+        products={wednesdayNewProducts}
+        viewAllHref="/catalogue?tri=newest"
+        priorityLimit={2}
       />
 
-      <HomeValueProps />
-
-      <FaqSection />
+      <HomeBelowFold
+        lowPriceProducts={lowPriceProducts}
+        lastPieceProducts={lastPieceProducts}
+        babyProducts={babyProducts}
+        pyjamaProducts={pyjamaProducts}
+        readyLooks={readyLooks}
+        categories={categories}
+        editorialBlocks={editorialBlocks}
+        hasPublishedReviews={hasPublishedReviews}
+      />
     </>
   );
 }

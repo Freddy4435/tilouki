@@ -35,10 +35,12 @@ export const footerNavItems = {
 
 export const adminNavItems = [
   { label: "Tableau de bord", href: "/admin", icon: "layout-dashboard" },
+  { label: "Préparation", href: "/admin/preparation", icon: "rocket" },
   { label: "Produits", href: "/admin/produits", icon: "shirt" },
   { label: "Import CSV", href: "/admin/import", icon: "upload" },
   { label: "Catégories", href: "/admin/categories", icon: "folder" },
   { label: "Commandes", href: "/admin/commandes", icon: "package" },
+  { label: "Avis clients", href: "/admin/avis", icon: "message-square" },
   { label: "Stock", href: "/admin/stock", icon: "warehouse" },
   { label: "Livraison", href: "/admin/livraison", icon: "truck" },
   { label: "Paramètres", href: "/admin/parametres", icon: "settings" },

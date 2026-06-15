@@ -11,7 +11,9 @@ import type { OrderStatus, PaymentStatus, ProductStatus } from "@/types/database
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   return (
-    <Badge variant={orderStatusVariant(status)}>{ORDER_STATUS_LABELS[status] ?? status}</Badge>
+    <Badge variant={orderStatusVariant(status)}>
+      {ORDER_STATUS_LABELS[status] ?? status}
+    </Badge>
   );
 }
 

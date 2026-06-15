@@ -6,7 +6,11 @@ import {
   formatRelayPointHtml,
   formatRelayPointText,
 } from "@/lib/email/format";
-import { emailButton, emailInfoBox, wrapEmailLayout } from "@/lib/email/templates/layout";
+import {
+  emailButton,
+  emailInfoBox,
+  wrapEmailLayout,
+} from "@/lib/email/templates/layout";
 import type { OrderEmailPayload, RenderedEmail } from "@/lib/email/types";
 
 export function renderOrderConfirmationEmail(order: OrderEmailPayload): RenderedEmail {

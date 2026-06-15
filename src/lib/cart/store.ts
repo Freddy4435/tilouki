@@ -10,7 +10,11 @@ import {
   computeTotalCents,
   hasStockIssues,
 } from "@/lib/cart/calculations";
-import type { CartLineInput, CartLineItem, CartValidationResult } from "@/lib/cart/types";
+import type {
+  CartLineInput,
+  CartLineItem,
+  CartValidationResult,
+} from "@/lib/cart/types";
 import type { CarrierName } from "@/lib/shipping/types";
 
 interface CartState {
@@ -41,7 +45,11 @@ function clampQuantity(quantity: number, stockQuantity: number): number {
   return Math.max(1, Math.min(quantity, stockQuantity));
 }
 
-function mergeLineItem(existing: CartLineItem, incoming: CartLineInput, quantity: number): CartLineItem {
+function mergeLineItem(
+  existing: CartLineItem,
+  incoming: CartLineInput,
+  quantity: number,
+): CartLineItem {
   const stockQuantity = Math.max(existing.stockQuantity, incoming.stockQuantity);
   const nextQuantity = clampQuantity(existing.quantity + quantity, stockQuantity);
 
@@ -182,7 +190,11 @@ export const useCartStore = create<CartState>()(
 
           for (const item of state.items) {
             const validated = byVariant.get(item.variantId);
-            if (!validated || !validated.isAvailable || validated.adjustedQuantity <= 0) {
+            if (
+              !validated ||
+              !validated.isAvailable ||
+              validated.adjustedQuantity <= 0
+            ) {
               continue;
             }
 
@@ -208,9 +220,15 @@ export const useCartStore = create<CartState>()(
             });
           const messagesUnchanged =
             result.messages.length === state.validationMessages.length &&
-            result.messages.every((message, index) => message === state.validationMessages[index]);
+            result.messages.every(
+              (message, index) => message === state.validationMessages[index],
+            );
 
-          if (itemsUnchanged && messagesUnchanged && state.isValidated === result.valid) {
+          if (
+            itemsUnchanged &&
+            messagesUnchanged &&
+            state.isValidated === result.valid
+          ) {
             return state;
           }
 

@@ -1,4 +1,10 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
 
 export type ProductStatus = "draft" | "active" | "archived";
 export type ProductGender = "fille" | "garcon" | "mixte";
@@ -12,6 +18,8 @@ export type OrderStatus =
   | "refunded";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type InventoryMovementType = "sale" | "manual_adjustment" | "restock" | "cancel";
+export type ProductReviewStatus = "pending" | "published" | "rejected";
+export type NewsletterSubscriberStatus = "pending" | "confirmed" | "unsubscribed";
 
 export interface Database {
   public: {
@@ -41,6 +49,10 @@ export interface Database {
           exchange_policy: string | null;
           analytics_enabled: boolean;
           hero_image_url: string | null;
+          announcements_enabled: boolean;
+          announcements: Json;
+          social_links: Json;
+          editorial_blocks: Json;
           created_at: string;
           updated_at: string;
         };
@@ -68,6 +80,10 @@ export interface Database {
           exchange_policy?: string | null;
           analytics_enabled?: boolean;
           hero_image_url?: string | null;
+          announcements_enabled?: boolean;
+          announcements?: Json;
+          social_links?: Json;
+          editorial_blocks?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -95,6 +111,46 @@ export interface Database {
           exchange_policy?: string | null;
           analytics_enabled?: boolean;
           hero_image_url?: string | null;
+          announcements_enabled?: boolean;
+          announcements?: Json;
+          social_links?: Json;
+          editorial_blocks?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      newsletter_subscribers: {
+        Row: {
+          id: string;
+          email: string;
+          consent_at: string;
+          source: string;
+          status: NewsletterSubscriberStatus;
+          confirm_token_hash: string | null;
+          confirmed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          consent_at: string;
+          source?: string;
+          status?: NewsletterSubscriberStatus;
+          confirm_token_hash?: string | null;
+          confirmed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          consent_at?: string;
+          source?: string;
+          status?: NewsletterSubscriberStatus;
+          confirm_token_hash?: string | null;
+          confirmed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -470,6 +526,7 @@ export interface Database {
           tracking_number: string | null;
           carrier_shipment_number: string | null;
           label_url: string | null;
+          label_pdf_path: string | null;
           status: string;
           label_created_at: string | null;
           shipped_at: string | null;
@@ -491,6 +548,7 @@ export interface Database {
           tracking_number?: string | null;
           carrier_shipment_number?: string | null;
           label_url?: string | null;
+          label_pdf_path?: string | null;
           status?: string;
           label_created_at?: string | null;
           shipped_at?: string | null;
@@ -512,6 +570,7 @@ export interface Database {
           tracking_number?: string | null;
           carrier_shipment_number?: string | null;
           label_url?: string | null;
+          label_pdf_path?: string | null;
           status?: string;
           label_created_at?: string | null;
           shipped_at?: string | null;
@@ -685,6 +744,63 @@ export interface Database {
         };
         Relationships: [];
       };
+      product_reviews: {
+        Row: {
+          id: string;
+          product_id: string;
+          order_id: string | null;
+          author_name: string;
+          author_email: string;
+          rating: number;
+          title: string;
+          body: string;
+          status: ProductReviewStatus;
+          created_at: string;
+          published_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          order_id?: string | null;
+          author_name: string;
+          author_email: string;
+          rating: number;
+          title: string;
+          body: string;
+          status?: ProductReviewStatus;
+          created_at?: string;
+          published_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          order_id?: string | null;
+          author_name?: string;
+          author_email?: string;
+          rating?: number;
+          title?: string;
+          body?: string;
+          status?: ProductReviewStatus;
+          created_at?: string;
+          published_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_reviews_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       inventory_movements: {
         Row: {
           id: string;
@@ -761,6 +877,22 @@ export interface Database {
         };
         Relationships: [];
       };
+      catalog_product_ratings: {
+        Row: {
+          product_id: string;
+          review_count: number;
+          rating_average: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       shop_settings_public: {
         Row: {
           id: string;
@@ -786,6 +918,10 @@ export interface Database {
           exchange_policy: string | null;
           analytics_enabled: boolean;
           hero_image_url: string | null;
+          announcements_enabled: boolean;
+          announcements: Json;
+          social_links: Json;
+          editorial_blocks: Json;
           created_at: string;
           updated_at: string;
         };
@@ -835,6 +971,8 @@ export interface Database {
       order_status: OrderStatus;
       payment_status: PaymentStatus;
       inventory_movement_type: InventoryMovementType;
+      product_review_status: ProductReviewStatus;
+      newsletter_subscriber_status: NewsletterSubscriberStatus;
     };
   };
 }

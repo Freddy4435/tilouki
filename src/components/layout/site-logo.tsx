@@ -24,7 +24,9 @@ export function SiteLogo({ className, showName = true }: SiteLogoProps) {
         {initial}
       </span>
       {showName ? (
-        <span className="font-heading truncate text-xl font-semibold tracking-tight">{name}</span>
+        <span className="font-display truncate text-xl font-semibold tracking-tight">
+          {name}
+        </span>
       ) : null}
     </Link>
   );

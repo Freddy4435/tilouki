@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import { ExternalLink, Package, Search } from "lucide-react";
 
 import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
@@ -12,38 +20,86 @@ import {
   buildCarrierTrackingUrl,
   getCarrierTrackingLabel,
 } from "@/lib/shipping/tracking";
+import {
+  readTrackingTokenFromBrowserUrl,
+  resolveInitialTrackingToken,
+  validateTrackingTokenLookup,
+} from "@/lib/validations/tracking";
 import { cn, formatPrice } from "@/lib/utils";
 import type { OrderTrackingInfo } from "@/types/catalog";
 
 interface OrderTrackingFormProps {
   action: (token: string) => Promise<OrderTrackingInfo | null>;
+  initialToken?: string;
 }
 
-export function OrderTrackingForm({ action }: OrderTrackingFormProps) {
+const subscribeToClientMount = () => () => {};
+
+export function OrderTrackingForm({ action, initialToken }: OrderTrackingFormProps) {
+  const searchParams = useSearchParams();
+  const tokenFromSearchParams = searchParams.get("token");
+  const hasMounted = useSyncExternalStore(
+    subscribeToClientMount,
+    () => true,
+    () => false,
+  );
+  const resolvedInitialToken = useMemo(
+    () =>
+      resolveInitialTrackingToken(
+        initialToken,
+        tokenFromSearchParams,
+        hasMounted ? readTrackingTokenFromBrowserUrl() : null,
+      ),
+    [hasMounted, initialToken, tokenFromSearchParams],
+  );
   const [token, setToken] = useState("");
+  const [prevResolvedToken, setPrevResolvedToken] = useState(resolvedInitialToken);
   const [result, setResult] = useState<OrderTrackingInfo | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const autoLookupToken = useRef<string | null>(null);
 
-  const onSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  if (resolvedInitialToken !== prevResolvedToken) {
+    setPrevResolvedToken(resolvedInitialToken);
+    setToken(resolvedInitialToken);
+  }
+
+  const runLookup = (raw: string) => {
+    const trimmed = raw.trim();
+    setToken(trimmed);
     setError(null);
     setResult(undefined);
 
+    const validation = validateTrackingTokenLookup(trimmed);
+    if (!validation.ok) {
+      setError(validation.error);
+      return;
+    }
+
     startTransition(async () => {
       try {
-        const trimmed = token.trim();
-        if (!trimmed) {
-          setError("Veuillez saisir votre numéro de suivi.");
-          return;
-        }
-        const order = await action(trimmed);
+        const order = await action(validation.token);
         setResult(order);
-        if (!order) setError("Aucune commande trouvée pour ce numéro de suivi.");
+        if (!order) {
+          setError("Aucune commande trouvée pour ce numéro de suivi.");
+        }
       } catch {
         setError("Impossible de récupérer le suivi. Réessayez plus tard.");
       }
     });
+  };
+
+  useEffect(() => {
+    if (!resolvedInitialToken) return;
+    if (autoLookupToken.current === resolvedInitialToken) return;
+    autoLookupToken.current = resolvedInitialToken;
+    runLookup(resolvedInitialToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-lookup piloté par le token URL
+  }, [resolvedInitialToken]);
+
+  const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    runLookup(token);
   };
 
   return (
@@ -51,8 +107,8 @@ export function OrderTrackingForm({ action }: OrderTrackingFormProps) {
       <Card className="shadow-[var(--shadow-soft)]">
         <CardContent className="space-y-4 p-6">
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Saisissez le numéro reçu par e-mail après votre commande. Vous y trouverez le statut
-            d&apos;expédition et le suivi colis.
+            Saisissez le numéro reçu par e-mail après votre commande. Vous y trouverez
+            le statut d&apos;expédition et le suivi colis.
           </p>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -136,7 +192,8 @@ export function OrderTrackingForm({ action }: OrderTrackingFormProps) {
               })()}
             </div>
             <p className="text-muted-foreground border-t pt-3 text-xs">
-              Colis expédié depuis la France. Questions ? Consultez la page Livraison et retours.
+              Colis expédié depuis la France. Questions ? Consultez la page Livraison et
+              retours.
             </p>
           </CardContent>
         </Card>

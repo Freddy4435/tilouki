@@ -1,3 +1,8 @@
+import type { EditorialBlock } from "@/lib/editorial/types";
+import type { StorefrontNavigation } from "@/lib/navigation/types";
+import type { ShopSocialLinksInput } from "@/lib/social/validation";
+import type { ShopAnnouncement } from "@/lib/announcements/types";
+
 export interface ShopCategory {
   slug: string;
   label: string;
@@ -34,9 +39,21 @@ export interface ShopSettings {
   analyticsEnabled?: boolean;
   primaryColor: string;
   contactEmail: string;
+  /** E-mail renseigné en admin (pas le fallback par défaut). */
+  contactEmailConfigured?: boolean;
   /** URL publique de la photo hero (page d'accueil). */
   heroImageUrl?: string | null;
+  /** Barre d'annonces en tête du site. */
+  announcementsEnabled?: boolean;
+  announcements?: ShopAnnouncement[];
+  /** Liens réseaux sociaux (footer). */
+  socialLinks?: ShopSocialLinksInput;
+  /** Blocs éditoriaux page d'accueil. */
+  editorialBlocks?: EditorialBlock[];
   /** Frais de port minimum (centimes) — barème actif le moins cher. */
   minShippingCents: number;
   categories: ShopCategory[];
+  navigation: StorefrontNavigation;
 }
+
+export type { ShopAnnouncement };

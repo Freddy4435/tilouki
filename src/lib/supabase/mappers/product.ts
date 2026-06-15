@@ -1,4 +1,15 @@
 import type { ProductBadgeType } from "@/components/product/product-badges";
+import {
+  getCommercialProductImages,
+  isCommercialProductImage,
+  pickStorefrontPrimaryImage,
+} from "@/lib/admin/product-image-readiness";
+import {
+  applyStorefrontListItemGuards,
+  deriveColorOptions,
+  deriveQuickAddVariants,
+  deriveSecondaryImage,
+} from "@/lib/catalog/product-card-data";
 import type {
   Category,
   ProductDetail,
@@ -69,13 +80,18 @@ export function deriveProductBadges(
   );
 
   if (totalStock === 1) badges.push("last-piece");
-  if (hasComparePrice || (minPrice !== null && minPrice < 1500)) badges.push("low-price");
+  if (hasComparePrice || (minPrice !== null && minPrice < 1500))
+    badges.push("low-price");
 
   const material = product.material?.toLowerCase() ?? "";
   if (material.includes("coton")) badges.push("cotton");
 
   const season = product.season?.toLowerCase() ?? "";
-  if (season.includes("printemps") || season.includes("été") || season.includes("ete")) {
+  if (
+    season.includes("printemps") ||
+    season.includes("été") ||
+    season.includes("ete")
+  ) {
     badges.push("spring-summer");
   } else if (season.includes("automne") || season.includes("hiver")) {
     badges.push("autumn-winter");
@@ -89,7 +105,13 @@ export function deriveProductBadges(
 export function mapProductListItem(row: ProductWithRelations): ProductListItem {
   const activeVariants = row.variants.filter((v) => v.is_active);
   const sortedImages = [...row.images].sort((a, b) => a.sort_order - b.sort_order);
-  const primaryImage = sortedImages[0] ?? null;
+  const readinessImages = sortedImages.map((image) => ({
+    url: image.url,
+    alt: image.alt ?? null,
+    sortOrder: image.sort_order,
+  }));
+  const commercialImages = getCommercialProductImages(readinessImages);
+  const primaryImage = pickStorefrontPrimaryImage(readinessImages);
 
   const prices = activeVariants.map((v) => v.price_cents);
   const comparePrices = activeVariants
@@ -110,7 +132,16 @@ export function mapProductListItem(row: ProductWithRelations): ProductListItem {
     ),
   ];
 
-  return {
+  const mappedVariants = activeVariants.map(mapProductVariant);
+  const secondaryImage = deriveSecondaryImage(
+    commercialImages.map((image) => ({
+      url: image.url,
+      alt: image.alt ?? null,
+      sortOrder: image.sortOrder ?? 0,
+    })),
+  );
+
+  return applyStorefrontListItemGuards({
     id: row.id,
     slug: row.slug,
     name: row.name,
@@ -118,7 +149,9 @@ export function mapProductListItem(row: ProductWithRelations): ProductListItem {
     minPriceCents,
     compareAtPriceCents,
     primaryImageUrl: primaryImage?.url ?? null,
-    primaryImageAlt: primaryImage?.alt ?? row.name,
+    primaryImageAlt: primaryImage?.alt ?? null,
+    secondaryImageUrl: secondaryImage.url,
+    secondaryImageAlt: secondaryImage.alt,
     categorySlug: row.category?.slug ?? null,
     categoryName: row.category?.name ?? null,
     season: row.season,
@@ -128,17 +161,28 @@ export function mapProductListItem(row: ProductWithRelations): ProductListItem {
     totalStock: activeVariants.reduce((sum, v) => sum + v.stock_quantity, 0),
     badges: deriveProductBadges(row, row.variants),
     createdAt: row.created_at,
-  };
+    colorOptions: deriveColorOptions(
+      row.variants.map((variantRow) => ({
+        color: variantRow.color,
+        isActive: variantRow.is_active,
+      })),
+      commercialImages.map((image) => ({
+        url: image.url,
+        alt: image.alt ?? null,
+        sortOrder: image.sortOrder ?? 0,
+      })),
+    ),
+    quickAddVariants: deriveQuickAddVariants(mappedVariants),
+  });
 }
 
 export function mapProductDetail(row: ProductWithRelations): ProductDetail {
   const listItem = mapProductListItem(row);
   const sortedImages = [...row.images]
     .sort((a, b) => a.sort_order - b.sort_order)
+    .filter((image) => isCommercialProductImage(image.url, image.alt))
     .map(mapProductImage);
-  const variants = row.variants
-    .filter((v) => v.is_active)
-    .map(mapProductVariant);
+  const variants = row.variants.filter((v) => v.is_active).map(mapProductVariant);
 
   return {
     ...listItem,

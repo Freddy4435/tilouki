@@ -52,7 +52,9 @@ export async function listAdminLowStock(): Promise<AdminStockItem[]> {
   });
 }
 
-export async function listAdminStockMovements(limit = 50): Promise<AdminStockMovement[]> {
+export async function listAdminStockMovements(
+  limit = 50,
+): Promise<AdminStockMovement[]> {
   const supabase = await getAdminSupabase();
   if (!supabase) return [];
 

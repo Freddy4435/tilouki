@@ -1,6 +1,9 @@
 import type { MondialRelayWidgetConfig } from "@/lib/shipping/types";
 
-import { getMondialRelayBrandId, isMondialRelayWidgetConfigured } from "@/lib/shipping/env";
+import {
+  getMondialRelayBrandId,
+  isMondialRelayWidgetConfigured,
+} from "@/lib/shipping/env";
 
 /**
  * Configuration widget Mondial Relay (V2).

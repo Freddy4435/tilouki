@@ -80,7 +80,12 @@ export async function performOrderActionAction(
     return { error: transition.error ?? "Transition non autorisée." };
   }
 
-  if (requiresTrackingForShip(toStatus) && !trackingNumber?.trim() && !order.trackingNumber) {
+  if (
+    requiresTrackingForShip(toStatus) &&
+    !trackingNumber?.trim() &&
+    !order.trackingNumber &&
+    !order.shippingNumber
+  ) {
     return { error: "Un numéro de suivi est requis pour marquer comme expédiée." };
   }
 
@@ -95,15 +100,19 @@ export async function performOrderActionAction(
 
   if (trackingNumber !== undefined && trackingNumber !== null) {
     updatePayload.tracking_number = trackingNumber.trim() || null;
-  } else if (toStatus === "shipped" && order.trackingNumber) {
-    updatePayload.tracking_number = order.trackingNumber;
+  } else if (toStatus === "shipped") {
+    updatePayload.tracking_number =
+      order.trackingNumber ?? order.shippingNumber ?? null;
   }
 
   if (toStatus === "shipped") {
     updatePayload.shipped_at = new Date().toISOString();
   }
 
-  const { error } = await supabase.from("orders").update(updatePayload).eq("id", orderId);
+  const { error } = await supabase
+    .from("orders")
+    .update(updatePayload)
+    .eq("id", orderId);
   if (error) return { error: error.message };
 
   if (toStatus === "shipped") {
@@ -203,11 +212,7 @@ function validateFulfillmentSteps(
 
   while (cursor !== targetStatus) {
     const next =
-      cursor === "paid"
-        ? "preparing"
-        : cursor === "preparing"
-          ? "shipped"
-          : null;
+      cursor === "paid" ? "preparing" : cursor === "preparing" ? "shipped" : null;
     if (!next) {
       return { steps, error: "Transition non autorisée pour cette commande." };
     }
@@ -233,8 +238,8 @@ export interface CreateShippingLabelResult {
 
 /**
  * Génère l'étiquette Mondial Relay d'une commande payée (statuts paid/preparing),
- * persiste numéro + URL, passe la commande en "shipped" via la machine d'états
- * et déclenche l'email d'expédition. La saisie manuelle du suivi reste un fallback.
+ * persiste numéro + URL, passe en « En préparation » avec étiquette créée.
+ * L'e-mail d'expédition est envoyé lors du passage en « Expédiée » (action séparée).
  */
 export async function createShippingLabelAction(
   input: unknown,
@@ -272,7 +277,7 @@ export async function createShippingLabelAction(
     return { error: "Poids du colis manquant ou invalide (minimum 15 g)." };
   }
 
-  const { steps, error: stepsError } = validateFulfillmentSteps(order, "shipped");
+  const { steps, error: stepsError } = validateFulfillmentSteps(order, "preparing");
   if (stepsError) return { error: stepsError };
 
   const senderResult = buildSenderParty(await getAdminShopSettings());
@@ -328,8 +333,8 @@ export async function createShippingLabelAction(
   const persistResult = await persistShipmentLabel(supabase, {
     order,
     label,
-    orderStatus: "shipped",
-    shipmentStatus: "shipped",
+    orderStatus: "preparing",
+    shipmentStatus: "label_created",
   });
   if (persistResult.error) return { error: persistResult.error };
 
@@ -343,15 +348,6 @@ export async function createShippingLabelAction(
       user.id,
     );
     fromStatus = step;
-  }
-
-  const updated = await getAdminOrder(order.id);
-  if (updated) {
-    try {
-      await sendShippingConfirmation(updated);
-    } catch {
-      // Ne bloque pas la génération si l'e-mail échoue
-    }
   }
 
   revalidateOrder(order.id);
@@ -450,7 +446,10 @@ export async function updateOrderTrackingAction(
   const order = await getAdminOrder(parsed.data.orderId);
   if (!order) return { error: "Commande introuvable." };
 
-  if (order.paymentStatus === "paid" && !["preparing", "shipped"].includes(order.status)) {
+  if (
+    order.paymentStatus === "paid" &&
+    !["preparing", "shipped"].includes(order.status)
+  ) {
     return {
       error: "Le suivi ne peut être modifié qu'en préparation ou après expédition.",
     };
@@ -499,7 +498,9 @@ export async function updateOrderStatusAction(
   status: OrderStatus,
   trackingNumber?: string | null,
 ): Promise<{ error?: string }> {
-  const actionMap: Partial<Record<OrderStatus, "mark_preparing" | "mark_shipped" | "mark_delivered" | "cancel">> = {
+  const actionMap: Partial<
+    Record<OrderStatus, "mark_preparing" | "mark_shipped" | "mark_delivered" | "cancel">
+  > = {
     preparing: "mark_preparing",
     shipped: "mark_shipped",
     delivered: "mark_delivered",

@@ -4,7 +4,10 @@ import { Layers, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 
-import { VariantFormFields, type VariantFieldValues } from "@/components/admin/variant-form-fields";
+import {
+  VariantFormFields,
+  type VariantFieldValues,
+} from "@/components/admin/variant-form-fields";
 import {
   AGE_PRESETS,
   DEFAULT_WEIGHT_GRAMS,
@@ -66,7 +69,10 @@ export function VariantBulkAdd({
 
   const previewLabels = useMemo(() => parseLabels(labelsRaw), [labelsRaw]);
 
-  const updateShared = <K extends keyof VariantFieldValues>(key: K, value: VariantFieldValues[K]) => {
+  const updateShared = <K extends keyof VariantFieldValues>(
+    key: K,
+    value: VariantFieldValues[K],
+  ) => {
     setShared((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -154,7 +160,12 @@ export function VariantBulkAdd({
           <Layers className="text-primary size-4" />
           <p className="text-sm font-medium">Ajout rapide de plusieurs tailles</p>
         </div>
-        <Button type="button" size="sm" variant="ghost" onClick={() => setOpen((v) => !v)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={() => setOpen((v) => !v)}
+        >
           {open ? "Masquer" : "Afficher"}
         </Button>
       </div>
@@ -162,8 +173,8 @@ export function VariantBulkAdd({
       {open ? (
         <>
           <p className="text-muted-foreground text-xs leading-relaxed">
-            Même prix, couleur et stock pour toutes les tailles/âges sélectionnés. Le SKU est généré
-            automatiquement pour chaque variante.
+            Même prix, couleur et stock pour toutes les tailles/âges sélectionnés. Le
+            SKU est généré automatiquement pour chaque variante.
           </p>
 
           <div className="flex gap-2">
@@ -207,7 +218,9 @@ export function VariantBulkAdd({
           </div>
 
           <div className="space-y-1.5">
-            <Label>{mode === "age" ? "Âges" : "Tailles"} (séparés par des virgules)</Label>
+            <Label>
+              {mode === "age" ? "Âges" : "Tailles"} (séparés par des virgules)
+            </Label>
             <Input
               value={labelsRaw}
               onChange={(e) => setLabelsRaw(e.target.value)}
@@ -224,8 +237,8 @@ export function VariantBulkAdd({
 
           {previewLabels.length > 0 ? (
             <p className="text-muted-foreground text-xs">
-              {previewLabels.length} variante{previewLabels.length > 1 ? "s" : ""} à créer :{" "}
-              {previewLabels.join(", ")}
+              {previewLabels.length} variante{previewLabels.length > 1 ? "s" : ""} à
+              créer : {previewLabels.join(", ")}
             </p>
           ) : null}
 
@@ -235,7 +248,11 @@ export function VariantBulkAdd({
             </p>
           ) : null}
 
-          <Button type="button" disabled={isPending || previewLabels.length === 0} onClick={submit}>
+          <Button
+            type="button"
+            disabled={isPending || previewLabels.length === 0}
+            onClick={submit}
+          >
             <Plus className="size-4" />
             {isPending
               ? "Création…"

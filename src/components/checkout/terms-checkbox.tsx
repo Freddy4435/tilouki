@@ -33,8 +33,20 @@ export function TermsCheckbox({ form }: TermsCheckboxProps) {
         />
         <Label htmlFor="acceptTerms" className="text-sm leading-relaxed font-normal">
           J&apos;ai lu et j&apos;accepte les{" "}
-          <Link href="/cgv" className="text-primary underline-offset-4 hover:underline" target="_blank">
+          <Link
+            href="/cgv"
+            className="text-primary underline-offset-4 hover:underline"
+            target="_blank"
+          >
             conditions générales de vente
+          </Link>
+          , les informations de{" "}
+          <Link
+            href="/livraison-retours"
+            className="text-primary underline-offset-4 hover:underline"
+            target="_blank"
+          >
+            livraison et retours
           </Link>{" "}
           et la{" "}
           <Link

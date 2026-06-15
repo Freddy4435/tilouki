@@ -24,12 +24,16 @@ export function createAdminClient() {
   }
 
   if (!adminClient) {
-    adminClient = createClient<Database>(getSupabaseUrl(), getSupabaseServiceRoleKey(), {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
+    adminClient = createClient<Database>(
+      getSupabaseUrl(),
+      getSupabaseServiceRoleKey(),
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
       },
-    });
+    );
   }
 
   return adminClient;

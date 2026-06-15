@@ -63,11 +63,15 @@ export async function handleCheckoutSessionCompleted(
     return;
   }
 
-  logStripeWebhook("info", "Commande marquée payée (stock déjà réservé à la création pending)", {
-    eventId,
-    orderId,
-    orderNumber: result.order.order_number,
-  });
+  logStripeWebhook(
+    "info",
+    "Commande marquée payée (stock déjà réservé à la création pending)",
+    {
+      eventId,
+      orderId,
+      orderNumber: result.order.order_number,
+    },
+  );
 
   try {
     await sendOrderPaidEmails(result.order);
@@ -77,11 +81,15 @@ export async function handleCheckoutSessionCompleted(
       orderNumber: result.order.order_number,
     });
   } catch (error) {
-    logStripeWebhook("error", "Échec envoi e-mails commande payée (commande déjà traitée)", {
-      eventId,
-      orderId,
-      orderNumber: result.order.order_number,
-      error: error instanceof Error ? error.message : String(error),
-    });
+    logStripeWebhook(
+      "error",
+      "Échec envoi e-mails commande payée (commande déjà traitée)",
+      {
+        eventId,
+        orderId,
+        orderNumber: result.order.order_number,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    );
   }
 }

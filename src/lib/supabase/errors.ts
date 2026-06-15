@@ -26,3 +26,8 @@ export function assertNoError(
 export function isNotFoundError(error: PostgrestError | null): boolean {
   return error?.code === "PGRST116";
 }
+
+/** Relation absente du cache PostgREST (migration non appliquée). */
+export function isMissingSchemaError(error: PostgrestError | null): boolean {
+  return error?.code === "PGRST205";
+}

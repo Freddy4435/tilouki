@@ -1,44 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { sampleOrderEmailPayload } from "@/lib/email/fixtures";
+import { renderAdminNewOrderEmail } from "@/lib/email/templates/admin-new-order";
 import { renderOrderConfirmationEmail } from "@/lib/email/templates/order-confirmation";
 import { renderPaymentFailedEmail } from "@/lib/email/templates/payment-failed";
+import { renderRefundConfirmationEmail } from "@/lib/email/templates/refund-confirmation";
 import { renderShippingConfirmationEmail } from "@/lib/email/templates/shipping-confirmation";
-import type { OrderEmailPayload } from "@/lib/email/types";
 
-const sampleOrder: OrderEmailPayload = {
-  orderId: "ord-1",
-  orderNumber: "TK-2026-001",
-  customerFirstName: "Marie",
-  customerLastName: "Dupont",
-  customerEmail: "marie@example.com",
-  subtotalCents: 2500,
-  shippingCents: 490,
-  discountCents: 0,
-  totalCents: 2990,
-  currency: "EUR",
-  items: [
-    {
-      productName: "Body coton bio",
-      sizeLabel: "6 mois",
-      quantity: 1,
-      unitPriceCents: 2500,
-      totalPriceCents: 2500,
-    },
-  ],
-  relayPoint: {
-    name: "Tabac Presse",
-    address: "12 rue de la Paix",
-    zip: "75002",
-    city: "Paris",
-    country: "FR",
-  },
-  trackingToken: "abc123token",
-  trackingNumber: "12345678",
-  carrierName: "Mondial Relay",
-  carrierTrackingUrl: "https://www.mondialrelay.fr/suivi-de-colis?numeroExpedition=12345678",
-  siteUrl: "https://tilouki.fr",
-  shopName: "Tilouki",
-};
+const sampleOrder = { ...sampleOrderEmailPayload, orderId: "ord-1" };
 
 describe("e-mails client transactionnels", () => {
   it("confirmation de commande : sujet, montant et point relais", () => {
@@ -72,6 +41,14 @@ describe("e-mails client transactionnels", () => {
     expect(email.html).toContain("https://tilouki.fr/commande");
   });
 
+  it("remboursement : montant et confirmation client", () => {
+    const email = renderRefundConfirmationEmail(sampleOrder);
+
+    expect(email.subject).toContain("Remboursement confirmé");
+    expect(email.html).toContain("remboursée intégralement");
+    expect(email.html).toContain("29,90");
+  });
+
   it("expédition : suivi transporteur et point relais", () => {
     const email = renderShippingConfirmationEmail(sampleOrder);
 
@@ -79,5 +56,15 @@ describe("e-mails client transactionnels", () => {
     expect(email.html).toContain("12345678");
     expect(email.html).toContain("Suivre mon colis Mondial Relay");
     expect(email.html).toContain("Tabac Presse");
+  });
+
+  it("notification admin : client, montant et lien back-office", () => {
+    const email = renderAdminNewOrderEmail(sampleOrder);
+
+    expect(email.subject).toBe("[Tilouki] Nouvelle commande TK-2026-001");
+    expect(email.html).toContain("Nouvelle commande payée");
+    expect(email.html).toContain("marie@example.com");
+    expect(email.html).toContain("/admin/commandes/ord-1");
+    expect(email.text).toContain("29,90");
   });
 });

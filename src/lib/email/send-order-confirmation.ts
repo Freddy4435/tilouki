@@ -19,6 +19,7 @@ export async function sendOrderConfirmation(
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      previewTag: "order-confirmation",
     });
   } catch (error) {
     logEmail("error", "Échec envoi confirmation commande client", {

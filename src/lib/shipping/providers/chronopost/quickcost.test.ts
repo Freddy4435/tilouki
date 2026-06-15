@@ -43,18 +43,25 @@ describe("getQuickCostPriceCents", () => {
   it("retourne le montant TTC en centimes quand l'API répond OK", async () => {
     configureChronopost();
 
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        text: async () =>
-          `<return><errorCode>0</errorCode><amountTTC>6.90</amountTTC></return>`,
-      }),
-    );
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () =>
+        `<return><errorCode>0</errorCode><amountTTC>6.90</amountTTC></return>`,
+    });
+    vi.stubGlobal("fetch", fetchMock);
 
     const price = await getQuickCostPriceCents("75002", 500);
 
     expect(price).toBe(690);
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://ws.chronopost.fr/quickcost-cxf/QuickcostServiceWS");
+    expect(url).not.toMatch(/password|accountNumber/i);
+    expect(init.method).toBe("POST");
+    const body = String(init.body);
+    expect(body).toContain("<chr:quickCost>");
+    expect(body).toContain("<password>secretpass</password>");
+    expect(body).toContain("<productCode>86</productCode>");
   });
 
   it("met en cache le résultat par tranche de poids", async () => {

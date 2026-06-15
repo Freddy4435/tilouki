@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import {
   getShippingConfigurationError,
+  isRelayPointIdAllowed,
   isShippingConfiguredForCheckout,
 } from "@/lib/shipping/checkout";
 import { getShippingProvider } from "@/lib/shipping/provider";
@@ -42,7 +43,12 @@ export async function GET(request: Request) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Paramètres invalides.", points: [], configured: false, source: "mondial_relay_api" },
+      {
+        error: "Paramètres invalides.",
+        points: [],
+        configured: false,
+        source: "mondial_relay_api",
+      },
       { status: 400 },
     );
   }
@@ -68,16 +74,36 @@ export async function GET(request: Request) {
       weightGrams: searchInput.weightGrams,
     });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
+    if (isProduction && result.source === "dev_mock") {
+      return NextResponse.json({
+        points: [],
+        source: result.source,
+        configured: false,
+        provider: provider.name,
+        carrier,
+        devMock: false,
+        error: getShippingConfigurationError(carrier),
+      });
+    }
+
+    const points = isProduction
+      ? result.points.filter(
+          (point) => !point.isDevMock && isRelayPointIdAllowed(point.id),
+        )
+      : result.points;
+
     return NextResponse.json({
-      points: result.points,
+      points,
       source: result.source,
       configured: result.configured,
       provider: provider.name,
       carrier,
-      devMock: result.source === "dev_mock",
+      devMock: !isProduction && result.source === "dev_mock",
       message: result.message,
       error:
-        result.configured && result.points.length === 0
+        result.configured && points.length === 0
           ? (result.message ?? "Aucun point relais trouvé pour ce code postal.")
           : undefined,
     });

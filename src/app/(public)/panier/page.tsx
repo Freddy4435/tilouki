@@ -14,9 +14,9 @@ export default async function PanierPage() {
 
   return (
     <div className="container-tilouki section-tilouki">
-      <header className="mb-6 space-y-3 rounded-2xl border border-tilouki-sage/15 bg-gradient-to-br from-tilouki-sage-light/30 via-card to-tilouki-blue-soft/20 p-5 sm:mb-8">
+      <header className="border-tilouki-jade/30 bg-tilouki-jade-soft/40 mb-6 space-y-3 rounded-2xl border p-5 sm:mb-8">
         <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">Votre panier</h1>
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Votre panier</h1>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
             Vérifiez tailles et quantités — stock contrôlé avant paiement sécurisé.
           </p>

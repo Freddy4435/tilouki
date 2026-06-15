@@ -17,7 +17,10 @@ export const DEFAULT_CART_ITEM = {
 
 /** Injecte un panier minimal avant chargement (Zustand persist). */
 export async function seedCartInBrowser(page: Page, variantId?: string) {
-  const item = { ...DEFAULT_CART_ITEM, variantId: variantId ?? DEFAULT_CART_ITEM.variantId };
+  const item = {
+    ...DEFAULT_CART_ITEM,
+    variantId: variantId ?? DEFAULT_CART_ITEM.variantId,
+  };
   await page.addInitScript((cartItem) => {
     localStorage.setItem(
       "tilouki-cart",

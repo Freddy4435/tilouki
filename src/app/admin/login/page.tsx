@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { siteConfig } from "@/lib/constants/site";
 
 export const metadata: Metadata = {
@@ -15,7 +21,9 @@ export default function AdminLoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="font-heading text-2xl">{siteConfig.name}</CardTitle>
-          <CardDescription>Connexion à l&apos;espace d&apos;administration</CardDescription>
+          <CardDescription>
+            Connexion à l&apos;espace d&apos;administration
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <AdminLoginForm />

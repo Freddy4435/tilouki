@@ -33,7 +33,7 @@ export function CartLineItem({
     <article
       className={cn(
         "flex gap-3",
-        compact ? "py-3" : "rounded-2xl border bg-card p-4 shadow-[var(--shadow-soft)]",
+        compact ? "py-3" : "bg-card rounded-2xl border p-4 shadow-[var(--shadow-soft)]",
         hasIssue && "border-amber-500/40",
       )}
     >

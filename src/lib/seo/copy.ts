@@ -1,7 +1,8 @@
 import type { Category } from "@/types/catalog";
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  fille: "Vêtements fille pour le quotidien : pièces douces, faciles à enfiler et à assortir.",
+  fille:
+    "Vêtements fille pour le quotidien : pièces douces, faciles à enfiler et à assortir.",
   garcon: "Vêtements garçon pratiques et confortables, du tee-shirt au sweat.",
   bebe: "Vêtements bébé pensés pour le confort et les premières sorties.",
   pyjamas: "Pyjamas et tenues de nuit douillettes pour bien dormir.",

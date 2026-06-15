@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getEmailConfig } from "@/lib/email/config";
 import { sendEmail } from "@/lib/email/send";
 import { logSecure } from "@/lib/security/log";
-import { checkRateLimit } from "@/lib/security/rate-limit";
+import { checkRateLimit, rateLimitDeniedMessage } from "@/lib/security/rate-limit";
 import { anonymizeCustomerByEmail } from "@/lib/supabase/queries/orders";
 import { requireAdmin } from "@/server/auth";
 
@@ -36,7 +36,7 @@ export async function submitDataRequestAction(
   });
 
   if (!limit.allowed) {
-    return { error: "Trop de demandes. Réessayez plus tard." };
+    return { error: rateLimitDeniedMessage(limit) };
   }
 
   const parsed = dataRequestSchema.safeParse({
@@ -57,7 +57,9 @@ export async function submitDataRequestAction(
   const config = getEmailConfig();
   if (config.adminEmail) {
     const typeLabel =
-      parsed.data.requestType === "access" ? "Accès aux données" : "Suppression / anonymisation";
+      parsed.data.requestType === "access"
+        ? "Accès aux données"
+        : "Suppression / anonymisation";
 
     try {
       await sendEmail({

@@ -3,6 +3,14 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { generateVariantSku } from "@/lib/admin/sku";
+import {
+  formatPublishBlockMessage,
+  getProductReadinessIssues,
+  isReadyToPublish,
+  mapImagesToReadiness,
+  mapVariantsToReadiness,
+} from "@/lib/admin/product-readiness";
+import { DEV_SEED_PRODUCT_SLUGS } from "@/lib/catalog/dev-seed.fixture";
 import { CACHE_TAGS } from "@/lib/supabase/cache";
 import {
   getAdminProduct,
@@ -10,7 +18,10 @@ import {
   variantHasOrders,
 } from "@/lib/supabase/queries/admin/products";
 import { getAdminSupabase } from "@/lib/supabase/queries/admin/client";
-import { extractStoragePathFromPublicUrl, PRODUCT_IMAGES_BUCKET } from "@/lib/supabase/storage";
+import {
+  extractStoragePathFromPublicUrl,
+  PRODUCT_IMAGES_BUCKET,
+} from "@/lib/supabase/storage";
 import { slugify } from "@/lib/utils/slug";
 import {
   adminCreateProductSchema,
@@ -26,8 +37,52 @@ import type { ProductStatus } from "@/types/database";
 
 function revalidateProductPaths(productId?: string) {
   revalidateTag(CACHE_TAGS.products, "max");
+  revalidatePath("/admin");
   revalidatePath("/admin/produits");
   if (productId) revalidatePath(`/admin/produits/${productId}`);
+}
+
+function publishBlockFromVariants(params: {
+  slug: string;
+  categoryId?: string | null;
+  images?: Array<{ url: string; alt?: string | null; sortOrder?: number }>;
+  imagesCount?: number;
+  variants: AdminVariantInput[];
+}): string | null {
+  const issues = getProductReadinessIssues({
+    slug: params.slug,
+    categoryId: params.categoryId,
+    images: params.images ? mapImagesToReadiness(params.images) : undefined,
+    imagesCount: params.imagesCount,
+    variants: mapVariantsToReadiness(
+      params.variants.map((variant) => ({
+        stockQuantity: variant.stockQuantity,
+        weightGrams: variant.weightGrams,
+        isActive: variant.isActive,
+        priceCents: variant.priceCents,
+        sizeLabel: variant.sizeLabel,
+        ageLabel: variant.ageLabel,
+      })),
+    ),
+  });
+
+  if (isReadyToPublish(issues)) return null;
+  return formatPublishBlockMessage(issues);
+}
+
+async function assertProductPublishable(productId: string): Promise<string | null> {
+  const product = await getAdminProduct(productId);
+  if (!product) return "Produit introuvable.";
+
+  const issues = getProductReadinessIssues({
+    slug: product.slug,
+    categoryId: product.categoryId,
+    images: mapImagesToReadiness(product.images),
+    variants: mapVariantsToReadiness(product.variants),
+  });
+
+  if (isReadyToPublish(issues)) return null;
+  return formatPublishBlockMessage(issues);
 }
 
 function mapProductPayload(input: AdminCreateProductInput | AdminUpdateProductInput) {
@@ -78,6 +133,17 @@ export async function createProductAction(
 
   const data = parsed.data;
   const productPayload = mapProductPayload(data);
+  const slug = productPayload.slug;
+
+  if (data.status === "active") {
+    const block = publishBlockFromVariants({
+      slug,
+      categoryId: data.categoryId,
+      imagesCount: 0,
+      variants: data.initialVariants,
+    });
+    if (block) return { error: block };
+  }
 
   const { data: product, error } = await supabase
     .from("products")
@@ -125,6 +191,11 @@ export async function updateProductAction(
   const supabase = await getAdminSupabase();
   if (!supabase) return { error: "Base de données indisponible." };
 
+  if (parsed.data.status === "active") {
+    const block = await assertProductPublishable(parsed.data.id);
+    if (block) return { error: block };
+  }
+
   const { error } = await supabase
     .from("products")
     .update(mapProductPayload(parsed.data))
@@ -144,14 +215,24 @@ export async function setProductStatusAction(
   const supabase = await getAdminSupabase();
   if (!supabase) return { error: "Base de données indisponible." };
 
-  const { error } = await supabase.from("products").update({ status }).eq("id", productId);
+  if (status === "active") {
+    const block = await assertProductPublishable(productId);
+    if (block) return { error: block };
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({ status })
+    .eq("id", productId);
   if (error) return { error: error.message };
 
   revalidateProductPaths(productId);
   return {};
 }
 
-export async function deleteProductAction(productId: string): Promise<{ error?: string }> {
+export async function deleteProductAction(
+  productId: string,
+): Promise<{ error?: string }> {
   await requireAdmin();
 
   if (await productHasOrders(productId)) {
@@ -225,7 +306,8 @@ export async function saveVariantAction(
     .select("id")
     .single();
 
-  if (error || !data) return { error: error?.message ?? "Création variante impossible." };
+  if (error || !data)
+    return { error: error?.message ?? "Création variante impossible." };
 
   revalidateProductPaths(productId);
   return { id: data.id };
@@ -413,4 +495,26 @@ export async function reorderProductImagesAction(
 
   revalidateProductPaths(productId);
   return {};
+}
+
+/** Passe tous les produits de démo seedés en brouillon (sans suppression). */
+export async function deactivateAllDemoProductsAction(): Promise<{
+  error?: string;
+  count?: number;
+}> {
+  await requireAdmin();
+  const supabase = await getAdminSupabase();
+  if (!supabase) return { error: "Base de données indisponible." };
+
+  const { data, error } = await supabase
+    .from("products")
+    .update({ status: "draft" })
+    .in("slug", [...DEV_SEED_PRODUCT_SLUGS])
+    .eq("status", "active")
+    .select("id");
+
+  if (error) return { error: error.message };
+
+  revalidateProductPaths();
+  return { count: data?.length ?? 0 };
 }

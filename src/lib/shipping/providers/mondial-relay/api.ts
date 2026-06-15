@@ -15,7 +15,10 @@ import {
   parseWsi4Response,
   type Wsi4Response,
 } from "@/lib/shipping/providers/mondial-relay/wsi4";
-import { ShipmentLabelError, type ShipmentLabelErrorCategory } from "@/lib/shipping/errors";
+import {
+  ShipmentLabelError,
+  type ShipmentLabelErrorCategory,
+} from "@/lib/shipping/errors";
 import { logSecure } from "@/lib/security/log";
 import type {
   CreateShipmentLabelInput,

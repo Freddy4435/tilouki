@@ -1,25 +1,28 @@
 "use client";
 
-import Link from "next/link";
-import { Mail, MapPin } from "lucide-react";
-
+import { FooterSocialLinks } from "@/components/layout/footer-social-links";
+import { FooterTrustBlock } from "@/components/layout/footer-trust-block";
+import { NewsletterSignupForm } from "@/components/layout/newsletter-signup-form";
 import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { useShop } from "@/components/providers/shop-provider";
 import { Separator } from "@/components/ui/separator";
 import { footerNavItems } from "@/lib/constants/site";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface SiteFooterProps {
   className?: string;
 }
 
 export function SiteFooter({ className }: SiteFooterProps) {
-  const { name, description, contactEmail, categories } = useShop();
+  const { name, description, categories, socialLinks } = useShop();
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={cn("mt-auto border-t border-tilouki-blue/10 bg-card", className)}>
-      <div className="border-border/50 border-b bg-gradient-to-r from-tilouki-blue-soft/30 via-background to-tilouki-sage-light/30 py-5">
+    <footer
+      className={cn("border-tilouki-jade/20 bg-card mt-auto border-t", className)}
+    >
+      <div className="border-border/50 bg-tilouki-jade-soft/35 border-b py-5">
         <div className="container-tilouki">
           <ReassuranceStrip variant="pills" />
         </div>
@@ -28,28 +31,18 @@ export function SiteFooter({ className }: SiteFooterProps) {
       <div className="container-tilouki section-tilouki pb-8">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="space-y-4 lg:col-span-4">
-            <p className="font-heading text-2xl font-semibold">{name}</p>
-            <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
-            <ul className="text-muted-foreground space-y-2.5 text-sm">
-              <li className="flex items-center gap-2">
-                <Mail className="text-tilouki-sage size-4 shrink-0" aria-hidden />
-                <a
-                  href={`mailto:${contactEmail}`}
-                  className="hover:text-foreground font-medium transition-colors"
-                >
-                  {contactEmail}
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="text-tilouki-blue size-4 shrink-0" aria-hidden />
-                <span>Expédié depuis la France — livraison nationale</span>
-              </li>
-            </ul>
+            <p className="text-section-title">{name}</p>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {description}
+            </p>
+            <FooterSocialLinks links={socialLinks ?? {}} />
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-3">
             <div>
-              <p className="mb-3 text-sm font-semibold">Catégories</p>
+              <p className="text-retail-label text-tilouki-ink-muted mb-3">
+                Catégories
+              </p>
               <ul className="space-y-2">
                 {categories.map((item) => (
                   <li key={item.slug}>
@@ -65,7 +58,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-semibold">Boutique</p>
+              <p className="text-retail-label text-tilouki-ink-muted mb-3">Boutique</p>
               <ul className="space-y-2">
                 {footerNavItems.boutique.map((item) => (
                   <li key={item.href}>
@@ -81,7 +74,9 @@ export function SiteFooter({ className }: SiteFooterProps) {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-semibold">Informations légales</p>
+              <p className="text-retail-label text-tilouki-ink-muted mb-3">
+                Informations légales
+              </p>
               <ul className="space-y-2">
                 {footerNavItems.legal.map((item) => (
                   <li key={item.href}>
@@ -97,10 +92,19 @@ export function SiteFooter({ className }: SiteFooterProps) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-tilouki-sage/15 bg-tilouki-sage-light/30 p-5 lg:col-span-3">
-            <p className="mb-3 text-sm font-semibold">Acheter en confiance</p>
-            <ReassuranceStrip variant="stack" />
+          <div className="border-tilouki-sage/15 bg-tilouki-sage-light/30 space-y-6 rounded-2xl border p-5 lg:col-span-3">
+            <NewsletterSignupForm />
+            <div>
+              <p className="text-retail-label text-tilouki-ink-muted mb-3">
+                Acheter en confiance
+              </p>
+              <ReassuranceStrip variant="stack" />
+            </div>
           </div>
+        </div>
+
+        <div className="my-8">
+          <FooterTrustBlock />
         </div>
 
         <Separator className="my-8" />

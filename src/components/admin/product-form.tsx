@@ -13,14 +13,18 @@ import {
 } from "@/components/admin/product-form-fields";
 import { ProductPreviewPanel } from "@/components/admin/product-preview-panel";
 import { ProductReadinessAlerts } from "@/components/admin/product-readiness-alerts";
+import { ProductPhotoReadinessChecklist } from "@/components/admin/product-photo-readiness-checklist";
+import { isLikelySecondHandProduct } from "@/lib/catalog/product-sellability";
 import { ProductStatusActions } from "@/components/admin/product-status-actions";
 import { ProductVariantsManager } from "@/components/admin/product-variants-manager";
 import { VariantBulkAdd } from "@/components/admin/variant-bulk-add";
 import type { VariantFieldValues } from "@/components/admin/variant-form-fields";
 import { Button } from "@/components/ui/button";
 import {
+  formatPublishBlockMessage,
   getProductReadinessIssues,
   isReadyToPublish,
+  mapImagesToReadiness,
 } from "@/lib/admin/product-readiness";
 import { slugify } from "@/lib/utils/slug";
 import {
@@ -135,6 +139,9 @@ function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
         stockQuantity: v.stockQuantity,
         weightGrams: v.weightGrams,
         isActive: v.isActive,
+        priceCents: v.priceCents,
+        sizeLabel: v.sizeLabel,
+        ageLabel: v.ageLabel,
       })),
     [previewVariants],
   );
@@ -167,14 +174,17 @@ function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
         return;
       }
 
-      if (
-        targetStatus === "active" &&
-        !isReadyToPublish(
-          getProductReadinessIssues({ imagesCount: 0, variants: readinessVariants }),
-        )
-      ) {
-        setSubmitError("Complétez photos, stock et poids avant de publier.");
-        return;
+      if (targetStatus === "active") {
+        const issues = getProductReadinessIssues({
+          imagesCount: 0,
+          variants: readinessVariants,
+          categoryId: values.categoryId,
+          slug: values.slug || slugify(values.name),
+        });
+        if (!isReadyToPublish(issues)) {
+          setSubmitError(formatPublishBlockMessage(issues));
+          return;
+        }
       }
 
       startTransition(async () => {
@@ -186,7 +196,9 @@ function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
         });
 
         if (!productParsed.success) {
-          setSubmitError(productParsed.error.issues[0]?.message ?? "Données invalides.");
+          setSubmitError(
+            productParsed.error.issues[0]?.message ?? "Données invalides.",
+          );
           return;
         }
 
@@ -259,7 +271,12 @@ function ProductCreateForm({ categories }: { categories: CategoryOption[] }) {
           )}
         </section>
 
-        <ProductReadinessAlerts imagesCount={0} variants={readinessVariants} />
+        <ProductReadinessAlerts
+          imagesCount={0}
+          variants={readinessVariants}
+          categoryId={watched.categoryId}
+          slug={watchedSlug}
+        />
 
         <ProductSeoFields register={form.register} />
 
@@ -344,6 +361,9 @@ function ProductEditForm({
         stockQuantity: v.stockQuantity,
         weightGrams: v.weightGrams,
         isActive: v.isActive,
+        priceCents: v.priceCents,
+        sizeLabel: v.sizeLabel,
+        ageLabel: v.ageLabel,
       })),
     [product.variants],
   );
@@ -352,11 +372,13 @@ function ProductEditForm({
     form.handleSubmit((values) => {
       if (targetStatus === "active") {
         const issues = getProductReadinessIssues({
-          imagesCount: product.images.length,
+          images: mapImagesToReadiness(product.images),
           variants: readinessVariants,
+          categoryId: values.categoryId,
+          slug: values.slug || product.slug,
         });
         if (!isReadyToPublish(issues)) {
-          setSubmitError("Complétez photos, stock et poids avant de publier.");
+          setSubmitError(formatPublishBlockMessage(issues));
           return;
         }
       }
@@ -381,8 +403,10 @@ function ProductEditForm({
           productId={product.id}
           status={product.status}
           hasOrders={product.hasOrders}
-          imagesCount={product.images.length}
+          images={product.images}
           variants={readinessVariants}
+          categoryId={watched.categoryId || product.categoryId}
+          slug={watchedSlug}
         />
 
         <form
@@ -401,8 +425,10 @@ function ProductEditForm({
           />
 
           <ProductReadinessAlerts
-            imagesCount={product.images.length}
+            images={product.images}
             variants={readinessVariants}
+            categoryId={watched.categoryId || product.categoryId}
+            slug={watchedSlug}
           />
 
           <ProductSeoFields register={form.register} />
@@ -453,6 +479,15 @@ function ProductEditForm({
             productId={product.id}
             productName={watchedName}
             images={product.images}
+          />
+          <ProductPhotoReadinessChecklist
+            images={mapImagesToReadiness(product.images)}
+            secondHand={
+              isLikelySecondHandProduct(watched.description) ||
+              isLikelySecondHandProduct(watched.shortDescription) ||
+              isLikelySecondHandProduct(product.description) ||
+              isLikelySecondHandProduct(product.shortDescription)
+            }
           />
         </section>
       </div>

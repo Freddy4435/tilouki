@@ -65,7 +65,9 @@ export async function getActiveShippingRatesByCarrier(
   carriers: CarrierName[],
 ): Promise<Partial<Record<CarrierName, ShippingRate[]>>> {
   const entries = await Promise.all(
-    carriers.map(async (carrier) => [carrier, await getActiveShippingRates(carrier)] as const),
+    carriers.map(
+      async (carrier) => [carrier, await getActiveShippingRates(carrier)] as const,
+    ),
   );
 
   return Object.fromEntries(entries);

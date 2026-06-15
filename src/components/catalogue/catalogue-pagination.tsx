@@ -37,16 +37,26 @@ export function CataloguePagination({
   );
 
   return (
-    <nav className="mt-10 flex items-center justify-center gap-2" aria-label="Pagination">
-      <ButtonLink
-        href={buildPageHref(page - 1, searchParams, basePath)}
-        variant="outline"
-        size="sm"
-        className={cn(page <= 1 && "pointer-events-none opacity-50")}
-        aria-disabled={page <= 1}
-      >
-        Précédent
-      </ButtonLink>
+    <nav
+      className="mt-10 flex items-center justify-center gap-2"
+      aria-label="Pagination"
+    >
+      {page <= 1 ? (
+        <span
+          className="border-input bg-background inline-flex h-8 items-center rounded-md border px-3 text-sm opacity-50"
+          aria-disabled="true"
+        >
+          Précédent
+        </span>
+      ) : (
+        <ButtonLink
+          href={buildPageHref(page - 1, searchParams, basePath)}
+          variant="outline"
+          size="sm"
+        >
+          Précédent
+        </ButtonLink>
+      )}
 
       <div className="flex items-center gap-1">
         {pages.map((p, index) => {
@@ -54,7 +64,9 @@ export function CataloguePagination({
           const showEllipsis = prev != null && p - prev > 1;
           return (
             <span key={p} className="flex items-center gap-1">
-              {showEllipsis ? <span className="text-muted-foreground px-1">…</span> : null}
+              {showEllipsis ? (
+                <span className="text-muted-foreground px-1">…</span>
+              ) : null}
               <Link
                 href={buildPageHref(p, searchParams, basePath)}
                 className={cn(
@@ -72,15 +84,22 @@ export function CataloguePagination({
         })}
       </div>
 
-      <ButtonLink
-        href={buildPageHref(page + 1, searchParams, basePath)}
-        variant="outline"
-        size="sm"
-        className={cn(page >= totalPages && "pointer-events-none opacity-50")}
-        aria-disabled={page >= totalPages}
-      >
-        Suivant
-      </ButtonLink>
+      {page >= totalPages ? (
+        <span
+          className="border-input bg-background inline-flex h-8 items-center rounded-md border px-3 text-sm opacity-50"
+          aria-disabled="true"
+        >
+          Suivant
+        </span>
+      ) : (
+        <ButtonLink
+          href={buildPageHref(page + 1, searchParams, basePath)}
+          variant="outline"
+          size="sm"
+        >
+          Suivant
+        </ButtonLink>
+      )}
     </nav>
   );
 }

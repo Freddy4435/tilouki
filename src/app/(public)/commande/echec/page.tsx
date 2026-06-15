@@ -19,9 +19,9 @@ export default function CommandeEchecPage() {
           </div>
           <h1 className="font-heading text-2xl font-semibold">Paiement non finalisé</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Votre paiement n&apos;a pas abouti. Aucun montant n&apos;a été débité. Les articles
-            réservés temporairement seront libérés automatiquement. Vous pouvez réessayer depuis
-            votre panier.
+            Votre paiement n&apos;a pas abouti. Aucun montant n&apos;a été débité. Les
+            articles réservés temporairement seront libérés automatiquement. Vous pouvez
+            réessayer depuis votre panier.
           </p>
           <div className="flex flex-col gap-2 pt-2">
             <ButtonLink href="/panier" className="rounded-full">

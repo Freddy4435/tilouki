@@ -31,6 +31,16 @@ export const LEGAL_PAGE_ROUTES: Record<LegalPageSlug, string> = {
   "formulaire-retractation": "/formulaire-retractation",
 };
 
+/** Libellés affichés dans l'admin et les checklists légales. */
+export const LEGAL_PAGE_LABELS: Record<LegalPageSlug, string> = {
+  "mentions-legales": "Mentions légales",
+  cgv: "Conditions générales de vente (CGV)",
+  confidentialite: "Politique de confidentialité (RGPD)",
+  cookies: "Politique cookies",
+  "livraison-retours": "Livraison, retours et remboursements",
+  "formulaire-retractation": "Formulaire de rétractation",
+};
+
 export const LEGAL_PLACEHOLDER_KEYS = [
   "shop_name",
   "legal_name",
@@ -50,9 +60,11 @@ export const LEGAL_PLACEHOLDER_KEYS = [
   "vat_section",
   "rep_section",
   "mediation_section",
+  "rcs_section",
   "payment_method",
   "delivery_method",
   "shipping_info",
+  "delivery_delays_info",
   "withdrawal_info",
   "return_info",
   "exchange_section",
@@ -76,6 +88,7 @@ const templates: Record<LegalPageSlug, { title: string; content: string }> = {
   <li><strong>E-mail :</strong> <a href="mailto:{{email}}">{{email}}</a></li>
   <li><strong>Téléphone :</strong> {{phone}}</li>
 </ul>
+{{rcs_section}}
 {{vat_section}}
 {{rep_section}}
 
@@ -126,6 +139,7 @@ proposées sur le site <strong>{{site_url}}</strong> par {{legal_name}} ({{legal
   <li><strong>Adresse :</strong> {{address}}</li>
   <li><strong>Contact :</strong> <a href="mailto:{{email}}">{{email}}</a> — {{phone}}</li>
 </ul>
+{{rcs_section}}
 {{vat_section}}
 {{rep_section}}
 
@@ -145,6 +159,14 @@ au moment de la validation de la commande par le Client.</p>
 <h2>5. Commande</h2>
 <p>Pour passer commande, le Client sélectionne les articles (taille, couleur), choisit un point relais,
 renseigne ses coordonnées, accepte les présentes CGV et procède au paiement.</p>
+<h3>5.1 Information précontractuelle</h3>
+<p>Avant validation de la commande, un écran récapitulatif présente : le détail des produits (références, tailles,
+quantités), le prix TTC de chaque article, les frais et le mode de livraison choisi, ainsi que le montant total à payer,
+conformément aux obligations d'information précontractuelle pour les contrats à distance.</p>
+<h3>5.2 Obligation de paiement</h3>
+<p>La validation de la commande à l'étape de paiement, par le bouton portant la mention « Payer » (ou formulation
+équivalente indiquant l'obligation de paiement), vaut acceptation des présentes CGV et emporte obligation de payer
+le prix indiqué au récapitulatif.</p>
 <p>Une confirmation de commande est adressée par e-mail. Le contrat de vente est conclu à réception de cette confirmation,
 sous réserve de l'encaissement effectif du paiement.</p>
 
@@ -155,6 +177,7 @@ sous réserve de l'encaissement effectif du paiement.</p>
 <h2>7. Livraison</h2>
 <p>{{delivery_method}}</p>
 <p>{{shipping_info}}</p>
+{{delivery_delays_info}}
 <p>Les délais de livraison sont communiqués à titre indicatif lors de la commande. Le Vendeur ne saurait être tenu
 responsable des retards imputables au transporteur, sous réserve des garanties légales applicables.</p>
 <p>Le transfert des risques s'effectue au moment où le Client prend physiquement possession du colis.</p>
@@ -232,7 +255,8 @@ de droit commun, notamment le tribunal judiciaire du lieu de domicile du consomm
 <h2>6. Vos droits</h2>
 <p>Conformément au Règlement (UE) 2016/679 (RGPD) et à la loi « Informatique et Libertés », vous disposez des droits
 d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité de vos données.</p>
-<p>Pour exercer vos droits : <a href="mailto:{{email}}">{{email}}</a>. Une réponse vous sera apportée dans un délai d'un mois.</p>
+<p>Pour exercer vos droits : <a href="mailto:{{email}}">{{email}}</a> ou via le
+<a href="/donnees-personnelles">formulaire de demande RGPD</a>. Une réponse vous sera apportée dans un délai d'un mois.</p>
 <p>Vous pouvez introduire une réclamation auprès de la CNIL : <a href="https://www.cnil.fr" rel="noopener noreferrer">www.cnil.fr</a>.</p>
 
 <h2>7. Sécurité</h2>
@@ -269,10 +293,14 @@ prévention de la fraude. Pour plus d'informations : <a href="https://stripe.com
 <p>Les cookies de session sont supprimés à la fermeture du navigateur. Les cookies persistants ont une durée
 maximale de 13 mois conformément aux recommandations de la CNIL.</p>
 
-<h2>4. Gestion de vos préférences</h2>
+<h2>4. Gestion de vos préférences (CNIL)</h2>
+<p>Conformément aux lignes directrices de la CNIL, les cookies non essentiels (notamment de mesure d'audience)
+ne sont déposés qu'après votre consentement via le bandeau affiché lors de votre première visite.
+Vous pouvez refuser ou retirer votre consentement à tout moment.</p>
 <p>Vous pouvez à tout moment configurer votre navigateur pour accepter ou refuser les cookies.
 Le refus des cookies strictement nécessaires peut dégrader certaines fonctionnalités (panier, commande).</p>
-<p>Vous pouvez modifier votre choix à tout moment en supprimant le cookie de consentement (<code>tilouki-cookie-consent</code>) dans les paramètres de votre navigateur, puis en rechargeant cette page.</p>
+<p>Vous pouvez modifier votre choix en supprimant le cookie de consentement (<code>tilouki-cookie-consent</code>)
+dans les paramètres de votre navigateur, puis en rechargeant cette page.</p>
 
 <h2>5. Contact</h2>
 <p>Questions relatives aux cookies : <a href="mailto:{{email}}">{{email}}</a></p>`,
@@ -285,6 +313,7 @@ Le refus des cookies strictement nécessaires peut dégrader certaines fonctionn
 <h2>1. Zone et mode de livraison</h2>
 <p>{{delivery_method}}</p>
 <p>{{shipping_info}}</p>
+{{delivery_delays_info}}
 <p>Les colis sont préparés et expédiés depuis la France. Les délais indiqués lors de la commande sont donnés
 à titre indicatif (préparation + acheminement transporteur).</p>
 
@@ -367,12 +396,18 @@ portant sur la vente du bien (*) / la prestation de services (*) ci-dessous :</p
   },
 };
 
-export function getDefaultLegalTemplate(slug: string): { title: string; content: string } | null {
+export function getDefaultLegalTemplate(
+  slug: string,
+): { title: string; content: string } | null {
   if (!(slug in templates)) return null;
   return templates[slug as LegalPageSlug];
 }
 
-export function getAllDefaultLegalTemplates(): { slug: LegalPageSlug; title: string; content: string }[] {
+export function getAllDefaultLegalTemplates(): {
+  slug: LegalPageSlug;
+  title: string;
+  content: string;
+}[] {
   return LEGAL_PAGE_SLUGS.map((slug) => ({
     slug,
     title: templates[slug].title,

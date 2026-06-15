@@ -44,7 +44,10 @@ export default async function AdminCategoriesPage() {
             <TableBody>
               {categories.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-muted-foreground h-24 text-center text-sm">
+                  <TableCell
+                    colSpan={5}
+                    className="text-muted-foreground h-24 text-center text-sm"
+                  >
                     Aucune catégorie.
                   </TableCell>
                 </TableRow>
@@ -61,7 +64,9 @@ export default async function AdminCategoriesPage() {
                         {category.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">{category.sortOrder}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {category.sortOrder}
+                    </TableCell>
                   </TableRow>
                 ))
               )}

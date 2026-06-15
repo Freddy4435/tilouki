@@ -1,6 +1,9 @@
 const PRODUCT_IMAGES_BUCKET = "product-images";
 
-export function getProductImageStoragePath(productId: string, fileName: string): string {
+export function getProductImageStoragePath(
+  productId: string,
+  fileName: string,
+): string {
   const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "-").toLowerCase();
   return `${productId}/${Date.now()}-${safeName}`;
 }

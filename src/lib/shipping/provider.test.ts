@@ -61,15 +61,21 @@ describe("getShippingProvider — factory multi-transporteur", () => {
   });
 
   it("retourne le mock dev pour chaque transporteur quand rien n'est configuré", () => {
-    expect(getShippingProvider("mondial_relay")).toBeInstanceOf(DevMockShippingProvider);
+    expect(getShippingProvider("mondial_relay")).toBeInstanceOf(
+      DevMockShippingProvider,
+    );
     expect(getShippingProvider("chronopost")).toBeInstanceOf(DevMockShippingProvider);
   });
 
   it("retourne unconfigured pour Chronopost si seul MR est configuré (mock dev coupé)", () => {
     configureMondialRelay();
 
-    expect(getShippingProvider("mondial_relay")).toBeInstanceOf(MondialRelayApiProvider);
-    expect(getShippingProvider("chronopost")).toBeInstanceOf(UnconfiguredShippingProvider);
+    expect(getShippingProvider("mondial_relay")).toBeInstanceOf(
+      MondialRelayApiProvider,
+    );
+    expect(getShippingProvider("chronopost")).toBeInstanceOf(
+      UnconfiguredShippingProvider,
+    );
   });
 
   it("met en cache un provider par transporteur et se réinitialise", () => {

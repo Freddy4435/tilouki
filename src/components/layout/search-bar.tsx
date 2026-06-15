@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { useState } from "react";
 
@@ -16,14 +16,18 @@ interface SearchBarProps {
   compact?: boolean;
 }
 
-export function SearchBar({
+interface SearchBarInnerProps extends SearchBarProps {
+  initialQuery: string;
+}
+
+function SearchBarInner({
   className,
   placeholder = "Rechercher un vêtement, une taille…",
-  defaultValue = "",
   compact = false,
-}: SearchBarProps) {
+  initialQuery,
+}: SearchBarInnerProps) {
   const router = useRouter();
-  const [query, setQuery] = useState(defaultValue);
+  const [query, setQuery] = useState(initialQuery);
   const [expanded, setExpanded] = useState(false);
 
   const submit = (event: React.FormEvent) => {
@@ -51,7 +55,10 @@ export function SearchBar({
     }
 
     return (
-      <form onSubmit={submit} className={cn("flex flex-1 items-center gap-2", className)}>
+      <form
+        onSubmit={submit}
+        className={cn("flex flex-1 items-center gap-2", className)}
+      >
         <div className="relative flex-1">
           <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
@@ -85,9 +92,20 @@ export function SearchBar({
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder={placeholder}
-        className="bg-background h-10 rounded-full border-border/80 pr-4 pl-10 shadow-[var(--shadow-soft)]"
+        className="bg-background border-border/80 h-10 rounded-full pr-4 pl-10 shadow-[var(--shadow-soft)]"
         aria-label="Rechercher dans le catalogue"
       />
     </form>
   );
+}
+
+export function SearchBar(props: SearchBarProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlQuery =
+    pathname === "/catalogue"
+      ? (searchParams.get("q") ?? "")
+      : (props.defaultValue ?? "");
+
+  return <SearchBarInner key={urlQuery} initialQuery={urlQuery} {...props} />;
 }

@@ -1,150 +1,262 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, ImageIcon, PackageCheck } from "lucide-react";
+"use client";
 
-import { ProductBadgeList, type ProductBadgeType } from "@/components/product/product-badges";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+import { FavoriteButton } from "@/components/favorites/favorite-button";
+import { ProductRatingStars } from "@/components/product/product-rating-stars";
+import { ProductCardColorSwatches } from "@/components/product/product-card-color-swatches";
+import {
+  ProductCardMedia,
+  useProductCardColorState,
+} from "@/components/product/product-card-media";
+import { ProductCardQuickAdd } from "@/components/product/product-card-quick-add";
+import { ProductCardPrice } from "@/components/product/product-card-price";
 import { SizeAgeBadgeList } from "@/components/product/size-age-badge";
-import { ButtonLink } from "@/components/ui/button-link";
-import { cn, formatPrice } from "@/lib/utils";
+import type { ProductBadgeType } from "@/components/product/product-badges";
+import { getProductCardCtaLabel } from "@/lib/catalog/product-card-cta";
+import {
+  canShowProductCardQuickAdd,
+  resolveQuickAddMode,
+} from "@/lib/catalog/product-card-data";
+import { isCommercialProductImage } from "@/lib/catalog/product-sellability";
+import type { ProductCardColorOption, ProductQuickAddVariant } from "@/types/catalog";
+import { cn } from "@/lib/utils";
 
 export interface ProductCardProps {
+  productId: string;
   slug: string;
   name: string;
   priceCents: number;
   compareAtPriceCents?: number | null;
   imageUrl?: string | null;
   imageAlt?: string;
+  secondaryImageUrl?: string | null;
+  secondaryImageAlt?: string | null;
+  colorOptions?: ProductCardColorOption[];
+  quickAddVariants?: ProductQuickAddVariant[];
   categoryName?: string | null;
+  material?: string | null;
   sizes?: string[];
   ageLabel?: string;
   badges?: ProductBadgeType[];
   totalStock?: number;
+  ratingAverage?: number | null;
+  ratingCount?: number;
   priority?: boolean;
+  /** Variante compacte pour carrousels mobile (accueil). */
+  variant?: "default" | "compact";
   className?: string;
 }
 
 export function ProductCard({
+  productId,
   slug,
   name,
   priceCents,
   compareAtPriceCents,
   imageUrl,
   imageAlt,
+  secondaryImageUrl,
+  secondaryImageAlt,
+  colorOptions = [],
+  quickAddVariants = [],
   categoryName,
+  material,
   sizes = [],
   ageLabel,
   badges = [],
   totalStock,
+  ratingAverage,
+  ratingCount,
   priority = false,
+  variant = "default",
   className,
 }: ProductCardProps) {
   const href = `/produit/${slug}`;
-  const hasDiscount =
-    compareAtPriceCents != null && compareAtPriceCents > priceCents;
+  const compact = variant === "compact";
   const inStock = totalStock === undefined || totalStock > 0;
-  const lowStock = totalStock !== undefined && totalStock > 0 && totalStock <= 3;
+  const isLastPiece = totalStock === 1;
+  const lowStock = totalStock !== undefined && totalStock > 1 && totalStock <= 3;
+  const { selectedColor, selectColor } = useProductCardColorState(colorOptions);
+
+  const isStorefrontSellable = Boolean(
+    imageUrl && isCommercialProductImage(imageUrl, imageAlt ?? null),
+  );
+
+  const activeImageUrl =
+    (selectedColor
+      ? colorOptions.find((option) => option.color === selectedColor)?.imageUrl
+      : null) ??
+    imageUrl ??
+    null;
+
+  const showQuickAdd = canShowProductCardQuickAdd({
+    quickAddVariants,
+    inStock,
+    isStorefrontSellable,
+  });
+  const directVariant = showQuickAdd
+    ? resolveQuickAddMode(quickAddVariants).directVariant
+    : undefined;
+
+  const ctaLabel = getProductCardCtaLabel(sizes, quickAddVariants, inStock);
+  const hasRating = Boolean(ratingAverage && (ratingCount ?? 0) > 0);
+  const showMaterial = Boolean(material?.trim());
+  const showColorSwatches = colorOptions.length >= 2;
+  const showSizes = sizes.length > 0;
 
   return (
     <article
       className={cn(
-        "tilouki-product-card group flex h-full flex-col rounded-2xl bg-card/50 p-1.5 ring-1 ring-black/[0.03] sm:p-2",
+        "tilouki-product-card group bg-card flex h-full flex-col overflow-hidden rounded-[var(--radius-product)] shadow-[var(--shadow-soft)] ring-1 ring-black/[0.04]",
         className,
       )}
     >
-      <Link href={href} className="block">
-        <div className="product-image-frame shadow-[var(--shadow-soft)] ring-1 ring-black/[0.04] transition-all duration-[var(--transition-base)] group-hover:shadow-[var(--shadow-card-hover)] group-hover:ring-tilouki-blue/20">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={imageAlt ?? name}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-              priority={priority}
-              loading={priority ? undefined : "lazy"}
-            />
-          ) : (
-            <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 bg-tilouki-blue-soft/40">
-              <ImageIcon className="size-8 opacity-40" aria-hidden />
-              <span className="text-xs">Photo à venir</span>
-            </div>
-          )}
+      <div className="relative shrink-0">
+        <ProductCardMedia
+          href={href}
+          name={name}
+          primaryImageUrl={imageUrl}
+          primaryImageAlt={imageAlt}
+          secondaryImageUrl={secondaryImageUrl}
+          secondaryImageAlt={secondaryImageAlt}
+          colorOptions={colorOptions}
+          badges={badges}
+          priority={priority}
+          inStock={inStock}
+          selectedColor={selectedColor}
+        />
+        <FavoriteButton slug={slug} />
+        {showQuickAdd && directVariant ? (
+          <ProductCardQuickAdd
+            productId={productId}
+            slug={slug}
+            productName={name}
+            imageUrl={activeImageUrl}
+            directVariant={directVariant}
+          />
+        ) : null}
+      </div>
 
-          {badges.length > 0 ? (
-            <div className="absolute top-2 left-2 z-10">
-              <ProductBadgeList badges={badges} max={2} />
-            </div>
-          ) : null}
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col",
+          compact ? "gap-1 p-2.5" : "gap-1.5 p-2.5 sm:gap-2 sm:p-3",
+        )}
+      >
+        {!compact && categoryName ? (
+          <p className="text-retail-label text-tilouki-ink-muted hidden sm:block">
+            {categoryName}
+          </p>
+        ) : null}
 
-          {categoryName ? (
-            <div className="absolute top-2 right-2 z-10">
-              <span className="bg-card/95 text-tilouki-sage-dark inline-block max-w-[7rem] truncate rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide shadow-sm backdrop-blur-sm sm:max-w-none sm:text-[11px]">
-                {categoryName}
-              </span>
-            </div>
-          ) : null}
-
-          {inStock ? (
-            <div className="absolute bottom-2 left-2 z-10">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold shadow-sm backdrop-blur-sm sm:text-xs",
-                  lowStock
-                    ? "bg-primary/95 text-primary-foreground"
-                    : "bg-tilouki-sage-light/95 text-tilouki-sage-dark",
-                )}
-              >
-                <PackageCheck className="size-3" aria-hidden />
-                {lowStock ? "Dernières pièces" : "En stock"}
-              </span>
-            </div>
-          ) : null}
-        </div>
-      </Link>
-
-      <div className="flex flex-1 flex-col gap-2 px-0.5 pt-2.5 sm:px-1 sm:pt-3">
-        <Link href={href} className="group/title">
-          <h3 className="text-foreground group-hover/title:text-primary line-clamp-2 min-h-[2.5rem] text-sm leading-snug font-medium transition-colors sm:min-h-[2.75rem] sm:text-[0.9375rem]">
+        <Link href={href} className="group/title block">
+          <h3
+            className={cn(
+              "text-foreground group-hover/title:text-primary line-clamp-2 leading-snug font-semibold transition-colors",
+              compact ? "text-[13px]" : "text-sm sm:text-[0.9375rem]",
+            )}
+          >
             {name}
           </h3>
         </Link>
 
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-primary text-lg font-bold tabular-nums tracking-tight sm:text-xl">
-            {formatPrice(priceCents)}
-          </span>
-          {hasDiscount ? (
-            <>
-              <span className="text-muted-foreground text-sm line-through tabular-nums">
-                {formatPrice(compareAtPriceCents)}
-              </span>
-              <span className="bg-primary/10 text-primary rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase">
-                Promo
-              </span>
-            </>
-          ) : null}
-        </div>
+        <ProductCardPrice
+          priceCents={priceCents}
+          compareAtPriceCents={compareAtPriceCents}
+          compact={compact}
+        />
 
-        {sizes.length > 0 ? (
-          <div className="space-y-1">
-            <p className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase sm:text-xs">
-              Tailles
-            </p>
-            <SizeAgeBadgeList items={sizes} variant="size" max={4} />
+        {!compact && (showMaterial || hasRating) ? (
+          <div className="hidden min-h-[1.125rem] sm:block">
+            {showMaterial ? (
+              <p className="text-muted-foreground line-clamp-1 text-[11px] leading-tight">
+                {material}
+              </p>
+            ) : (
+              <ProductRatingStars
+                average={ratingAverage}
+                count={ratingCount}
+                size="sm"
+              />
+            )}
           </div>
-        ) : ageLabel ? (
-          <SizeAgeBadgeList items={[ageLabel]} variant="age" max={1} />
         ) : null}
 
-        <ButtonLink
-          href={href}
-          variant="secondary"
-          size="sm"
-          className="mt-auto min-h-11 w-full rounded-xl border-tilouki-sage/20 bg-tilouki-sage-light/50 text-tilouki-sage-dark hover:bg-tilouki-sage-light"
-        >
-          Voir le produit
-          <ArrowRight className="size-3.5" />
-        </ButtonLink>
+        {showColorSwatches ? (
+          <div className="hidden sm:block">
+            <ProductCardColorSwatches
+              options={colorOptions}
+              selectedColor={selectedColor}
+              onSelectColor={selectColor}
+            />
+          </div>
+        ) : null}
+
+        {showSizes ? (
+          <div className="hidden space-y-1 sm:block">
+            <SizeAgeBadgeList
+              items={sizes}
+              variant="size"
+              max={compact ? 3 : 4}
+              density={compact ? "compact" : "default"}
+            />
+          </div>
+        ) : ageLabel ? (
+          <div className="hidden sm:block">
+            <SizeAgeBadgeList
+              items={[ageLabel]}
+              variant="age"
+              max={1}
+              density={compact ? "compact" : "default"}
+            />
+          </div>
+        ) : null}
+
+        {inStock && (isLastPiece || lowStock) ? (
+          <p
+            className={cn(
+              "hidden text-[11px] leading-tight font-medium sm:block",
+              isLastPiece ? "text-tilouki-persimmon-dark" : "text-amber-900",
+            )}
+          >
+            {isLastPiece
+              ? "Dernière pièce disponible"
+              : `Plus que ${totalStock} en stock`}
+          </p>
+        ) : !inStock ? (
+          <p className="text-muted-foreground hidden text-[11px] sm:block">
+            Rupture de stock
+          </p>
+        ) : null}
+
+        <div className={cn("mt-auto pt-0.5", !compact && "md:pt-1")}>
+          {compact ? (
+            <Link
+              href={href}
+              className="text-primary hover:text-primary/85 inline-flex min-h-8 w-full items-center justify-center gap-1 text-xs font-semibold transition-colors"
+            >
+              {ctaLabel}
+              <ArrowRight className="size-3.5" aria-hidden />
+            </Link>
+          ) : (
+            <Link
+              href={href}
+              className={cn(
+                "border-border/80 text-foreground hover:border-primary/40 hover:bg-muted/40 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-[var(--radius-button)] border bg-transparent text-sm font-semibold transition-[opacity,transform,colors] duration-200",
+                "max-md:text-primary max-md:h-8 max-md:border-0 max-md:bg-transparent max-md:text-xs max-md:font-semibold max-md:hover:bg-transparent",
+                "md:translate-y-1 md:opacity-0 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-hover:translate-y-0 md:group-hover:opacity-100",
+              )}
+            >
+              {ctaLabel}
+              <ArrowRight
+                className="max-md:text-primary size-3.5 opacity-70"
+                aria-hidden
+              />
+            </Link>
+          )}
+        </div>
       </div>
     </article>
   );

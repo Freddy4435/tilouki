@@ -1,9 +1,14 @@
 import "server-only";
 
 import { computeSubtotalCents } from "@/lib/cart/calculations";
+import { evaluateCartLineStock } from "@/lib/cart/variant-stock";
 import { computeShippingCents } from "@/lib/shipping/rates";
 import { getActiveShippingRates } from "@/lib/supabase/queries/shipping";
-import type { CartStockIssue, CartValidationLine, CartValidationResult } from "@/lib/cart/types";
+import type {
+  CartStockIssue,
+  CartValidationLine,
+  CartValidationResult,
+} from "@/lib/cart/types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { assertNoError } from "@/lib/supabase/errors";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -88,22 +93,17 @@ export async function validateCartStock(
       const stockQuantity = row.stock_quantity;
       const requestedQuantity = line.quantity;
 
-      let issue: CartStockIssue | undefined;
-      let adjustedQuantity = requestedQuantity;
-
-      if (!isAvailable) {
-        issue = "unavailable";
-        adjustedQuantity = 0;
-      } else if (stockQuantity <= 0) {
-        issue = "out_of_stock";
-        adjustedQuantity = 0;
-      } else if (requestedQuantity > stockQuantity) {
-        issue = "insufficient_stock";
-        adjustedQuantity = stockQuantity;
-      }
+      const evaluation = evaluateCartLineStock(
+        { isActive: isAvailable, stockQuantity },
+        requestedQuantity,
+      );
+      const issue = evaluation.issue;
+      const adjustedQuantity = evaluation.adjustedQuantity;
 
       if (issue) {
-        messages.push(buildIssueMessage(issue, row.sku, stockQuantity, requestedQuantity));
+        messages.push(
+          buildIssueMessage(issue, row.sku, stockQuantity, requestedQuantity),
+        );
       }
 
       validatedItems.push({

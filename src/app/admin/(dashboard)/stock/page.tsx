@@ -69,7 +69,10 @@ export default async function AdminStockPage() {
               <TableBody>
                 {lowStock.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-muted-foreground py-8 text-center text-sm">
+                    <TableCell
+                      colSpan={3}
+                      className="text-muted-foreground py-8 text-center text-sm"
+                    >
                       Aucune alerte stock.
                     </TableCell>
                   </TableRow>
@@ -85,13 +88,17 @@ export default async function AdminStockPage() {
                         </Link>
                         {(item.sizeLabel || item.ageLabel) && (
                           <div className="text-muted-foreground text-xs">
-                            {[item.sizeLabel, item.ageLabel].filter(Boolean).join(" · ")}
+                            {[item.sizeLabel, item.ageLabel]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </div>
                         )}
                       </TableCell>
                       <TableCell className="font-mono text-xs">{item.sku}</TableCell>
                       <TableCell className="text-right">
-                        <Badge variant={item.stockQuantity === 0 ? "destructive" : "outline"}>
+                        <Badge
+                          variant={item.stockQuantity === 0 ? "destructive" : "outline"}
+                        >
                           {item.stockQuantity}
                         </Badge>
                       </TableCell>
@@ -120,7 +127,10 @@ export default async function AdminStockPage() {
               <TableBody>
                 {movements.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-muted-foreground py-8 text-center text-sm">
+                    <TableCell
+                      colSpan={4}
+                      className="text-muted-foreground py-8 text-center text-sm"
+                    >
                       Aucun mouvement enregistré.
                     </TableCell>
                   </TableRow>
@@ -131,8 +141,12 @@ export default async function AdminStockPage() {
                         {formatDate(movement.createdAt)}
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm font-medium">{movement.productName}</div>
-                        <div className="text-muted-foreground font-mono text-xs">{movement.sku}</div>
+                        <div className="text-sm font-medium">
+                          {movement.productName}
+                        </div>
+                        <div className="text-muted-foreground font-mono text-xs">
+                          {movement.sku}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
@@ -140,7 +154,9 @@ export default async function AdminStockPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {movement.quantity > 0 ? `+${movement.quantity}` : movement.quantity}
+                        {movement.quantity > 0
+                          ? `+${movement.quantity}`
+                          : movement.quantity}
                       </TableCell>
                     </TableRow>
                   ))

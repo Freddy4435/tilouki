@@ -8,7 +8,11 @@ interface LegalPageContentProps {
   fallbackMessage: string;
 }
 
-export function LegalPageContent({ title, html, fallbackMessage }: LegalPageContentProps) {
+export function LegalPageContent({
+  title,
+  html,
+  fallbackMessage,
+}: LegalPageContentProps) {
   return (
     <LegalPageShell title={title}>
       {html ? (

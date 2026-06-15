@@ -64,7 +64,8 @@ export function ProductPreviewPanel({
           </div>
         </div>
         <p className="text-muted-foreground text-xs">
-          Aperçu basé sur les données saisies. Le bouton panier est désactivé en mode admin.
+          Aperçu basé sur les données saisies. Le bouton panier est désactivé en mode
+          admin.
         </p>
       </CardContent>
     </Card>

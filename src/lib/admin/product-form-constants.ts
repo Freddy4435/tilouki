@@ -9,7 +9,7 @@ export const SHORT_DESC_PLACEHOLDER =
   "Tee-shirt doux en coton bio, imprimé licorne, idéal au quotidien.";
 
 export const DESCRIPTION_PLACEHOLDER =
-  "Décrivez le vêtement : coupe, motifs, occasions de port, ce qui le rend unique…";
+  "Décrivez le vêtement. Ajoutez une section « ## Pourquoi on l'a choisi » pour mettre en avant votre sélection.";
 
 export const MATERIAL_PLACEHOLDER = "100 % coton bio";
 
@@ -33,7 +33,19 @@ export const AGE_PRESETS = [
   "12 ans",
 ] as const;
 
-export const SIZE_PRESETS = ["2A", "3A", "4A", "5A", "6A", "8A", "10A", "12A", "XS", "S", "M"] as const;
+export const SIZE_PRESETS = [
+  "2A",
+  "3A",
+  "4A",
+  "5A",
+  "6A",
+  "8A",
+  "10A",
+  "12A",
+  "XS",
+  "S",
+  "M",
+] as const;
 
 export const COLOR_PRESETS = [
   "Rose",

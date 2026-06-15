@@ -1,9 +1,16 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { checkRateLimit, resetRateLimitStore } from "@/lib/security/rate-limit";
 
 describe("checkRateLimit (fallback mémoire — sans variables Upstash)", () => {
+  beforeEach(() => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "");
+  });
+
   afterEach(() => {
+    vi.unstubAllEnvs();
     resetRateLimitStore();
   });
 

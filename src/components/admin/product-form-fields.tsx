@@ -64,7 +64,7 @@ export function ProductFormFields({
 
   return (
     <section className="space-y-4">
-      <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+      <div className="border-primary/20 bg-primary/5 rounded-xl border px-4 py-3">
         <p className="flex items-start gap-2 text-sm">
           <Lightbulb className="text-primary mt-0.5 size-4 shrink-0" />
           <span>
@@ -117,7 +117,9 @@ export function ProductFormFields({
             placeholder={SHORT_DESC_PLACEHOLDER}
             {...register("shortDescription")}
           />
-          <p className="text-muted-foreground text-xs">Visible sur les listes et en aperçu boutique.</p>
+          <p className="text-muted-foreground text-xs">
+            Visible sur les listes et en aperçu boutique.
+          </p>
         </div>
 
         <div className="space-y-2 sm:col-span-2">
@@ -136,11 +138,20 @@ export function ProductFormFields({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="material">Matière</Label>
-          <Input id="material" placeholder={MATERIAL_PLACEHOLDER} {...register("material")} />
+          <Input
+            id="material"
+            placeholder={MATERIAL_PLACEHOLDER}
+            {...register("material")}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="season">Saison</Label>
-          <Input id="season" list="season-suggestions" placeholder="toute-saison" {...register("season")} />
+          <Input
+            id="season"
+            list="season-suggestions"
+            placeholder="toute-saison"
+            {...register("season")}
+          />
           <datalist id="season-suggestions">
             {SEASON_SUGGESTIONS.map((s) => (
               <option key={s} value={s} />
@@ -149,11 +160,19 @@ export function ProductFormFields({
         </div>
         <div className="space-y-2">
           <Label htmlFor="brandLabel">Marque affichée</Label>
-          <Input id="brandLabel" placeholder="Sans marque" {...register("brandLabel")} />
+          <Input
+            id="brandLabel"
+            placeholder="Sans marque"
+            {...register("brandLabel")}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="madeIn">Fabriqué en</Label>
-          <Input id="madeIn" placeholder={MADE_IN_PLACEHOLDER} {...register("madeIn")} />
+          <Input
+            id="madeIn"
+            placeholder={MADE_IN_PLACEHOLDER}
+            {...register("madeIn")}
+          />
         </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="careInstructions">Entretien</Label>
@@ -218,7 +237,9 @@ export function ProductSeoFields({
         className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm font-medium"
       >
         SEO (optionnel)
-        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+        <ChevronDown
+          className={cn("size-4 transition-transform", open && "rotate-180")}
+        />
       </button>
       {open ? (
         <div className="space-y-4 rounded-lg border px-3 py-4">

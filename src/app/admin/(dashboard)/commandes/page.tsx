@@ -51,15 +51,19 @@ export default async function AdminCommandesPage({ searchParams }: PageProps) {
     paymentStatus,
   });
 
-  const statusOptions = (Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((s) => ({
-    value: s,
-    label: ORDER_STATUS_LABELS[s],
-  }));
+  const statusOptions = (Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map(
+    (s) => ({
+      value: s,
+      label: ORDER_STATUS_LABELS[s],
+    }),
+  );
 
-  const paymentOptions = (Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[]).map((s) => ({
-    value: s,
-    label: PAYMENT_STATUS_LABELS[s],
-  }));
+  const paymentOptions = (Object.keys(PAYMENT_STATUS_LABELS) as PaymentStatus[]).map(
+    (s) => ({
+      value: s,
+      label: PAYMENT_STATUS_LABELS[s],
+    }),
+  );
 
   return (
     <>
@@ -78,7 +82,11 @@ export default async function AdminCommandesPage({ searchParams }: PageProps) {
           <AdminSearch placeholder="N° commande, e-mail, nom…" />
         </Suspense>
         <Suspense>
-          <AdminFilterSelect paramName="status" options={statusOptions} placeholder="Statut" />
+          <AdminFilterSelect
+            paramName="status"
+            options={statusOptions}
+            placeholder="Statut"
+          />
         </Suspense>
         <Suspense>
           <AdminFilterSelect
@@ -107,7 +115,10 @@ export default async function AdminCommandesPage({ searchParams }: PageProps) {
           <TableBody>
             {orders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-muted-foreground h-24 text-center text-sm">
+                <TableCell
+                  colSpan={8}
+                  className="text-muted-foreground h-24 text-center text-sm"
+                >
                   Aucune commande pour le moment.
                 </TableCell>
               </TableRow>
@@ -124,7 +135,9 @@ export default async function AdminCommandesPage({ searchParams }: PageProps) {
                   </TableCell>
                   <TableCell>
                     <div className="font-medium">{order.customerName}</div>
-                    <div className="text-muted-foreground text-xs">{order.customerEmail}</div>
+                    <div className="text-muted-foreground text-xs">
+                      {order.customerEmail}
+                    </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
                     {formatDate(order.createdAt)}
@@ -144,7 +157,11 @@ export default async function AdminCommandesPage({ searchParams }: PageProps) {
                   <TableCell className="text-right">
                     <div className="flex flex-col items-end gap-2">
                       <OrderActions order={order} compact />
-                      <ButtonLink href={`/admin/commandes/${order.id}`} variant="link" size="sm">
+                      <ButtonLink
+                        href={`/admin/commandes/${order.id}`}
+                        variant="link"
+                        size="sm"
+                      >
                         Détail
                       </ButtonLink>
                     </div>

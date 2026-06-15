@@ -1,8 +1,9 @@
 import { LegalPageContent } from "@/components/legal/legal-page-content";
-import { getLegalRenderContext } from "@/lib/legal/context";
-import { resolveLegalPageHtml } from "@/lib/legal/render";
+import { renderSafePublicLegalHtml } from "@/lib/legal/publication";
 import { getDefaultLegalTemplate } from "@/lib/legal/templates";
 import { getLegalPage } from "@/lib/supabase/queries/legal";
+import { getShopSettings } from "@/lib/supabase/queries/shop";
+import { logSecure } from "@/lib/security/log";
 
 interface LegalPageProps {
   slug: string;
@@ -10,21 +11,36 @@ interface LegalPageProps {
   fallbackMessage: string;
 }
 
-export async function LegalPage({ slug, fallbackTitle, fallbackMessage }: LegalPageProps) {
-  const [page, ctx] = await Promise.all([getLegalPage(slug), getLegalRenderContext("public")]);
+const LEGAL_UNAVAILABLE_MESSAGE =
+  "Cette page est en cours de finalisation. Revenez prochainement ou contactez-nous via les coordonnées du site.";
+
+export async function LegalPage({
+  slug,
+  fallbackTitle,
+  fallbackMessage,
+}: LegalPageProps) {
+  const [page, settings] = await Promise.all([getLegalPage(slug), getShopSettings()]);
   const template = getDefaultLegalTemplate(slug);
 
   const title = page?.title ?? template?.title ?? fallbackTitle;
-  const storedContent = page?.content ?? template?.content ?? null;
-  const html = storedContent
-    ? resolveLegalPageHtml(slug, storedContent, ctx, { audience: "public" })
-    : null;
+  const storedContent = page?.content ?? null;
+  const html = renderSafePublicLegalHtml(slug, storedContent, settings);
+
+  if (!html && process.env.NODE_ENV === "production") {
+    logSecure("warn", "Page légale indisponible (placeholder ou rendu invalide)", {
+      slug,
+    });
+  }
 
   return (
     <LegalPageContent
       title={title}
       html={html}
-      fallbackMessage={fallbackMessage}
+      fallbackMessage={
+        process.env.NODE_ENV === "production"
+          ? LEGAL_UNAVAILABLE_MESSAGE
+          : fallbackMessage
+      }
     />
   );
 }

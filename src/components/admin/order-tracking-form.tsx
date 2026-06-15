@@ -54,7 +54,12 @@ export function OrderTrackingForm({
           {error}
         </p>
       ) : null}
-      <Button type="submit" size="sm" variant="outline" disabled={disabled || isPending}>
+      <Button
+        type="submit"
+        size="sm"
+        variant="outline"
+        disabled={disabled || isPending}
+      >
         {isPending ? "Mise à jour…" : "Mettre à jour le suivi"}
       </Button>
     </form>

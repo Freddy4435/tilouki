@@ -9,18 +9,20 @@ import { SHIPPING_SERVICES } from "@/lib/shipping/services";
 import type { CarrierInfo, CarrierName } from "@/lib/shipping/types";
 
 /** Métadonnées affichables des transporteurs (ordre = ordre d'affichage). */
-const CARRIER_METADATA: Record<CarrierName, Omit<CarrierInfo, "devMock">> =
-  Object.fromEntries(
-    SHIPPING_SERVICES.map((service) => [
-      service.carrier,
-      {
-        id: service.carrier,
-        label: service.label,
-        methodLabel: service.methodLabel,
-        estimatedDelay: service.estimatedDelay,
-      },
-    ]),
-  ) as Record<CarrierName, Omit<CarrierInfo, "devMock">>;
+const CARRIER_METADATA: Record<
+  CarrierName,
+  Omit<CarrierInfo, "devMock">
+> = Object.fromEntries(
+  SHIPPING_SERVICES.map((service) => [
+    service.carrier,
+    {
+      id: service.carrier,
+      label: service.label,
+      methodLabel: service.methodLabel,
+      estimatedDelay: service.estimatedDelay,
+    },
+  ]),
+) as Record<CarrierName, Omit<CarrierInfo, "devMock">>;
 
 const CARRIER_ORDER: CarrierName[] = ["mondial_relay", "chronopost"];
 

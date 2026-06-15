@@ -5,9 +5,19 @@ import { GripVertical, Loader2, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
+import {
+  classifyProductImage,
+  getProductImageKindLabel,
+} from "@/lib/admin/product-image-readiness";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageUploadFeedback } from "@/components/admin/image-upload-feedback";
+import {
+  IMAGE_UPLOAD_LIMITS,
+  PRODUCT_IMAGE_PROFILE,
+  validateImageFileForUpload,
+} from "@/lib/admin/image-upload";
 import { createClient } from "@/lib/supabase/client";
 import {
   getProductImageStoragePath,
@@ -37,6 +47,7 @@ export function ProductImagesManager({
   const [isPending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [images, setImages] = useState(initialImages);
   const [prevInitialImages, setPrevInitialImages] = useState(initialImages);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -66,22 +77,34 @@ export function ProductImagesManager({
   const uploadFiles = async (files: FileList | null) => {
     if (!files?.length) return;
     setError(null);
+    setWarning(null);
     setUploading(true);
 
     try {
       const supabase = createClient();
       const nextSort = images.length;
+      const warnings: string[] = [];
 
       for (let i = 0; i < files.length; i += 1) {
-        const file = files[i];
+        const file = files[i]!;
+        const validation = await validateImageFileForUpload(
+          file,
+          PRODUCT_IMAGE_PROFILE,
+        );
+        if (!validation.ok) {
+          setError(validation.error ?? "Fichier refusé.");
+          return;
+        }
+        if (validation.warning) warnings.push(validation.warning);
+
         const path = getProductImageStoragePath(productId, file.name);
         const { error: uploadError } = await supabase.storage
           .from(PRODUCT_IMAGES_BUCKET)
-          .upload(path, file, { upsert: false });
+          .upload(path, file, { upsert: false, contentType: file.type });
 
         if (uploadError) {
           setError(uploadError.message);
-          break;
+          return;
         }
 
         const { data: publicData } = supabase.storage
@@ -96,8 +119,12 @@ export function ProductImagesManager({
 
         if (result.error) {
           setError(result.error);
-          break;
+          return;
         }
+      }
+
+      if (warnings.length > 0) {
+        setWarning(warnings.join(" "));
       }
 
       syncFromServer();
@@ -153,10 +180,10 @@ export function ProductImagesManager({
         <input
           ref={fileRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept={IMAGE_UPLOAD_LIMITS.acceptAttribute}
           multiple
           className="hidden"
-          onChange={(e) => uploadFiles(e.target.files)}
+          onChange={(e) => void uploadFiles(e.target.files)}
         />
         <Button
           type="button"
@@ -171,90 +198,99 @@ export function ProductImagesManager({
           )}
           Ajouter des photos
         </Button>
-        <p className="text-muted-foreground text-xs">
-          Plusieurs fichiers à la fois — glissez pour réordonner
+        <p className="text-muted-foreground max-w-prose text-xs leading-relaxed">
+          {PRODUCT_IMAGE_PROFILE.guidance} Les visuels SVG du catalogue démo ne sont pas
+          publiables — remplacez-les par vos photos. Glissez pour réordonner (la
+          première photo est l&apos;image principale).
         </p>
       </div>
 
-      {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <ImageUploadFeedback error={error} warning={warning} />
 
       {images.length === 0 ? (
         <p className="text-muted-foreground rounded-lg border border-dashed py-8 text-center text-sm">
-          Aucune photo — ajoutez au moins une image pour publier.
+          Aucune photo — ajoutez une photo commerciale (face avant) pour publier.
         </p>
       ) : (
         <div className="space-y-2">
-          {images.map((image, index) => (
-            <div
-              key={image.id}
-              draggable
-              onDragStart={() => setDragIndex(index)}
-              onDragEnd={() => {
-                setDragIndex(null);
-                setDropIndex(null);
-              }}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDropIndex(index);
-              }}
-              onDragLeave={() => setDropIndex(null)}
-              onDrop={(e) => {
-                e.preventDefault();
-                handleDrop(index);
-              }}
-              className={cn(
-                "flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-start",
-                dragIndex === index && "opacity-50",
-                dropIndex === index && dragIndex !== null && "border-primary bg-primary/5",
-              )}
-            >
-              <div className="flex items-center gap-2 sm:flex-col">
-                <GripVertical
-                  className="text-muted-foreground size-4 shrink-0 cursor-grab active:cursor-grabbing"
-                  aria-hidden
-                />
-                <div className="bg-muted relative size-20 shrink-0 overflow-hidden rounded-md">
-                  <Image
-                    src={image.url}
-                    alt={image.alt ?? productName}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
+          {images.map((image, index) => {
+            const kind = classifyProductImage(image.url, image.alt);
+            const kindLabel = getProductImageKindLabel(kind);
+            return (
+              <div
+                key={image.id}
+                draggable
+                onDragStart={() => setDragIndex(index)}
+                onDragEnd={() => {
+                  setDragIndex(null);
+                  setDropIndex(null);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDropIndex(index);
+                }}
+                onDragLeave={() => setDropIndex(null)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  handleDrop(index);
+                }}
+                className={cn(
+                  "flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-start",
+                  dragIndex === index && "opacity-50",
+                  dropIndex === index &&
+                    dragIndex !== null &&
+                    "border-primary bg-primary/5",
+                )}
+              >
+                <div className="flex items-center gap-2 sm:flex-col">
+                  <GripVertical
+                    className="text-muted-foreground size-4 shrink-0 cursor-grab active:cursor-grabbing"
+                    aria-hidden
                   />
-                  {index === 0 ? (
-                    <span className="bg-primary text-primary-foreground absolute bottom-0 left-0 right-0 py-0.5 text-center text-[10px] font-medium">
-                      Principale
-                    </span>
-                  ) : null}
+                  <div className="bg-muted relative size-20 shrink-0 overflow-hidden rounded-md">
+                    <Image
+                      src={image.url}
+                      alt={image.alt ?? productName}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                    />
+                    {index === 0 ? (
+                      <span className="bg-primary text-primary-foreground absolute right-0 bottom-0 left-0 py-0.5 text-center text-[10px] font-medium">
+                        Principale
+                      </span>
+                    ) : null}
+                    {kind !== "commercial" ? (
+                      <span className="absolute top-0 right-0 left-0 bg-amber-600/90 py-0.5 text-center text-[10px] font-medium text-white">
+                        {kindLabel}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Label htmlFor={`alt-${image.id}`}>Description photo</Label>
+                  <Input
+                    id={`alt-${image.id}`}
+                    defaultValue={image.alt ?? ""}
+                    placeholder={productName}
+                    onBlur={(e) => updateAlt(image.id, e.target.value)}
+                  />
+                </div>
+                <div className="flex shrink-0 gap-1 sm:pt-6">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    disabled={isPending}
+                    onClick={() => removeImage(image.id)}
+                    aria-label="Supprimer"
+                  >
+                    <Trash2 className="text-destructive size-4" />
+                  </Button>
                 </div>
               </div>
-              <div className="min-w-0 flex-1 space-y-2">
-                <Label htmlFor={`alt-${image.id}`}>Description photo</Label>
-                <Input
-                  id={`alt-${image.id}`}
-                  defaultValue={image.alt ?? ""}
-                  placeholder={productName}
-                  onBlur={(e) => updateAlt(image.id, e.target.value)}
-                />
-              </div>
-              <div className="flex shrink-0 gap-1 sm:pt-6">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  disabled={isPending}
-                  onClick={() => removeImage(image.id)}
-                  aria-label="Supprimer"
-                >
-                  <Trash2 className="text-destructive size-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

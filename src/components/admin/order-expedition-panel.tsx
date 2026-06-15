@@ -51,8 +51,8 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
       toast.success(
         "Étiquette générée",
         result.shipmentNumber
-          ? `Numéro d'expédition : ${result.shipmentNumber}`
-          : "La commande est passée en expédiée.",
+          ? `N° ${result.shipmentNumber} — imprimez l'étiquette puis marquez la commande expédiée.`
+          : "Téléchargez l'étiquette puis marquez la commande expédiée.",
       );
       router.refresh();
     });
@@ -100,7 +100,7 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
       </p>
 
       {order.shippingNumber ? (
-        <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+        <div className="bg-muted/30 space-y-3 rounded-lg border p-3">
           <div>
             <p className="text-muted-foreground text-xs">Numéro d&apos;expédition</p>
             <p className="font-mono text-sm font-medium">
@@ -136,8 +136,26 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
                 Télécharger l&apos;étiquette
               </a>
             ) : null}
-            <OrderPrepSlip order={order} />
+            <OrderPrepSlip orderId={order.id} orderNumber={order.orderNumber} />
+            {canMarkShipped ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={isPending}
+                onClick={onMarkShipped}
+              >
+                <PackageCheck className="size-4" />
+                Marquer expédiée
+              </Button>
+            ) : null}
           </div>
+          {canMarkShipped ? (
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              Collez l&apos;étiquette sur le colis, puis confirmez l&apos;expédition
+              pour prévenir la cliente par e-mail.
+            </p>
+          ) : null}
         </div>
       ) : (
         <div className="space-y-3">
@@ -160,14 +178,19 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
           )}
 
           {(isChronopost || showExternalForm) && canGenerate ? (
-            <form onSubmit={onRegisterExternal} className="space-y-3 rounded-lg border p-3">
+            <form
+              onSubmit={onRegisterExternal}
+              className="space-y-3 rounded-lg border p-3"
+            >
               <p className="text-sm font-medium">
                 {isChronopost
                   ? "Enregistrer l'étiquette Chronopost"
                   : "Enregistrer une étiquette externe"}
               </p>
               <div className="space-y-2">
-                <Label htmlFor={`external-tracking-${order.id}`}>Numéro de suivi *</Label>
+                <Label htmlFor={`external-tracking-${order.id}`}>
+                  Numéro de suivi *
+                </Label>
                 <Input
                   id={`external-tracking-${order.id}`}
                   value={externalTracking}
@@ -188,7 +211,11 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
                 />
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button type="submit" size="sm" disabled={isPending || !externalTracking.trim()}>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isPending || !externalTracking.trim()}
+                >
                   Enregistrer et marquer expédiée
                 </Button>
                 {!isChronopost ? (
@@ -222,11 +249,11 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
             </p>
           ) : null}
 
-          <OrderPrepSlip order={order} />
+          <OrderPrepSlip orderId={order.id} orderNumber={order.orderNumber} />
         </div>
       )}
 
-      {canMarkShipped ? (
+      {canMarkShipped && !order.shippingNumber ? (
         <Button
           type="button"
           size="sm"

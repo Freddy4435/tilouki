@@ -21,7 +21,9 @@ const completeLegal = {
   returnPolicy: "Retours sous 14 jours.",
 };
 
-function baseContext(overrides: Partial<Parameters<typeof buildAdminConfigurationAlerts>[0]> = {}) {
+function baseContext(
+  overrides: Partial<Parameters<typeof buildAdminConfigurationAlerts>[0]> = {},
+) {
   return {
     legalSettings: completeLegal,
     activeProductCount: 5,
@@ -31,9 +33,11 @@ function baseContext(overrides: Partial<Parameters<typeof buildAdminConfiguratio
     storageConfigured: true,
     stripeConfigured: true,
     adminEmailConfigured: true,
+    transactionEmailConfigured: true,
     mondialRelayConfigured: true,
     chronopostConfigured: true,
     devMockShipping: false,
+    activeDevSeedProductCount: 0,
     ...overrides,
   };
 }
@@ -45,6 +49,18 @@ describe("buildAdminConfigurationAlerts", () => {
     );
 
     expect(alerts.some((a) => a.id === "no-active-products")).toBe(true);
+  });
+
+  it("alerte critique quand des produits démo sont encore actifs", () => {
+    const alerts = buildAdminConfigurationAlerts(
+      baseContext({ activeDevSeedProductCount: 3 }),
+    );
+
+    const demo = alerts.find((a) => a.id === "demo-products");
+    expect(demo?.severity).toBe("critical");
+    expect(demo?.title).toContain("démonstration");
+    expect(demo?.href).toBe("/admin/produits?demo=1");
+    expect(demo?.actions?.[0]?.action).toBe("deactivate-demo-products");
   });
 
   it("signale Chronopost non configuré quand MR est actif", () => {

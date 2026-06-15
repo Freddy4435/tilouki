@@ -2,6 +2,10 @@ import "server-only";
 
 import type Stripe from "stripe";
 
+import {
+  DEV_SEED_CHECKOUT_BLOCKED_MESSAGE,
+  findStorefrontBlockedSlugInCheckoutItems,
+} from "@/lib/catalog/dev-seed-guard";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SupabaseDataError } from "@/lib/supabase/errors";
 import { validateCartStock } from "@/lib/supabase/queries/cart";
@@ -10,7 +14,12 @@ import {
   markOrderPaymentFailed,
   updateOrderStripeSession,
 } from "@/lib/supabase/queries/orders";
+import {
+  isCheckoutLegalReady,
+  LEGAL_PUBLICATION_BLOCK_MESSAGE,
+} from "@/lib/legal/publication";
 import { logSecure } from "@/lib/security/log";
+import { getShopSettings } from "@/lib/supabase/queries/shop";
 import { getStripeClient } from "@/lib/stripe/client";
 import {
   getCheckoutCancelUrl,
@@ -62,11 +71,6 @@ function buildSessionParams(
     mode: "payment",
     locale: "fr",
     customer_email: customerEmail,
-    /**
-     * Carte bancaire — Apple Pay / Google Pay sont proposés automatiquement
-     * par Stripe Checkout lorsqu'ils sont activés sur le compte et éligibles.
-     */
-    payment_method_types: ["card"],
     line_items: lineItems,
     metadata: {
       order_id: order.id,
@@ -94,6 +98,18 @@ export async function createCheckoutSession(
 
   if (!stockValidation.valid) {
     throw new StripeCheckoutError("Stock insuffisant pour finaliser la commande.");
+  }
+
+  const blockedSlug = await findStorefrontBlockedSlugInCheckoutItems(input.items);
+  if (blockedSlug) {
+    throw new StripeCheckoutError(DEV_SEED_CHECKOUT_BLOCKED_MESSAGE, 400, true);
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    const shopSettings = await getShopSettings();
+    if (!(await isCheckoutLegalReady(shopSettings))) {
+      throw new StripeCheckoutError(LEGAL_PUBLICATION_BLOCK_MESSAGE, 503, true);
+    }
   }
 
   const carrier = input.carrier ?? "mondial_relay";

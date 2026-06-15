@@ -1,6 +1,10 @@
 import "server-only";
 
 import { isCarrierConfigured } from "@/lib/shipping/carriers";
+import {
+  isChronopostConfigured,
+  isMondialRelayApiConfigured,
+} from "@/lib/shipping/env";
 import type { CarrierName } from "@/lib/shipping/types";
 
 export const SHIPPING_PROVIDER_MONDIAL_RELAY = "mondial_relay" as const;
@@ -32,6 +36,12 @@ export function isRelayPointIdAllowed(relayPointId: string): boolean {
 export function isShippingConfiguredForCheckout(
   carrier: CarrierName = "mondial_relay",
 ): boolean {
+  if (process.env.NODE_ENV === "production") {
+    return carrier === "chronopost"
+      ? isChronopostConfigured()
+      : isMondialRelayApiConfigured();
+  }
+
   return isCarrierConfigured(carrier);
 }
 

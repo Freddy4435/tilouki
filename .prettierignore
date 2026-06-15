@@ -1,8 +1,26 @@
+# Aligné sur .gitignore — artefacts et dépendances (ne pas formater)
 node_modules
 .next
 out
 build
 dist
 coverage
+playwright-report
+test-results
+blob-report
+playwright/.cache
+archives
+.email-preview
+.turbo
+.cache
+supabase/.temp
+.vercel
+# Secrets locaux — jamais formater
+.env
+.env.*
+*.tsbuildinfo
+next-env.d.ts
+
+# Prettier uniquement — lockfiles volumineux
 *.lock
 package-lock.json

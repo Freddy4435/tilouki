@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import type { ZodSchema } from "zod";
 
-import { checkRateLimit, rateLimitKey, type RateLimitConfig } from "@/lib/security/rate-limit";
+import {
+  checkRateLimit,
+  rateLimitDeniedMessage,
+  rateLimitKey,
+  type RateLimitConfig,
+} from "@/lib/security/rate-limit";
 
 export interface ApiGuardOptions {
   rateLimit?: Omit<RateLimitConfig, "key"> & { route: string };
@@ -22,9 +27,9 @@ export async function guardApiRequest(
 
   if (!result.allowed) {
     return NextResponse.json(
-      { error: "Trop de requêtes. Réessayez dans quelques instants." },
+      { error: rateLimitDeniedMessage(result) },
       {
-        status: 429,
+        status: result.unavailable ? 503 : 429,
         headers: {
           "Retry-After": String(
             Math.max(1, Math.ceil((result.resetAt - Date.now()) / 1000)),

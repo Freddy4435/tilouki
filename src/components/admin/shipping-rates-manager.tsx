@@ -61,7 +61,9 @@ export function ShippingRatesManager({
     () =>
       rates
         .filter((rate) => rate.provider === carrier)
-        .sort((a, b) => a.sortOrder - b.sortOrder || a.minWeightGrams - b.minWeightGrams),
+        .sort(
+          (a, b) => a.sortOrder - b.sortOrder || a.minWeightGrams - b.minWeightGrams,
+        ),
     [rates, carrier],
   );
 
@@ -370,11 +372,13 @@ export function ShippingRatesManager({
                 name="shippingMethod"
                 value={editingRate?.shippingMethod ?? "relay_point"}
               />
-              <div className="rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+              <div className="bg-muted/40 rounded-lg border px-3 py-2 text-sm">
                 <p className="text-muted-foreground text-xs">Transporteur</p>
                 <p className="font-medium">{formatShippingProvider(carrier)}</p>
                 <p className="text-muted-foreground mt-2 text-xs">Méthode</p>
-                <p>{formatShippingMethod(editingRate?.shippingMethod ?? "relay_point")}</p>
+                <p>
+                  {formatShippingMethod(editingRate?.shippingMethod ?? "relay_point")}
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="rate-label">Libellé *</Label>
@@ -386,6 +390,11 @@ export function ShippingRatesManager({
                   required
                 />
               </div>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Les tranches actives d&apos;un transporteur proposé au checkout doivent
+                couvrir les poids de façon continue à partir de 0 g (ex. 0–250 g, puis
+                251–500 g), sans chevauchement.
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="rate-min">Poids min (g) *</Label>

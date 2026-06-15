@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { CatalogSellReadinessChecklist } from "@/components/admin/catalog-sell-readiness-checklist";
 import { AdminFilterSelect } from "@/components/admin/admin-filter-select";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSearch } from "@/components/admin/admin-search";
@@ -15,6 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { loadCatalogSellReadinessInput } from "@/lib/admin/catalog-sell-readiness.server";
+import { isDevSeedProductSlug } from "@/lib/catalog/dev-seed";
 import { PRODUCT_STATUS_LABELS } from "@/lib/admin/status-labels";
 import { listAdminProducts } from "@/lib/supabase/queries/admin/products";
 import { formatPrice } from "@/lib/utils";
@@ -26,36 +29,57 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; demo?: string }>;
 }
 
 export default async function AdminProduitsPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const products = await listAdminProducts(params.q);
+  const [products, catalogSellReadiness] = await Promise.all([
+    listAdminProducts(params.q),
+    loadCatalogSellReadinessInput(),
+  ]);
   const statusFilter = params.status as ProductStatus | undefined;
-  const filtered = statusFilter
-    ? products.filter((p) => p.status === statusFilter)
-    : products;
+  const demoOnly = params.demo === "1";
+  const filtered = products.filter((p) => {
+    if (statusFilter && p.status !== statusFilter) return false;
+    if (demoOnly && !isDevSeedProductSlug(p.slug)) return false;
+    return true;
+  });
 
-  const statusOptions = (Object.keys(PRODUCT_STATUS_LABELS) as ProductStatus[]).map((s) => ({
-    value: s,
-    label: PRODUCT_STATUS_LABELS[s],
-  }));
+  const statusOptions = (Object.keys(PRODUCT_STATUS_LABELS) as ProductStatus[]).map(
+    (s) => ({
+      value: s,
+      label: PRODUCT_STATUS_LABELS[s],
+    }),
+  );
 
   return (
     <>
       <AdminPageHeader
         title="Produits"
         description="Gérez votre catalogue, variantes et stocks."
-        actions={<ButtonLink href="/admin/produits/nouveau">Nouveau produit</ButtonLink>}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/admin/import" variant="outline">
+              Importer CSV
+            </ButtonLink>
+            <ButtonLink href="/admin/produits/nouveau">Nouveau produit</ButtonLink>
+          </div>
+        }
       />
+
+      <CatalogSellReadinessChecklist input={catalogSellReadiness} className="mb-6" />
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <Suspense>
           <AdminSearch placeholder="Rechercher un produit…" />
         </Suspense>
         <Suspense>
-          <AdminFilterSelect paramName="status" options={statusOptions} placeholder="Statut" />
+          <AdminFilterSelect
+            paramName="status"
+            options={statusOptions}
+            placeholder="Statut"
+          />
         </Suspense>
       </div>
 
@@ -73,7 +97,10 @@ export default async function AdminProduitsPage({ searchParams }: PageProps) {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-muted-foreground h-24 text-center text-sm">
+                <TableCell
+                  colSpan={5}
+                  className="text-muted-foreground h-24 text-center text-sm"
+                >
                   Aucun produit trouvé.
                 </TableCell>
               </TableRow>
@@ -95,9 +122,13 @@ export default async function AdminProduitsPage({ searchParams }: PageProps) {
                     <ProductStatusBadge status={product.status} />
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {product.minPriceCents != null ? formatPrice(product.minPriceCents) : "—"}
+                    {product.minPriceCents != null
+                      ? formatPrice(product.minPriceCents)
+                      : "—"}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">{product.totalStock}</TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {product.totalStock}
+                  </TableCell>
                 </TableRow>
               ))
             )}

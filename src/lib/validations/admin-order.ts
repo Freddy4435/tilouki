@@ -44,12 +44,7 @@ export const registerExternalShipmentSchema = z.object({
 
 export const orderStatusActionSchema = z.object({
   orderId: z.string().uuid(),
-  action: z.enum([
-    "mark_preparing",
-    "mark_shipped",
-    "mark_delivered",
-    "cancel",
-  ]),
+  action: z.enum(["mark_preparing", "mark_shipped", "mark_delivered", "cancel"]),
   trackingNumber: z.string().trim().max(100).optional().nullable(),
 });
 

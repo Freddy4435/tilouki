@@ -1,21 +1,9 @@
 import type { Metadata } from "next";
-import { DM_Sans, Fraunces } from "next/font/google";
 import { headers } from "next/headers";
 
 import { siteConfig } from "@/lib/constants/site";
+import { fontVariables } from "@/lib/fonts";
 import "@/styles/globals.css";
-
-const bodyFont = DM_Sans({
-  variable: "--font-body",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const headingFont = Fraunces({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -59,7 +47,7 @@ export default async function RootLayout({
   await headers();
 
   return (
-    <html lang="fr" className={`${bodyFont.variable} ${headingFont.variable} h-full`}>
+    <html lang="fr" className={`${fontVariables} h-full`}>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

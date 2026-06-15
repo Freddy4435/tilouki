@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading);
+  --font-display: var(--font-heading);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -40,16 +41,41 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-tilouki-cloud: var(--tilouki-cloud);
+  --color-tilouki-milk: var(--tilouki-milk);
   --color-tilouki-white: var(--tilouki-white);
   --color-tilouki-cream: var(--tilouki-cream);
   --color-tilouki-beige: var(--tilouki-beige);
   --color-tilouki-sand: var(--tilouki-sand);
+  --color-tilouki-ink: var(--tilouki-ink);
+  --color-tilouki-ink-muted: var(--tilouki-ink-muted);
+  --color-tilouki-teal: var(--tilouki-teal);
+  --color-tilouki-teal-dark: var(--tilouki-teal-dark);
+  --color-tilouki-jade: var(--tilouki-jade);
+  --color-tilouki-jade-soft: var(--tilouki-jade-soft);
+  --color-tilouki-plum: var(--tilouki-plum);
+  --color-tilouki-persimmon: var(--tilouki-persimmon);
+  --color-tilouki-persimmon-dark: var(--tilouki-persimmon-dark);
+  --color-tilouki-persimmon-soft: var(--tilouki-persimmon-soft);
+  --color-tilouki-powder: var(--tilouki-powder);
+  --color-tilouki-powder-soft: var(--tilouki-powder-soft);
+  --color-tilouki-butter: var(--tilouki-butter);
+  --color-tilouki-butter-soft: var(--tilouki-butter-soft);
+  --color-tilouki-icy: var(--tilouki-icy);
   --color-tilouki-rose: var(--tilouki-rose);
   --color-tilouki-rose-soft: var(--tilouki-rose-soft);
   --color-tilouki-blue: var(--tilouki-blue);
   --color-tilouki-blue-soft: var(--tilouki-blue-soft);
   --color-tilouki-sage: var(--tilouki-sage);
   --color-tilouki-sage-light: var(--tilouki-sage-light);
+  --color-tilouki-sage-dark: var(--tilouki-sage-dark);
+  --color-tilouki-navy: var(--tilouki-navy);
+  --color-tilouki-navy-soft: var(--tilouki-navy-soft);
+  --color-tilouki-sky: var(--tilouki-sky);
+  --color-tilouki-sky-soft: var(--tilouki-sky-soft);
+  --color-tilouki-coral: var(--tilouki-coral);
+  --color-tilouki-info: var(--tilouki-info);
+  --color-tilouki-info-soft: var(--tilouki-info-soft);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -68,30 +94,36 @@
   --popover-foreground: var(--tilouki-ink);
   --primary: var(--shop-primary);
   --primary-foreground: var(--shop-primary-foreground);
-  --secondary: var(--tilouki-sage-light);
-  --secondary-foreground: var(--tilouki-sage-dark);
-  --muted: var(--tilouki-beige);
+  --secondary: var(--tilouki-jade-soft);
+  --secondary-foreground: var(--tilouki-teal-dark);
+  --muted: var(--tilouki-sand);
   --muted-foreground: var(--tilouki-ink-muted);
-  --accent: var(--tilouki-rose-soft);
-  --accent-foreground: var(--tilouki-ink);
-  --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.9 0.015 85);
-  --input: oklch(0.94 0.012 85);
+  --accent: var(--tilouki-jade-soft);
+  --accent-foreground: var(--tilouki-teal-dark);
+  --destructive: var(--tilouki-persimmon-dark);
+  --border: #e4dfd6;
+  --input: var(--tilouki-milk);
   --ring: var(--shop-primary-light);
   --chart-1: var(--shop-primary);
   --chart-2: var(--tilouki-sage);
-  --chart-3: var(--tilouki-blue);
-  --chart-4: var(--tilouki-rose);
-  --chart-5: var(--tilouki-beige);
-  --radius: 0.75rem;
+  --chart-3: var(--tilouki-info);
+  --chart-4: var(--tilouki-persimmon);
+  --chart-5: var(--tilouki-sand);
+  --radius: 0.625rem;
   --sidebar: var(--tilouki-white);
   --sidebar-foreground: var(--tilouki-ink);
   --sidebar-primary: var(--shop-primary);
   --sidebar-primary-foreground: var(--shop-primary-foreground);
-  --sidebar-accent: var(--tilouki-beige);
+  --sidebar-accent: var(--tilouki-sand);
   --sidebar-accent-foreground: var(--tilouki-ink);
-  --sidebar-border: oklch(0.9 0.015 85);
+  --sidebar-border: #e4dfd6;
   --sidebar-ring: var(--shop-primary-light);
+
+  /* Échelle typographique — clamp pour lisibilité mobile / présence desktop */
+  --type-editorial: clamp(1.75rem, 1.35rem + 1.45vw, 2.75rem);
+  --type-section: clamp(1.375rem, 1.15rem + 0.7vw, 1.875rem);
+  --type-product: clamp(1.5rem, 1.25rem + 0.65vw, 2rem);
+  --type-retail-label: 0.6875rem;
 }
 
 @layer base {
@@ -100,11 +132,14 @@
   }
 
   html {
-    @apply scroll-smooth overflow-x-hidden;
+    @apply overflow-x-hidden scroll-smooth;
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden font-sans text-base leading-relaxed;
+    @apply bg-background text-foreground overflow-x-hidden font-sans text-base leading-normal;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1;
   }
 
   h1,
@@ -113,8 +148,7 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-heading), var(--font-body), system-ui, sans-serif;
-    @apply tracking-tight text-foreground;
+    @apply text-foreground font-sans font-semibold tracking-tight;
   }
 }
 
@@ -129,7 +163,11 @@
 
   .product-image-frame {
     aspect-ratio: var(--product-image-ratio);
-    @apply bg-tilouki-beige relative overflow-hidden rounded-[var(--radius-product)];
+    @apply bg-tilouki-jade-soft relative overflow-hidden rounded-[var(--radius-product)];
+  }
+
+  .product-scroll-row > * {
+    @apply w-[10.5rem] shrink-0 sm:w-auto sm:shrink;
   }
 
   .tilouki-product-card {
@@ -137,7 +175,18 @@
   }
 
   .tilouki-product-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .tilouki-product-card .product-card-media {
+    aspect-ratio: 4 / 5;
+  }
+
+  @media (min-width: 640px) {
+    .tilouki-product-card .product-card-media {
+      aspect-ratio: 3 / 4;
+    }
   }
 
   .tilouki-product-card .product-image-frame {
@@ -154,6 +203,53 @@
     text-wrap: balance;
   }
 
+  .font-display {
+    font-family: var(--font-heading), var(--font-body), Georgia, serif;
+  }
+
+  /** Hero, accroche marque — Fraunces, présence éditoriale */
+  .text-editorial-title {
+    font-family: var(--font-heading), var(--font-body), Georgia, serif;
+    font-size: var(--type-editorial);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+
+  /** Titres de section home, éditorial, footer marque */
+  .text-section-title {
+    font-family: var(--font-heading), var(--font-body), Georgia, serif;
+    font-size: var(--type-section);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+
+  /** Labels retail — catégories, filtres, pastilles (DM Sans) */
+  .text-retail-label {
+    font-family: var(--font-body), system-ui, sans-serif;
+    font-size: var(--type-retail-label);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /** Titre fiche produit — Fraunces modéré, lisible au-dessus du fold */
+  .text-product-title {
+    font-family: var(--font-heading), var(--font-body), Georgia, serif;
+    font-size: var(--type-product);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -161,5 +257,20 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .tilouki-product-card:hover {
+    transform: none;
   }
 }

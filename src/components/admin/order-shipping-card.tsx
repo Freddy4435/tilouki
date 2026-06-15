@@ -2,10 +2,7 @@ import { MapPin, Package, Truck } from "lucide-react";
 
 import { OrderExpeditionPanel } from "@/components/admin/order-expedition-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  formatShippingMethod,
-  formatShippingProvider,
-} from "@/lib/shipping/labels";
+import { formatShippingMethod, formatShippingProvider } from "@/lib/shipping/labels";
 import type { AdminOrderDetail } from "@/lib/supabase/queries/admin/orders";
 import { formatPrice } from "@/lib/utils";
 
@@ -62,7 +59,9 @@ export function OrderShippingCard({ order }: OrderShippingCardProps) {
           <p className="font-medium">{order.relayPointName}</p>
           <p className="text-muted-foreground leading-relaxed">{addressLine}</p>
           {order.relayPointId ? (
-            <p className="text-muted-foreground font-mono text-xs">ID relais : {order.relayPointId}</p>
+            <p className="text-muted-foreground font-mono text-xs">
+              ID relais : {order.relayPointId}
+            </p>
           ) : null}
         </div>
 
@@ -78,9 +77,13 @@ export function OrderShippingCard({ order }: OrderShippingCardProps) {
           </div>
           <div className="bg-muted/40 rounded-lg border px-3 py-2">
             <p className="text-muted-foreground text-xs">Frais de livraison</p>
-            <p className="mt-1 font-medium tabular-nums">{formatPrice(order.shippingCents)}</p>
+            <p className="mt-1 font-medium tabular-nums">
+              {formatPrice(order.shippingCents)}
+            </p>
             {order.shippingRateLabel ? (
-              <p className="text-muted-foreground mt-0.5 text-xs">Tranche : {order.shippingRateLabel}</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">
+                Tranche : {order.shippingRateLabel}
+              </p>
             ) : null}
           </div>
         </div>

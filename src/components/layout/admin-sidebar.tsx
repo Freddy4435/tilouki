@@ -5,7 +5,9 @@ import {
   FileText,
   FolderOpen,
   LayoutDashboard,
+  MessageSquare,
   Package,
+  Rocket,
   Settings,
   Shirt,
   Truck,
@@ -23,10 +25,12 @@ import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, LucideIcon> = {
   "layout-dashboard": LayoutDashboard,
+  rocket: Rocket,
   shirt: Shirt,
   upload: Upload,
   folder: FolderOpen,
   package: Package,
+  "message-square": MessageSquare,
   warehouse: Warehouse,
   truck: Truck,
   settings: Settings,

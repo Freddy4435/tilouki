@@ -2,6 +2,7 @@ import { ShoppingBag } from "lucide-react";
 
 import { CartRecommendations } from "@/components/cart/cart-recommendations";
 import { CartRecommendationsClient } from "@/components/cart/cart-recommendations-client";
+import { RecentlyViewedSection } from "@/components/recently-viewed/recently-viewed-section";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { ProductListItem } from "@/types/catalog";
 
@@ -10,7 +11,10 @@ interface CartEmptyStateProps {
   compact?: boolean;
 }
 
-export function CartEmptyState({ recommendations, compact = false }: CartEmptyStateProps) {
+export function CartEmptyState({
+  recommendations,
+  compact = false,
+}: CartEmptyStateProps) {
   return (
     <div className="space-y-10">
       <EmptyState
@@ -22,11 +26,14 @@ export function CartEmptyState({ recommendations, compact = false }: CartEmptySt
       />
 
       {!compact ? (
-        recommendations ? (
-          <CartRecommendations products={recommendations} />
-        ) : (
-          <CartRecommendationsClient />
-        )
+        <>
+          <RecentlyViewedSection description="Retrouvez les articles que vous avez parcourus sur cet appareil." />
+          {recommendations ? (
+            <CartRecommendations products={recommendations} />
+          ) : (
+            <CartRecommendationsClient />
+          )}
+        </>
       ) : null}
     </div>
   );

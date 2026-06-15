@@ -11,8 +11,9 @@ export default function GlobalError({
       <body className="font-sans antialiased">
         <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-6 text-center">
           <h1 className="text-2xl font-semibold">Erreur critique</h1>
-          <p className="text-neutral-600 mt-3 text-sm">
-            L&apos;application a rencontré un problème. Rechargez la page ou revenez plus tard.
+          <p className="mt-3 text-sm text-neutral-600">
+            L&apos;application a rencontré un problème. Rechargez la page ou revenez
+            plus tard.
           </p>
           <button
             type="button"

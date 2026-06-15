@@ -7,5 +7,9 @@ function subscribe() {
 }
 
 export function useIsMounted(): boolean {
-  return useSyncExternalStore(subscribe, () => true, () => false);
+  return useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 }

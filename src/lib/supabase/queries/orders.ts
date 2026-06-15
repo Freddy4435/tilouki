@@ -11,7 +11,11 @@ import { assertNoError, SupabaseDataError } from "@/lib/supabase/errors";
 import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveShippingRates } from "@/lib/supabase/queries/shipping";
-import type { CreateOrderInput, CreatedOrder, OrderTrackingInfo } from "@/types/catalog";
+import type {
+  CreateOrderInput,
+  CreatedOrder,
+  OrderTrackingInfo,
+} from "@/types/catalog";
 import type { Database } from "@/types/database";
 
 type VariantWithProduct = Database["public"]["Tables"]["product_variants"]["Row"] & {
@@ -64,7 +68,9 @@ async function resolveLineItems(
     }
 
     if (!variant.product || variant.product.status !== "active") {
-      throw new SupabaseDataError(`Produit indisponible pour la variante ${variant.sku}`);
+      throw new SupabaseDataError(
+        `Produit indisponible pour la variante ${variant.sku}`,
+      );
     }
 
     if (variant.stock_quantity < item.quantity) {
@@ -126,7 +132,10 @@ async function computeServerShippingQuote(
 
   // Cotation QuickCost (opt-in Chronopost) — fallback barème DB si l'API échoue.
   if (carrier === "chronopost" && isChronopostQuickCostEnabled()) {
-    const quickCostCents = await getQuickCostPriceCents(destinationZip, totalWeightGrams);
+    const quickCostCents = await getQuickCostPriceCents(
+      destinationZip,
+      totalWeightGrams,
+    );
     if (quickCostCents !== null) {
       shippingCents = quickCostCents;
     }
@@ -145,9 +154,13 @@ async function computeServerShippingQuote(
  * Crée une commande `pending` avec prix et stock relus depuis Supabase.
  * Réserve le stock une seule fois via {@link decrementStockOnce}.
  */
-export async function createPendingOrder(input: CreateOrderInput): Promise<CreatedOrder> {
+export async function createPendingOrder(
+  input: CreateOrderInput,
+): Promise<CreatedOrder> {
   if (!isSupabaseAdminConfigured()) {
-    throw new SupabaseDataError("Supabase admin non configuré pour createPendingOrder.");
+    throw new SupabaseDataError(
+      "Supabase admin non configuré pour createPendingOrder.",
+    );
   }
 
   const admin = createAdminClient();
@@ -228,11 +241,16 @@ export async function createPendingOrder(input: CreateOrderInput): Promise<Creat
     total_price_cents: item.totalPriceCents,
   }));
 
-  const { error: itemsError } = await admin.from("order_items").insert(orderItemsPayload);
+  const { error: itemsError } = await admin
+    .from("order_items")
+    .insert(orderItemsPayload);
 
   if (itemsError) {
     await admin.from("orders").delete().eq("id", order.id);
-    throw new SupabaseDataError("Échec de création des lignes de commande.", itemsError);
+    throw new SupabaseDataError(
+      "Échec de création des lignes de commande.",
+      itemsError,
+    );
   }
 
   try {
@@ -264,7 +282,9 @@ export const createOrderFromCheckout = createPendingOrder;
  */
 export async function decrementStockOnce(orderId: string): Promise<void> {
   if (!isSupabaseAdminConfigured()) {
-    throw new SupabaseDataError("Supabase admin non configuré pour decrementStockOnce.");
+    throw new SupabaseDataError(
+      "Supabase admin non configuré pour decrementStockOnce.",
+    );
   }
 
   const admin = createAdminClient();
@@ -390,7 +410,11 @@ export async function getOrderById(orderId: string): Promise<OrderForWebhook | n
   if (!isSupabaseAdminConfigured()) return null;
 
   const admin = createAdminClient();
-  const { data: order, error } = await admin.from("orders").select("*").eq("id", orderId).maybeSingle();
+  const { data: order, error } = await admin
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .maybeSingle();
 
   assertNoError(error, "getOrderById");
 
@@ -439,7 +463,9 @@ async function ensureOrderNumber(orderId: string): Promise<string> {
     return order.order_number;
   }
 
-  const { data: orderNumber, error: numberError } = await admin.rpc("generate_order_number");
+  const { data: orderNumber, error: numberError } = await admin.rpc(
+    "generate_order_number",
+  );
   assertNoError(numberError, "ensureOrderNumber/generate");
 
   if (!orderNumber) {
@@ -660,10 +686,7 @@ export async function fulfillPaidOrder(
     };
   }
 
-  if (
-    stripeAmountTotalCents != null &&
-    stripeAmountTotalCents !== order.total_cents
-  ) {
+  if (stripeAmountTotalCents != null && stripeAmountTotalCents !== order.total_cents) {
     throw new SupabaseDataError(
       `Montant Stripe (${stripeAmountTotalCents}) ≠ total commande (${order.total_cents}).`,
     );

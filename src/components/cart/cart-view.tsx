@@ -4,6 +4,7 @@ import { CartAlerts } from "@/components/cart/cart-alerts";
 import { CartEmptyState } from "@/components/cart/cart-empty-state";
 import { CartLineItem } from "@/components/cart/cart-line-item";
 import { CartSummary } from "@/components/cart/cart-summary";
+import { RecentlyViewedSection } from "@/components/recently-viewed/recently-viewed-section";
 import { useCartValidation } from "@/hooks/use-cart-validation";
 import { useCartStore } from "@/lib/cart/store";
 import type { ProductListItem } from "@/types/catalog";
@@ -23,29 +24,39 @@ export function CartView({ recommendations }: CartViewProps) {
     return <CartEmptyState recommendations={recommendations} />;
   }
 
-  return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
-      <div className="space-y-4">
-        <CartAlerts
-          items={items}
-          validationMessages={validationMessages}
-          error={error}
-          isValidating={isValidating}
-        />
+  const cartSlugs = items.map((item) => item.slug).filter(Boolean);
 
+  return (
+    <div className="space-y-12">
+      <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">
-          {items.map((item) => (
-            <CartLineItem
-              key={item.variantId}
-              item={item}
-              onUpdateQuantity={updateQuantity}
-              onRemove={removeItem}
-            />
-          ))}
+          <CartAlerts
+            items={items}
+            validationMessages={validationMessages}
+            error={error}
+            isValidating={isValidating}
+          />
+
+          <div className="space-y-4">
+            {items.map((item) => (
+              <CartLineItem
+                key={item.variantId}
+                item={item}
+                onUpdateQuantity={updateQuantity}
+                onRemove={removeItem}
+              />
+            ))}
+          </div>
         </div>
+
+        <CartSummary variant="page" />
       </div>
 
-      <CartSummary variant="page" />
+      <RecentlyViewedSection
+        excludeSlugs={cartSlugs}
+        description="Reprenez les articles consultés avant de finaliser votre commande."
+        className="border-t pt-10"
+      />
     </div>
   );
 }

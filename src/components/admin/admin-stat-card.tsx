@@ -29,9 +29,17 @@ export function AdminStatCard({
   className,
 }: AdminStatCardProps) {
   const content = (
-    <Card className={cn(toneClasses[tone], href && "transition-colors hover:bg-muted/30", className)}>
+    <Card
+      className={cn(
+        toneClasses[tone],
+        href && "hover:bg-muted/30 transition-colors",
+        className,
+      )}
+    >
       <CardHeader className="pb-2">
-        <CardTitle className="text-muted-foreground text-sm font-medium">{title}</CardTitle>
+        <CardTitle className="text-muted-foreground text-sm font-medium">
+          {title}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-2xl font-semibold tabular-nums">{value}</p>
@@ -44,7 +52,10 @@ export function AdminStatCard({
 
   if (href) {
     return (
-      <Link href={href} className="block rounded-xl focus-visible:outline-none focus-visible:ring-2">
+      <Link
+        href={href}
+        className="block rounded-xl focus-visible:ring-2 focus-visible:outline-none"
+      >
         {content}
       </Link>
     );

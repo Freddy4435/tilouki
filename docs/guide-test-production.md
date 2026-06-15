@@ -33,12 +33,12 @@ npm run verify:deploy:prod
 
 Dashboard Stripe (mode Live) → Webhooks → votre endpoint :
 
-| Événement | Rôle |
-|-----------|------|
-| `checkout.session.completed` | Commande payée + e-mails |
-| `checkout.session.expired` | Annulation + stock libéré |
-| `payment_intent.payment_failed` | Échec paiement + e-mail client |
-| `charge.refunded` | Remboursement + stock restauré |
+| Événement                       | Rôle                                           |
+| ------------------------------- | ---------------------------------------------- |
+| `checkout.session.completed`    | Commande payée + e-mails                       |
+| `checkout.session.expired`      | Annulation + stock libéré                      |
+| `payment_intent.payment_failed` | Échec paiement + e-mail client                 |
+| `charge.refunded`               | Remboursement + stock restauré + e-mail client |
 
 URL : `https://votre-domaine.fr/api/webhooks/stripe`
 
@@ -55,15 +55,15 @@ URL : `https://votre-domaine.fr/api/webhooks/stripe`
 
 ### Contrôles post-paiement
 
-| Contrôle | Où vérifier | Attendu |
-|----------|-------------|---------|
-| Paiement Stripe | Dashboard Stripe → Paiements | Statut **Réussi** |
-| Webhook | Dashboard → Webhooks → événements | `checkout.session.completed` → **200** |
-| Commande admin | `/admin/commandes` | Statut payée / en préparation |
-| Stock | Fiche produit admin | Stock décrémenté |
-| E-mail client | Votre boîte mail | « Confirmation de commande … » |
-| E-mail admin | `ADMIN_EMAIL` | Notification nouvelle commande |
-| Suivi client | Lien / code dans l'e-mail | Page `/suivi-commande` accessible |
+| Contrôle        | Où vérifier                       | Attendu                                |
+| --------------- | --------------------------------- | -------------------------------------- |
+| Paiement Stripe | Dashboard Stripe → Paiements      | Statut **Réussi**                      |
+| Webhook         | Dashboard → Webhooks → événements | `checkout.session.completed` → **200** |
+| Commande admin  | `/admin/commandes`                | Statut payée / en préparation          |
+| Stock           | Fiche produit admin               | Stock décrémenté                       |
+| E-mail client   | Votre boîte mail                  | « Confirmation de commande … »         |
+| E-mail admin    | `ADMIN_EMAIL`                     | Notification nouvelle commande         |
+| Suivi client    | Lien / code dans l'e-mail         | Page `/suivi-commande` accessible      |
 
 ---
 
@@ -98,6 +98,7 @@ Objectif : valider `payment_intent.payment_failed` et l'e-mail d'échec.
 2. Vérifier webhook `charge.refunded` → 200
 3. Commande admin : statut remboursé
 4. Stock produit : quantité restaurée (remboursement intégral uniquement)
+5. E-mail client « Remboursement confirmé »
 
 ---
 
@@ -125,12 +126,12 @@ Réponse attendue : `{"ok":true,"expired":0}` (ou `expired` > 0 si des commandes
 
 ## Dépannage rapide
 
-| Problème | Action |
-|----------|--------|
-| Webhook 400 | Vérifier `STRIPE_WEBHOOK_SECRET` (secret de l'endpoint **Live**, pas test) |
-| Pas d'e-mail | Vérifier Resend (domaine vérifié) ou SMTP ; logs Vercel |
-| Points relais vides | `MONDIAL_RELAY_*` + pas de `SHIPPING_DEV_MOCK` |
-| Paiement indisponible | Clés Live dans Vercel + redéploiement |
-| Stock non libéré | Vérifier webhooks expired/failed ; déclencher le cron manuellement |
+| Problème              | Action                                                                     |
+| --------------------- | -------------------------------------------------------------------------- |
+| Webhook 400           | Vérifier `STRIPE_WEBHOOK_SECRET` (secret de l'endpoint **Live**, pas test) |
+| Pas d'e-mail          | Vérifier Resend (domaine vérifié) ou SMTP ; logs Vercel                    |
+| Points relais vides   | `MONDIAL_RELAY_*` + pas de `SHIPPING_DEV_MOCK`                             |
+| Paiement indisponible | Clés Live dans Vercel + redéploiement                                      |
+| Stock non libéré      | Vérifier webhooks expired/failed ; déclencher le cron manuellement         |
 
 Voir aussi [variables-production.md](./variables-production.md) et [deploiement-vercel.md](./deploiement-vercel.md).

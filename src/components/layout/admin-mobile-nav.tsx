@@ -6,7 +6,9 @@ import {
   FolderOpen,
   LayoutDashboard,
   Menu,
+  MessageSquare,
   Package,
+  Rocket,
   Settings,
   Shirt,
   Truck,
@@ -33,10 +35,12 @@ import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, LucideIcon> = {
   "layout-dashboard": LayoutDashboard,
+  rocket: Rocket,
   shirt: Shirt,
   upload: Upload,
   folder: FolderOpen,
   package: Package,
+  "message-square": MessageSquare,
   warehouse: Warehouse,
   truck: Truck,
   settings: Settings,
@@ -59,9 +63,14 @@ export function AdminMobileNav() {
         />
         <SheetContent side="left" className="w-[min(100vw-2rem,20rem)]">
           <SheetHeader>
-            <SheetTitle className="text-left text-base">{siteConfig.name} — Admin</SheetTitle>
+            <SheetTitle className="text-left text-base">
+              {siteConfig.name} — Admin
+            </SheetTitle>
           </SheetHeader>
-          <nav className="mt-4 flex flex-col gap-1" aria-label="Navigation admin mobile">
+          <nav
+            className="mt-4 flex flex-col gap-1"
+            aria-label="Navigation admin mobile"
+          >
             {adminNavItems.map((item) => {
               const Icon = iconMap[item.icon] ?? LayoutDashboard;
               const isActive =
@@ -85,7 +94,12 @@ export function AdminMobileNav() {
           </nav>
           <Separator className="my-4" />
           <AdminLogoutButton />
-          <ButtonLink href="/" variant="outline" className="w-full" onClick={() => setOpen(false)}>
+          <ButtonLink
+            href="/"
+            variant="outline"
+            className="w-full"
+            onClick={() => setOpen(false)}
+          >
             Retour à la boutique
           </ButtonLink>
         </SheetContent>

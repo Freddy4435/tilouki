@@ -1,89 +1,193 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 
-import { PRODUCT_SORT_OPTIONS } from "@/lib/catalog/constants";
+import { useCatalogueNavigation } from "@/hooks/use-catalogue-navigation";
+import {
+  CATALOGUE_PARAM_KEYS,
+  readMultiParamFromSearchParams,
+} from "@/lib/catalog/catalogue-search-params";
+import {
+  formatActiveAgeBandLabel,
+  formatActiveAgeLabel,
+  formatActiveCategoryLabel,
+  formatActiveColorLabel,
+  formatActiveGenderLabel,
+  formatActivePriceMaxLabel,
+  formatActivePriceMinLabel,
+  formatActiveSearchLabel,
+  formatActiveSeasonLabel,
+  formatActiveSizeLabel,
+  formatActiveSortLabel,
+  getCategoryFilterLabel,
+  isDefaultSort,
+} from "@/lib/catalog/catalogue-labels";
+import { Button } from "@/components/ui/button";
 import type { Category } from "@/types/catalog";
 
-const GENDER_LABELS: Record<string, string> = {
-  fille: "Fille",
-  garcon: "Garçon",
-  mixte: "Mixte",
-};
+interface ActiveFilterPill {
+  key: string;
+  value?: string;
+  label: string;
+}
 
 interface CatalogueActiveFiltersProps {
   categories: Category[];
+  basePath?: string;
+  lockedCategorySlug?: string;
 }
 
-export function CatalogueActiveFilters({ categories }: CatalogueActiveFiltersProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export function CatalogueActiveFilters({
+  categories,
+  basePath = "/catalogue",
+  lockedCategorySlug,
+}: CatalogueActiveFiltersProps) {
+  const { searchParams, updateSingle, removeFacetValue, reset } =
+    useCatalogueNavigation(basePath, lockedCategorySlug);
 
-  const pills: { key: string; label: string }[] = [];
+  const pills: ActiveFilterPill[] = [];
 
-  const q = searchParams.get("q");
-  if (q?.trim()) pills.push({ key: "q", label: `« ${q.trim()} »` });
+  const q = searchParams.get(CATALOGUE_PARAM_KEYS.query);
+  if (q?.trim()) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.query,
+      label: formatActiveSearchLabel(q),
+    });
+  }
 
-  const categorySlug = searchParams.get("categorie");
+  const categorySlug = searchParams.get(CATALOGUE_PARAM_KEYS.category);
   if (categorySlug) {
-    const cat = categories.find((c) => c.slug === categorySlug);
-    pills.push({ key: "categorie", label: cat?.name ?? categorySlug });
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.category,
+      label: formatActiveCategoryLabel(
+        getCategoryFilterLabel(categorySlug, categories),
+      ),
+    });
   }
 
-  const genre = searchParams.get("genre");
-  if (genre) pills.push({ key: "genre", label: GENDER_LABELS[genre] ?? genre });
-
-  const season = searchParams.get("saison");
-  if (season) pills.push({ key: "saison", label: season });
-
-  const minPrice = searchParams.get("prix_min");
-  if (minPrice) pills.push({ key: "prix_min", label: `Min ${minPrice} €` });
-
-  const maxPrice = searchParams.get("prix_max");
-  if (maxPrice) pills.push({ key: "prix_max", label: `Max ${maxPrice} €` });
-
-  if (searchParams.get("promo") === "petit-prix") {
-    pills.push({ key: "promo", label: "Petits prix" });
+  const genre = searchParams.get(CATALOGUE_PARAM_KEYS.gender);
+  if (genre) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.gender,
+      label: formatActiveGenderLabel(genre),
+    });
   }
 
-  const sort = searchParams.get("tri") ?? "newest";
-  if (sort !== "newest") {
-    const sortLabel = PRODUCT_SORT_OPTIONS.find((o) => o.value === sort)?.label ?? sort;
-    pills.push({ key: "tri", label: sortLabel });
+  const ageBand = searchParams.get(CATALOGUE_PARAM_KEYS.ageBand);
+  if (ageBand) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.ageBand,
+      label: formatActiveAgeBandLabel(ageBand),
+    });
+  }
+
+  const season = searchParams.get(CATALOGUE_PARAM_KEYS.season);
+  if (season) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.season,
+      label: formatActiveSeasonLabel(season),
+    });
+  }
+
+  const minPrice = searchParams.get(CATALOGUE_PARAM_KEYS.minPrice);
+  if (minPrice) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.minPrice,
+      label: formatActivePriceMinLabel(minPrice),
+    });
+  }
+
+  const maxPrice = searchParams.get(CATALOGUE_PARAM_KEYS.maxPrice);
+  if (maxPrice) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.maxPrice,
+      label: formatActivePriceMaxLabel(maxPrice),
+    });
+  }
+
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.promo) === "petit-prix") {
+    pills.push({ key: CATALOGUE_PARAM_KEYS.promo, label: "Petits prix" });
+  }
+
+  for (const size of readMultiParamFromSearchParams(
+    searchParams,
+    CATALOGUE_PARAM_KEYS.sizes,
+  )) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.sizes,
+      value: size,
+      label: formatActiveSizeLabel(size),
+    });
+  }
+
+  for (const color of readMultiParamFromSearchParams(
+    searchParams,
+    CATALOGUE_PARAM_KEYS.colors,
+  )) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.colors,
+      value: color,
+      label: formatActiveColorLabel(color),
+    });
+  }
+
+  for (const age of readMultiParamFromSearchParams(
+    searchParams,
+    CATALOGUE_PARAM_KEYS.ages,
+  )) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.ages,
+      value: age,
+      label: formatActiveAgeLabel(age),
+    });
+  }
+
+  const sort = searchParams.get(CATALOGUE_PARAM_KEYS.sort);
+  if (!isDefaultSort(sort)) {
+    pills.push({
+      key: CATALOGUE_PARAM_KEYS.sort,
+      label: formatActiveSortLabel(sort ?? "newest"),
+    });
   }
 
   if (pills.length === 0) return null;
 
-  const removeFilter = (key: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete(key);
-    if (key !== "page") params.delete("page");
-    const query = params.toString();
-    router.push(query ? `/catalogue?${query}` : "/catalogue");
+  const removeFilter = (pill: ActiveFilterPill) => {
+    if (pill.value) {
+      removeFacetValue(pill.key, pill.value);
+      return;
+    }
+    updateSingle({ [pill.key]: null });
   };
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2" aria-label="Filtres actifs">
+    <div
+      className="mb-4 flex flex-wrap items-center gap-2"
+      aria-label="Filtres actifs"
+      role="list"
+    >
       {pills.map((pill) => (
         <button
-          key={pill.key}
+          key={`${pill.key}-${pill.value ?? pill.label}`}
           type="button"
-          onClick={() => removeFilter(pill.key)}
-          className="bg-primary/10 text-primary hover:bg-primary/15 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors duration-[var(--transition-fast)]"
+          role="listitem"
+          onClick={() => removeFilter(pill)}
+          className="bg-tilouki-jade-soft/70 text-tilouki-teal-dark hover:bg-tilouki-jade-soft inline-flex max-w-full items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-[var(--transition-fast)]"
         >
-          {pill.label}
-          <X className="size-3" aria-hidden />
+          <span className="truncate">{pill.label}</span>
+          <X className="size-3 shrink-0" aria-hidden />
           <span className="sr-only">Retirer le filtre {pill.label}</span>
         </button>
       ))}
-      <button
+      <Button
         type="button"
-        onClick={() => router.push("/catalogue")}
-        className="text-muted-foreground hover:text-foreground text-xs font-medium underline-offset-2 hover:underline"
+        variant="outline"
+        size="sm"
+        onClick={reset}
+        className="h-8 rounded-full px-3 text-xs font-semibold"
       >
-        Tout effacer
-      </button>
+        Effacer les filtres
+      </Button>
     </div>
   );
 }

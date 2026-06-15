@@ -28,22 +28,28 @@ describe("canTransitionTo — commande payée", () => {
       canTransitionTo({ status: "paid", paymentStatus: "paid" }, "preparing").allowed,
     ).toBe(true);
     expect(
-      canTransitionTo({ status: "preparing", paymentStatus: "paid" }, "shipped").allowed,
+      canTransitionTo({ status: "preparing", paymentStatus: "paid" }, "shipped")
+        .allowed,
     ).toBe(true);
     expect(
-      canTransitionTo({ status: "shipped", paymentStatus: "paid" }, "delivered").allowed,
+      canTransitionTo({ status: "shipped", paymentStatus: "paid" }, "delivered")
+        .allowed,
     ).toBe(true);
   });
 
   it("refuse de sauter une étape (paid → shipped)", () => {
-    const result = canTransitionTo({ status: "paid", paymentStatus: "paid" }, "shipped");
+    const result = canTransitionTo(
+      { status: "paid", paymentStatus: "paid" },
+      "shipped",
+    );
     expect(result.allowed).toBe(false);
     expect(result.error).toContain("Transition invalide");
   });
 
   it("refuse un retour en arrière (shipped → preparing)", () => {
     expect(
-      canTransitionTo({ status: "shipped", paymentStatus: "paid" }, "preparing").allowed,
+      canTransitionTo({ status: "shipped", paymentStatus: "paid" }, "preparing")
+        .allowed,
     ).toBe(false);
   });
 
@@ -61,7 +67,8 @@ describe("canTransitionTo — commande non payée", () => {
         .allowed,
     ).toBe(true);
     expect(
-      canTransitionTo({ status: "pending", paymentStatus: "pending" }, "shipped").allowed,
+      canTransitionTo({ status: "pending", paymentStatus: "pending" }, "shipped")
+        .allowed,
     ).toBe(false);
   });
 });

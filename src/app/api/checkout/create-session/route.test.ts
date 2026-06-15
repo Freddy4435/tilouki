@@ -104,6 +104,24 @@ describe("POST /api/checkout/create-session", () => {
     expect(mocks.createCheckoutSession).toHaveBeenCalledOnce();
   });
 
+  it("retourne le message démo quand le checkout est bloqué en production", async () => {
+    mocks.createCheckoutSession.mockRejectedValue(
+      new StripeCheckoutError(
+        "Ce panier contient des articles de démonstration qui ne peuvent pas être vendus en production. Retirez-les de votre panier ou contactez la boutique.",
+        400,
+        true,
+      ),
+    );
+
+    const response = await POST(jsonRequest(validBody));
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error:
+        "Ce panier contient des articles de démonstration qui ne peuvent pas être vendus en production. Retirez-les de votre panier ou contactez la boutique.",
+    });
+  });
+
   it("retourne 400 quand le stock ou le relais est refusé", async () => {
     mocks.createCheckoutSession.mockRejectedValue(
       new StripeCheckoutError("Stock insuffisant pour finaliser la commande."),
@@ -113,7 +131,8 @@ describe("POST /api/checkout/create-session", () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({
-      error: "Impossible de finaliser la commande. Vérifiez votre panier et le point relais.",
+      error:
+        "Impossible de finaliser la commande. Vérifiez votre panier et le point relais.",
     });
   });
 

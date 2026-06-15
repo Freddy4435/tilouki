@@ -153,7 +153,10 @@ export async function validateRelayPointDetailed(
     }
 
     if (!result.configured) {
-      return { valid: false, error: result.message ?? getShippingConfigurationError(carrier) };
+      return {
+        valid: false,
+        error: result.message ?? getShippingConfigurationError(carrier),
+      };
     }
 
     if (result.points.length === 0) {

@@ -21,6 +21,7 @@ export async function sendShippingConfirmation(
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      previewTag: "shipping-confirmation",
     });
   } catch (error) {
     logEmail("error", "Échec envoi confirmation expédition", {

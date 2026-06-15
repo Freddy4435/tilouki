@@ -9,13 +9,14 @@ interface CheckoutShellProps {
 export function CheckoutShell({ children, className }: CheckoutShellProps) {
   return (
     <div className={cn("container-tilouki section-tilouki", className)}>
-      <header className="mb-6 space-y-3 rounded-2xl border border-tilouki-blue/10 bg-gradient-to-br from-tilouki-blue-soft/25 via-card to-background p-5 sm:mb-8">
+      <header className="border-tilouki-jade/25 bg-tilouki-jade-soft/35 mb-6 space-y-3 rounded-[var(--radius-card)] border p-5 sm:mb-8">
         <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
             Finaliser ma commande
           </h1>
           <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-relaxed">
-            Coordonnées, point relais, paiement sécurisé — colis expédié depuis la France.
+            Coordonnées, point relais, paiement sécurisé — colis expédié depuis la
+            France.
           </p>
         </div>
         <ReassuranceStrip variant="compact" className="justify-start" />

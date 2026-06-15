@@ -57,10 +57,7 @@ describe("computeTotalCents", () => {
 
 describe("computeItemCount", () => {
   it("compte le nombre total d'articles (somme des quantités)", () => {
-    const items = [
-      line({ quantity: 2 }),
-      line({ variantId: "var-2", quantity: 3 }),
-    ];
+    const items = [line({ quantity: 2 }), line({ variantId: "var-2", quantity: 3 })];
 
     expect(computeItemCount(items)).toBe(5);
   });

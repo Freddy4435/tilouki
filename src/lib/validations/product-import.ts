@@ -49,7 +49,10 @@ export const importRowSchema = z
       .optional()
       .nullable()
       .transform((v) => (v && v.length > 0 ? v : null))
-      .refine((v) => !v || /^https?:\/\//i.test(v), "URL image invalide."),
+      .refine(
+        (v) => !v || /^https?:\/\//i.test(v) || v.startsWith("/"),
+        "URL image invalide (http(s):// ou chemin /products/…).",
+      ),
   })
   .transform((row) => ({
     reference: row.reference,
@@ -103,5 +106,9 @@ export interface ImportExecuteResult {
   categoriesCreated: number;
   productsCreated: number;
   variantsCreated: number;
-  details: { lineNumber: number; status: "imported" | "skipped" | "error"; message?: string }[];
+  details: {
+    lineNumber: number;
+    status: "imported" | "skipped" | "error";
+    message?: string;
+  }[];
 }

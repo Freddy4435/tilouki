@@ -17,10 +17,7 @@ import type { AdminOrderDetail } from "@/lib/supabase/queries/admin/orders";
 import type { OrderAdminAction } from "@/lib/validations/admin-order";
 
 interface OrderActionsProps {
-  order: Pick<
-    AdminOrderDetail,
-    "id" | "status" | "paymentStatus" | "orderNumber"
-  > & {
+  order: Pick<AdminOrderDetail, "id" | "status" | "paymentStatus" | "orderNumber"> & {
     trackingNumber?: string | null;
     shippingNumber?: string | null;
   };

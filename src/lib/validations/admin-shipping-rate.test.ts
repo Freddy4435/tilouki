@@ -4,14 +4,19 @@ import {
   adminShippingRateSchema,
   computeReorderUpdates,
   findOverlappingRate,
+  mergeRateIntoGrid,
   suggestNextSortOrder,
+  validateContinuousRateGrid,
   type RateRange,
 } from "@/lib/validations/admin-shipping-rate";
 
-function rate(overrides: Partial<RateRange> & Pick<RateRange, "minWeightGrams" | "maxWeightGrams">): RateRange {
+function rate(
+  overrides: Partial<RateRange> & Pick<RateRange, "minWeightGrams" | "maxWeightGrams">,
+): RateRange {
   return {
     id: overrides.id ?? crypto.randomUUID(),
-    label: overrides.label ?? `${overrides.minWeightGrams} – ${overrides.maxWeightGrams} g`,
+    label:
+      overrides.label ?? `${overrides.minWeightGrams} – ${overrides.maxWeightGrams} g`,
     isActive: overrides.isActive ?? true,
     minWeightGrams: overrides.minWeightGrams,
     maxWeightGrams: overrides.maxWeightGrams,
@@ -129,9 +134,9 @@ describe("adminShippingRateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("accepte un prix de 0 € (livraison offerte)", () => {
-    const parsed = adminShippingRateSchema.parse({ ...base, priceCents: "0" });
-    expect(parsed.priceCents).toBe(0);
+  it("refuse un prix nul (0 €)", () => {
+    const result = adminShippingRateSchema.safeParse({ ...base, priceCents: "0" });
+    expect(result.success).toBe(false);
   });
 
   it("refuse un provider inconnu", () => {
@@ -185,6 +190,71 @@ describe("computeReorderUpdates", () => {
 
   it("refuse de descendre la dernière tranche", () => {
     expect(computeReorderUpdates(rates, "c", "down")).toBeNull();
+  });
+});
+
+describe("validateContinuousRateGrid", () => {
+  const continuous: RateRange[] = [
+    rate({ id: "a", minWeightGrams: 0, maxWeightGrams: 250 }),
+    rate({ id: "b", minWeightGrams: 251, maxWeightGrams: 500 }),
+    rate({ id: "c", minWeightGrams: 501, maxWeightGrams: 1000 }),
+  ];
+
+  it("accepte une grille continue depuis 0 g", () => {
+    expect(validateContinuousRateGrid(continuous)).toBeNull();
+  });
+
+  it("refuse si la grille ne commence pas à 0 g", () => {
+    expect(
+      validateContinuousRateGrid([rate({ minWeightGrams: 100, maxWeightGrams: 500 })]),
+    ).toContain("0 g");
+  });
+
+  it("refuse un trou entre deux tranches", () => {
+    expect(
+      validateContinuousRateGrid([
+        rate({ minWeightGrams: 0, maxWeightGrams: 250 }),
+        rate({ minWeightGrams: 400, maxWeightGrams: 1000 }),
+      ]),
+    ).toContain("Trou");
+  });
+
+  it("ignore les tranches inactives", () => {
+    expect(
+      validateContinuousRateGrid([
+        ...continuous,
+        rate({ minWeightGrams: 1001, maxWeightGrams: 2000, isActive: false }),
+      ]),
+    ).toBeNull();
+  });
+});
+
+describe("mergeRateIntoGrid", () => {
+  const existing: RateRange[] = [
+    rate({ id: "a", minWeightGrams: 0, maxWeightGrams: 250 }),
+    rate({ id: "b", minWeightGrams: 251, maxWeightGrams: 500 }),
+  ];
+
+  it("remplace une tranche existante lors d'une édition", () => {
+    const merged = mergeRateIntoGrid(existing, {
+      id: "b",
+      label: "251 – 600 g",
+      minWeightGrams: 251,
+      maxWeightGrams: 600,
+      isActive: true,
+    });
+    expect(merged.find((r) => r.id === "b")?.maxWeightGrams).toBe(600);
+    expect(merged).toHaveLength(2);
+  });
+
+  it("ajoute une nouvelle tranche active", () => {
+    const merged = mergeRateIntoGrid(existing, {
+      label: "501 – 1000 g",
+      minWeightGrams: 501,
+      maxWeightGrams: 1000,
+      isActive: true,
+    });
+    expect(merged).toHaveLength(3);
   });
 });
 

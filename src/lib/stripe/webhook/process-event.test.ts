@@ -65,7 +65,10 @@ describe("processStripeWebhookEvent", () => {
 
     await processStripeWebhookEvent(makeEvent("checkout.session.completed", session));
 
-    expect(mocks.handleCheckoutSessionCompleted).toHaveBeenCalledWith(session, "evt_checkout.session.completed");
+    expect(mocks.handleCheckoutSessionCompleted).toHaveBeenCalledWith(
+      session,
+      "evt_checkout.session.completed",
+    );
   });
 
   it("délègue checkout.session.expired", async () => {
@@ -73,13 +76,18 @@ describe("processStripeWebhookEvent", () => {
 
     await processStripeWebhookEvent(makeEvent("checkout.session.expired", session));
 
-    expect(mocks.handleCheckoutSessionExpired).toHaveBeenCalledWith(session, "evt_checkout.session.expired");
+    expect(mocks.handleCheckoutSessionExpired).toHaveBeenCalledWith(
+      session,
+      "evt_checkout.session.expired",
+    );
   });
 
   it("délègue payment_intent.payment_failed", async () => {
     const paymentIntent = { id: "pi_1" };
 
-    await processStripeWebhookEvent(makeEvent("payment_intent.payment_failed", paymentIntent));
+    await processStripeWebhookEvent(
+      makeEvent("payment_intent.payment_failed", paymentIntent),
+    );
 
     expect(mocks.handlePaymentIntentFailed).toHaveBeenCalledWith(
       paymentIntent,
@@ -92,13 +100,18 @@ describe("processStripeWebhookEvent", () => {
 
     await processStripeWebhookEvent(makeEvent("charge.refunded", charge));
 
-    expect(mocks.handleChargeRefunded).toHaveBeenCalledWith(charge, "evt_charge.refunded");
+    expect(mocks.handleChargeRefunded).toHaveBeenCalledWith(
+      charge,
+      "evt_charge.refunded",
+    );
   });
 
   it("est idempotent si l'événement a déjà été traité", async () => {
     mocks.tryBeginStripeWebhookEvent.mockResolvedValue(false);
 
-    await processStripeWebhookEvent(makeEvent("checkout.session.completed", { id: "cs_3" }));
+    await processStripeWebhookEvent(
+      makeEvent("checkout.session.completed", { id: "cs_3" }),
+    );
 
     expect(mocks.handleCheckoutSessionCompleted).not.toHaveBeenCalled();
   });
@@ -107,9 +120,13 @@ describe("processStripeWebhookEvent", () => {
     mocks.handleCheckoutSessionCompleted.mockRejectedValue(new Error("boom"));
 
     await expect(
-      processStripeWebhookEvent(makeEvent("checkout.session.completed", { id: "cs_4" })),
+      processStripeWebhookEvent(
+        makeEvent("checkout.session.completed", { id: "cs_4" }),
+      ),
     ).rejects.toThrow("boom");
 
-    expect(mocks.rollbackStripeWebhookEvent).toHaveBeenCalledWith("evt_checkout.session.completed");
+    expect(mocks.rollbackStripeWebhookEvent).toHaveBeenCalledWith(
+      "evt_checkout.session.completed",
+    );
   });
 });

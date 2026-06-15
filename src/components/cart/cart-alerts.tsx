@@ -63,7 +63,7 @@ export function CartAlerts({
         <div
           key={message}
           role="alert"
-          className="border-amber-500/30 bg-amber-50 text-amber-950 flex gap-2 rounded-xl border px-4 py-3 text-sm dark:bg-amber-950/30 dark:text-amber-100"
+          className="flex gap-2 rounded-xl border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:bg-amber-950/30 dark:text-amber-100"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <p>{message}</p>

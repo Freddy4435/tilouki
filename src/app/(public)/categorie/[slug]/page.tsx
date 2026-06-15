@@ -2,22 +2,38 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { CatalogueActiveFilters } from "@/components/catalogue/catalogue-active-filters";
+import { CatalogueEmptyState } from "@/components/catalogue/catalogue-empty-state";
 import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
+import { CatalogueFilters } from "@/components/catalogue/catalogue-filters";
+import { CatalogueFiltersMobile } from "@/components/catalogue/catalogue-filters-mobile";
 import { CataloguePagination } from "@/components/catalogue/catalogue-pagination";
 import { CatalogueToolbar } from "@/components/catalogue/catalogue-toolbar";
 import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
 import { JsonLdScript } from "@/components/seo/json-ld-script";
+import {
+  CATALOGUE_URL_FILTER_KEYS,
+  hasCatalogueFiltersInQuery,
+} from "@/lib/catalog/catalogue-search-params";
 import { parseCatalogueQuery } from "@/lib/catalog/parse-catalogue-query";
 import { getCategorySeoDescription } from "@/lib/seo/copy";
 import { buildBreadcrumbJsonLd, buildItemListJsonLd } from "@/lib/seo/json-ld";
-import { absoluteUrl, buildCanonicalFromSearchParams, buildPageMetadata } from "@/lib/seo/metadata";
-import { getCategoryBySlug } from "@/lib/supabase/queries/categories";
+import {
+  absoluteUrl,
+  buildCanonicalFromSearchParams,
+  buildPageMetadata,
+} from "@/lib/seo/metadata";
+import { getCategories, getCategoryBySlug } from "@/lib/supabase/queries/categories";
 import { getActiveProductsPaginated } from "@/lib/supabase/queries/products";
+import type { PaginatedCatalogueResult } from "@/types/catalog";
 
 export const revalidate = 300;
 
-const CATEGORY_CANONICAL_KEYS = ["genre", "saison", "tri", "page", "prix_min", "prix_max"];
+const CATEGORY_CANONICAL_KEYS = [
+  ...CATALOGUE_URL_FILTER_KEYS.filter((key) => key !== "categorie"),
+  "page",
+];
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -46,27 +62,76 @@ export async function generateMetadata({
   });
 }
 
-export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
+function CategoryResults({
+  slug,
+  categories,
+  result,
+  searchParams,
+}: {
+  slug: string;
+  categories: Awaited<ReturnType<typeof getCategories>>;
+  result: PaginatedCatalogueResult;
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const query = { ...parseCatalogueQuery(searchParams), categorySlug: slug };
+  const basePath = `/categorie/${slug}`;
+  const flatParams = Object.fromEntries(
+    Object.entries(searchParams).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value.join(",") : value,
+    ]),
+  );
+
+  const hasFilters = hasCatalogueFiltersInQuery(query);
+
+  return (
+    <>
+      <CatalogueToolbar
+        total={result.total}
+        page={result.page}
+        totalPages={result.totalPages}
+      />
+      <CatalogueActiveFilters
+        categories={categories}
+        basePath={basePath}
+        lockedCategorySlug={slug}
+      />
+      {result.items.length > 0 ? (
+        <CatalogueProductList products={result.items} className="pb-2 md:pb-0" />
+      ) : (
+        <CatalogueEmptyState hasActiveFilters={hasFilters} resetHref={basePath} />
+      )}
+      <CataloguePagination
+        page={result.page}
+        totalPages={result.totalPages}
+        searchParams={flatParams}
+        basePath={basePath}
+      />
+    </>
+  );
+}
+
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: CategoryPageProps) {
   const { slug } = await params;
   const resolvedSearch = await searchParams;
-  const category = await getCategoryBySlug(slug);
+  const [category, categories] = await Promise.all([
+    getCategoryBySlug(slug),
+    getCategories(),
+  ]);
 
   if (!category) notFound();
 
   const query = { ...parseCatalogueQuery(resolvedSearch), categorySlug: slug };
   const result = await getActiveProductsPaginated(query);
-
-  const flatParams = {
-    ...Object.fromEntries(
-      Object.entries(resolvedSearch).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
-    ),
-    categorie: slug,
-  };
+  const basePath = `/categorie/${slug}`;
 
   const breadcrumbs = [
     { name: "Accueil", path: "/" },
     { name: "Catalogue", path: "/catalogue" },
-    { name: category.name, path: `/categorie/${slug}` },
+    { name: category.name, path: basePath },
   ];
 
   const itemListJsonLd =
@@ -90,32 +155,50 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
       <Breadcrumbs items={breadcrumbs} className="mb-4" />
 
-      <header className="mb-8">
-        <p className="text-muted-foreground text-sm">Catégorie</p>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{category.name}</h1>
-        <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">
+      <header className="mb-5 space-y-2 sm:mb-6">
+        <p className="text-retail-label text-muted-foreground">Catégorie</p>
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+          {category.name}
+        </h1>
+        <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm leading-relaxed">
           {getCategorySeoDescription(category)}
         </p>
       </header>
 
-      <Suspense fallback={<ProductGridSkeleton count={8} />}>
-        <CatalogueToolbar
+      <div className="mb-4 lg:hidden">
+        <CatalogueFiltersMobile
+          categories={categories}
+          facets={result.facets}
           total={result.total}
-          page={result.page}
-          totalPages={result.totalPages}
+          lockedCategorySlug={slug}
+          basePath={basePath}
         />
-        <CatalogueProductList
-          products={result.items}
-          emptyTitle="Aucun produit dans cette catégorie"
-          emptyDescription="Revenez bientôt ou explorez une autre catégorie."
-        />
-        <CataloguePagination
-          page={result.page}
-          totalPages={result.totalPages}
-          searchParams={flatParams}
-          basePath={`/categorie/${slug}`}
-        />
-      </Suspense>
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
+        <aside
+          className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
+          aria-label="Filtres de la catégorie"
+        >
+          <CatalogueFilters
+            categories={categories}
+            facets={result.facets}
+            lockedCategorySlug={slug}
+            basePath={basePath}
+          />
+        </aside>
+
+        <div>
+          <Suspense fallback={<ProductGridSkeleton count={8} />}>
+            <CategoryResults
+              slug={slug}
+              categories={categories}
+              result={result}
+              searchParams={resolvedSearch}
+            />
+          </Suspense>
+        </div>
+      </div>
     </div>
   );
 }

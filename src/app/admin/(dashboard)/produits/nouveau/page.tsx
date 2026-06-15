@@ -18,9 +18,7 @@ export default async function AdminNouveauProduitPage() {
         title="Nouveau produit"
         description="Créez un produit avec sa première variante."
       />
-      <ProductForm
-        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
-      />
+      <ProductForm categories={categories.map((c) => ({ id: c.id, name: c.name }))} />
     </>
   );
 }

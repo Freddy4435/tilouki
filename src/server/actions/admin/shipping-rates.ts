@@ -11,6 +11,8 @@ import {
   adminShippingRateSchema,
   computeReorderUpdates,
   findOverlappingRate,
+  mergeRateIntoGrid,
+  validateContinuousRateGrid,
   type ReorderDirection,
 } from "@/lib/validations/admin-shipping-rate";
 import { requireAdmin } from "@/server/auth";
@@ -20,6 +22,8 @@ function revalidateShippingRates(): void {
   revalidatePath("/admin/livraison");
   revalidatePath("/panier");
   revalidatePath("/commande");
+  revalidatePath("/api/shipping/rates");
+  revalidatePath("/api/shipping/estimate");
 }
 
 /**
@@ -75,6 +79,18 @@ export async function saveShippingRateAction(
       return {
         error: `Cette tranche chevauche « ${conflict.label} » (${conflict.minWeightGrams} – ${conflict.maxWeightGrams} g). Ajustez les bornes.`,
       };
+    }
+
+    if (isCarrierConfigured(input.provider)) {
+      const merged = mergeRateIntoGrid(existing, {
+        id: input.id,
+        label: input.label,
+        minWeightGrams: input.minWeightGrams,
+        maxWeightGrams: input.maxWeightGrams,
+        isActive: true,
+      });
+      const gridError = validateContinuousRateGrid(merged);
+      if (gridError) return { error: gridError };
     }
   } else if (input.id) {
     // Désactivation d'une tranche existante via le formulaire d'édition.
@@ -135,6 +151,12 @@ export async function setShippingRateActiveAction(
     ).length;
     const guard = guardLastActiveRate(provider, remainingActive);
     if (guard) return { error: guard };
+
+    if (isCarrierConfigured(provider)) {
+      const remaining = existing.filter((rate) => rate.isActive && rate.id !== id);
+      const gridError = validateContinuousRateGrid(remaining);
+      if (gridError) return { error: gridError };
+    }
   } else {
     // Réactivation : la tranche ne doit pas chevaucher les tranches actives.
     const existing = await listAdminShippingRatesForProvider(provider);
@@ -145,6 +167,12 @@ export async function setShippingRateActiveAction(
         return {
           error: `Réactivation impossible : la tranche chevauche « ${conflict.label} » (${conflict.minWeightGrams} – ${conflict.maxWeightGrams} g).`,
         };
+      }
+
+      if (isCarrierConfigured(provider)) {
+        const merged = mergeRateIntoGrid(existing, { ...self, isActive: true });
+        const gridError = validateContinuousRateGrid(merged);
+        if (gridError) return { error: gridError };
       }
     }
   }

@@ -74,7 +74,9 @@ export function CartDrawer() {
               <div className="bg-background sticky bottom-0 shrink-0 border-t shadow-[0_-4px_24px_oklch(0.28_0.02_50_/_0.06)]">
                 <div className="flex items-center justify-between px-4 pt-3 text-sm">
                   <span className="text-muted-foreground">Sous-total</span>
-                  <span className="text-base font-bold tabular-nums">{formatPrice(subtotalCents)}</span>
+                  <span className="text-base font-bold tabular-nums">
+                    {formatPrice(subtotalCents)}
+                  </span>
                 </div>
                 <div className="p-4 pt-2">
                   <CartSummary variant="drawer" onContinueShopping={closeDrawer} />

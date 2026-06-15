@@ -4,7 +4,11 @@
  */
 
 export { EmptyState } from "@/components/ui/empty-state";
-export { ProductBadge, ProductBadgeList, type ProductBadgeType } from "@/components/product/product-badges";
+export {
+  ProductBadge,
+  ProductBadgeList,
+  type ProductBadgeType,
+} from "@/components/product/product-badges";
 export { SizeAgeBadge, SizeAgeBadgeList } from "@/components/product/size-age-badge";
 export { ProductCard, type ProductCardProps } from "@/components/product/product-card";
 export {

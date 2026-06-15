@@ -1,6 +1,10 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
+import {
+  getSupabaseAnonKey,
+  getSupabaseUrl,
+  isSupabaseConfigured,
+} from "@/lib/supabase/env";
 import type { Database } from "@/types/database";
 
 let browserClient: ReturnType<typeof createBrowserClient<Database>> | null = null;
@@ -17,7 +21,10 @@ export function createClient() {
   }
 
   if (!browserClient) {
-    browserClient = createBrowserClient<Database>(getSupabaseUrl(), getSupabaseAnonKey());
+    browserClient = createBrowserClient<Database>(
+      getSupabaseUrl(),
+      getSupabaseAnonKey(),
+    );
   }
 
   return browserClient;

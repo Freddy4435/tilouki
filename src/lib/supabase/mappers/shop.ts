@@ -1,5 +1,9 @@
 import { defaultShopSettings } from "@/lib/shop/defaults";
+import { buildStorefrontNavigation } from "@/lib/navigation/build-storefront-nav";
 import type { ShopCategory, ShopSettings } from "@/lib/shop/types";
+import { normalizeShopAnnouncements } from "@/lib/announcements/validation";
+import { normalizeEditorialBlocks } from "@/lib/editorial/validation";
+import { normalizeShopSocialLinks } from "@/lib/social/validation";
 import type { Category } from "@/types/catalog";
 import type { Database } from "@/types/database";
 
@@ -18,6 +22,7 @@ export function mapShopSettings(
   row: ShopSettingsRow | null,
   categories: ShopCategory[],
   minShippingCents: number,
+  navigation = buildStorefrontNavigation(categories, []),
 ): ShopSettings {
   const envPrimary = process.env.NEXT_PUBLIC_SHOP_PRIMARY_COLOR;
   const envName = process.env.NEXT_PUBLIC_SHOP_NAME;
@@ -28,6 +33,7 @@ export function mapShopSettings(
       ...defaultShopSettings,
       minShippingCents,
       categories: categories.length > 0 ? categories : defaultShopSettings.categories,
+      navigation,
       ...(envName ? { name: envName } : {}),
       ...(envPrimary ? { primaryColor: envPrimary } : {}),
       ...(envEmail ? { contactEmail: envEmail } : {}),
@@ -45,6 +51,7 @@ export function mapShopSettings(
     siret: row.siret,
     address: row.address,
     contactEmail: envEmail ?? row.email ?? defaultShopSettings.contactEmail,
+    contactEmailConfigured: Boolean(envEmail?.trim() || row.email?.trim()),
     phone: row.phone,
     vatEnabled: row.vat_enabled,
     vatRate: Number(row.vat_rate),
@@ -61,7 +68,12 @@ export function mapShopSettings(
     exchangePolicy: row.exchange_policy,
     analyticsEnabled: row.analytics_enabled ?? false,
     primaryColor: envPrimary ?? defaultShopSettings.primaryColor,
+    announcementsEnabled: row.announcements_enabled ?? false,
+    announcements: normalizeShopAnnouncements(row.announcements),
+    socialLinks: normalizeShopSocialLinks(row.social_links),
+    editorialBlocks: normalizeEditorialBlocks(row.editorial_blocks),
     minShippingCents,
     categories: categories.length > 0 ? categories : defaultShopSettings.categories,
+    navigation,
   };
 }

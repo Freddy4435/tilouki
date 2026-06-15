@@ -173,7 +173,9 @@ describe("checkoutFormSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((i) => i.path.includes("acceptTerms"))).toBe(true);
+      expect(result.error.issues.some((i) => i.path.includes("acceptTerms"))).toBe(
+        true,
+      );
     }
   });
 });

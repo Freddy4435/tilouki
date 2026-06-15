@@ -15,4 +15,7 @@ export {
   isStripeServerConfigured,
   isStripeWebhookConfigured,
 } from "@/lib/stripe/env";
-export type { CreateCheckoutSessionInput, CreateCheckoutSessionResult } from "@/lib/stripe/types";
+export type {
+  CreateCheckoutSessionInput,
+  CreateCheckoutSessionResult,
+} from "@/lib/stripe/types";

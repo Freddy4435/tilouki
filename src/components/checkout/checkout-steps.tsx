@@ -31,12 +31,17 @@ export function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
           const isDone = step.id < currentStep;
 
           return (
-            <li key={step.id} className="flex flex-col items-center gap-1.5 text-center">
+            <li
+              key={step.id}
+              className="flex flex-col items-center gap-1.5 text-center"
+            >
               <div
                 className={cn(
                   "flex size-8 items-center justify-center rounded-full text-xs font-bold sm:size-9 sm:text-sm",
                   isDone && "bg-primary text-primary-foreground",
-                  isActive && !isDone && "bg-primary text-primary-foreground ring-primary/20 ring-4",
+                  isActive &&
+                    !isDone &&
+                    "bg-primary text-primary-foreground ring-primary/20 ring-4",
                   !isActive && !isDone && "bg-muted text-muted-foreground",
                 )}
                 aria-current={isActive ? "step" : undefined}

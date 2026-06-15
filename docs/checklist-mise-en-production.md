@@ -12,14 +12,14 @@
 
 Préparez ces comptes (gratuits ou payants selon l'offre) :
 
-| Service | À quoi ça sert | Lien |
-|---------|----------------|------|
-| Vercel | Héberger le site | https://vercel.com |
-| Supabase | Base de données + photos | https://supabase.com |
-| Stripe | Paiement par carte | https://stripe.com |
-| Mondial Relay | Livraison en point relais | https://www.mondialrelay.fr |
-| Resend (recommandé) | E-mails de confirmation | https://resend.com |
-| Registrar domaine | Votre adresse `tilouki.fr` | OVH, Gandi, etc. |
+| Service             | À quoi ça sert             | Lien                        |
+| ------------------- | -------------------------- | --------------------------- |
+| Vercel              | Héberger le site           | https://vercel.com          |
+| Supabase            | Base de données + photos   | https://supabase.com        |
+| Stripe              | Paiement par carte         | https://stripe.com          |
+| Mondial Relay       | Livraison en point relais  | https://www.mondialrelay.fr |
+| Resend (recommandé) | E-mails de confirmation    | https://resend.com          |
+| Registrar domaine   | Votre adresse `tilouki.fr` | OVH, Gandi, etc.            |
 
 **Conseil :** gardez un carnet avec vos identifiants, numéro SIRET et coordonnées bancaires Stripe à portée de main.
 
@@ -50,14 +50,15 @@ Ces informations apparaissent sur vos **mentions légales** et **CGV**. Sans ell
 - [ ] Projet local initialisé : `git init`, branche `main`, remote `origin` pointant vers le dépôt privé
 - [ ] Premier push : `git push -u origin main`
 - [ ] `npm run audit:secrets` vert avant tout commit (inclus dans `npm run check`)
-- [ ] Aucun fichier sensible dans git : pas de `.env.local`, `.vercel/`, `node_modules/`, `.next/`, `archives/`, rapports Playwright
+- [ ] Aucun fichier sensible dans git : pas de `.env*` (sauf `.env.example`), `.vercel/`, `node_modules/`, `.next/`, `.email-preview/`, `supabase/.temp/`, `archives/`, rapports Playwright
+- [ ] **Ne jamais** transmettre un .rar / zip manuel du dossier projet — uniquement `npm run archive:clean`
 
 **Partage du code source** — règle stricte :
 
-- **Seule méthode autorisée** pour transmettre le code à un tiers : `npm run prepare:archive` → archive `archives/tilouki-AAAA-MM-JJ.zip` (fichiers git uniquement, audit secrets intégré).
+- **Seule méthode autorisée** pour transmettre le code à un tiers : `npm run archive:clean` → archive `archives/tilouki-AAAA-MM-JJ.zip` (fichiers git uniquement, audit secrets intégré, vérification du zip). Guide : [livraison-archive.md](./livraison-archive.md).
 - **Interdit** : zip manuel du dossier projet, envoi de `.env.local`, partage du dossier `.vercel/`, dépôt public, ou copie brute incluant `node_modules` / `.next`.
 
-En cas de fuite : rotation des clés (section [Rotation des clés](#rotation-des-clés)) avant tout redéploiement.
+En cas de fuite d'archive contenant `.env.local` ou `.env.vercel` : [rotation-secrets-apres-fuite-archive.md](./rotation-secrets-apres-fuite-archive.md). Autres cas : section [Rotation des clés](#rotation-des-clés).
 
 ---
 
@@ -93,6 +94,16 @@ En cas de fuite : rotation des clés (section [Rotation des clés](#rotation-des
 
 ## Phase 4 — Mes produits (vêtements enfants)
 
+- [ ] **Vue d'ensemble** — Admin → **Préparation** (`/admin/preparation`) : feu vert global avant encaissement
+- [ ] **Bascule catalogue** — une seule commande charge les 20 produits réels (TK-) et désactive les démos restantes (sans suppression) :
+
+  ```bash
+  npm run catalog:go-live -- --apply
+  ```
+
+  Par défaut le script est en **dry-run** (affiche le plan : 20 upserts catalogue, 12 slugs démo traités). Prérequis : `supabase link`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Les démos référencées par une commande de test ne sont **pas** modifiées (avertissement affiché).
+
+- [ ] **Produits démo désactivés** — le tableau de bord admin ne doit plus afficher l'alerte « Produits de démonstration détectés »
 - [ ] Au moins **5 à 10 produits** créés ou importés (CSV)
 - [ ] Chaque produit a : **photo**, **prix**, **taille/âge**, **stock**, **poids** (pour la livraison)
 - [ ] Statut **Actif** (visible sur le site)
@@ -223,20 +234,20 @@ node -e "console.log(crypto.randomBytes(32).toString('hex'))"
 
 Rejouez le parcours complet comme un parent qui achète un vêtement :
 
-| Étape | OK |
-|-------|:--:|
-| 1. Accueil | ☐ |
-| 2. Catalogue | ☐ |
-| 3. Fiche produit + choix taille | ☐ |
-| 4. Panier + quantité | ☐ |
-| 5. Commande + coordonnées | ☐ |
-| 6. Point relais | ☐ |
-| 7. Acceptation CGV | ☐ |
-| 8. Paiement Stripe | ☐ |
-| 9. Page de confirmation | ☐ |
-| 10. E-mail reçu | ☐ |
-| 11. Commande visible en admin | ☐ |
-| 12. Stock mis à jour | ☐ |
+| Étape                           | OK  |
+| ------------------------------- | :-: |
+| 1. Accueil                      |  ☐  |
+| 2. Catalogue                    |  ☐  |
+| 3. Fiche produit + choix taille |  ☐  |
+| 4. Panier + quantité            |  ☐  |
+| 5. Commande + coordonnées       |  ☐  |
+| 6. Point relais                 |  ☐  |
+| 7. Acceptation CGV              |  ☐  |
+| 8. Paiement Stripe              |  ☐  |
+| 9. Page de confirmation         |  ☐  |
+| 10. E-mail reçu                 |  ☐  |
+| 11. Commande visible en admin   |  ☐  |
+| 12. Stock mis à jour            |  ☐  |
 
 Checklist détaillée : [checklist-recette.md](./checklist-recette.md)
 
@@ -255,21 +266,21 @@ Checklist détaillée : [checklist-recette.md](./checklist-recette.md)
 
 ## Grille de synthèse
 
-| Bloc | Prêt ? | Date |
-|------|:------:|------|
-| Identité légale | ☐ | |
-| Site en ligne + domaine | ☐ | |
-| Supabase + admin | ☐ | |
-| Catalogue produits | ☐ | |
-| Stripe Live + webhook | ☐ | |
-| Mondial Relay | ☐ | |
-| E-mails | ☐ | |
-| SEO / pages techniques | ☐ | |
-| Test achat complet | ☐ | |
+| Bloc                    | Prêt ? | Date |
+| ----------------------- | :----: | ---- |
+| Identité légale         |   ☐    |      |
+| Site en ligne + domaine |   ☐    |      |
+| Supabase + admin        |   ☐    |      |
+| Catalogue produits      |   ☐    |      |
+| Stripe Live + webhook   |   ☐    |      |
+| Mondial Relay           |   ☐    |      |
+| E-mails                 |   ☐    |      |
+| SEO / pages techniques  |   ☐    |      |
+| Test achat complet      |   ☐    |      |
 
-**Nom :** _______________________  
-**Date d'ouverture prévue :** _______________________  
-**Verdict :** ☐ J'ouvre ☐ J'attends (préciser pourquoi) _______________________
+**Nom :** \***\*\*\*\*\***\_\_\_\***\*\*\*\*\***  
+**Date d'ouverture prévue :** \***\*\*\*\*\***\_\_\_\***\*\*\*\*\***  
+**Verdict :** ☐ J'ouvre ☐ J'attends (préciser pourquoi) \***\*\*\*\*\***\_\_\_\***\*\*\*\*\***
 
 ---
 
@@ -284,12 +295,12 @@ Checklist détaillée : [checklist-recette.md](./checklist-recette.md)
 
 ## Besoin d'aide ?
 
-| Problème | Où regarder |
-|----------|-------------|
-| Site ne s'affiche pas | Vercel → Deployments → logs |
-| Paiement bloqué | Admin → alertes Stripe ; Vercel → variables |
-| Commande non payée en admin | Stripe → Webhooks ; vérifier `STRIPE_WEBHOOK_SECRET` |
-| Pas d'e-mail | Vercel → `RESEND_API_KEY`, `FROM_EMAIL`, `ADMIN_EMAIL` |
-| Point relais vide | Variables Mondial Relay ; pas de mode dev mock |
+| Problème                    | Où regarder                                            |
+| --------------------------- | ------------------------------------------------------ |
+| Site ne s'affiche pas       | Vercel → Deployments → logs                            |
+| Paiement bloqué             | Admin → alertes Stripe ; Vercel → variables            |
+| Commande non payée en admin | Stripe → Webhooks ; vérifier `STRIPE_WEBHOOK_SECRET`   |
+| Pas d'e-mail                | Vercel → `RESEND_API_KEY`, `FROM_EMAIL`, `ADMIN_EMAIL` |
+| Point relais vide           | Variables Mondial Relay ; pas de mode dev mock         |
 
 Guide technique : [deploiement-vercel.md](./deploiement-vercel.md)

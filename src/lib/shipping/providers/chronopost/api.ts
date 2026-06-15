@@ -8,6 +8,12 @@ import {
 } from "@/lib/shipping/env";
 import { ShipmentLabelError } from "@/lib/shipping/errors";
 import {
+  CHRONOPOST_RELAY_ENDPOINT,
+  CHRONOPOST_RELAY_NAMESPACE,
+  postChronopostSoap,
+  sanitizeChronopostErrorMessage,
+} from "@/lib/shipping/providers/chronopost/soap";
+import {
   CHRONOPOST_ERROR_BAD_CREDENTIALS,
   CHRONOPOST_ERROR_NO_RESULT,
   describeChronopostError,
@@ -23,14 +29,10 @@ import type {
 } from "@/lib/shipping/types";
 
 /**
- * Recherche de points relais Pickup via le web service Chronopost
- * PointRelaisServiceWS (espace développeur chronopost.fr — « Web Services
- * Chronopost », §2.5 et §3.4/3.5).
+ * Recherche de points relais Pickup — SOAP 1.1 POST (WSDL PointRelaisServiceWS).
+ * Doc : espace développeur chronopost.fr → Web Services Chronopost, §2.5 / §3.4.
+ * Les identifiants sont dans le corps XML, jamais dans l'URL (contrairement au GET legacy).
  */
-const CHRONOPOST_RELAY_ENDPOINT =
-  "https://ws.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS";
-
-const CHRONOPOST_TIMEOUT_MS = 8_000;
 const MAX_POINTS = 10;
 const MAX_DISTANCE_KM = 20;
 
@@ -47,33 +49,30 @@ function formatShippingDate(date: Date): string {
   return `${day}/${month}/${date.getFullYear()}`;
 }
 
-async function fetchChronopost(operation: string, params: URLSearchParams): Promise<string> {
-  const url = `${CHRONOPOST_RELAY_ENDPOINT}/${operation}?${params.toString()}`;
-
-  const doFetch = async (): Promise<string> => {
-    const response = await fetch(url, {
-      method: "GET",
-      signal: AbortSignal.timeout(CHRONOPOST_TIMEOUT_MS),
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      throw new ChronopostServiceError(
-        `Réponse HTTP ${response.status} du service Chronopost.`,
-      );
-    }
-
-    return response.text();
+function relayCredentials(): Record<string, string> {
+  return {
+    accountNumber: getChronopostAccountNumber()!,
+    password: getChronopostPassword()!,
   };
+}
 
+async function fetchChronopost(
+  operation: string,
+  fields: Record<string, string>,
+): Promise<string> {
   try {
-    return await doFetch();
-  } catch (firstError) {
-    logSecure("warn", "chronopost: échec réseau, nouvelle tentative", {
+    return await postChronopostSoap({
+      endpoint: CHRONOPOST_RELAY_ENDPOINT,
+      namespace: CHRONOPOST_RELAY_NAMESPACE,
       operation,
-      error: firstError instanceof Error ? firstError.message : String(firstError),
+      fields,
     });
-    return doFetch();
+  } catch (error) {
+    const safeMessage =
+      error instanceof Error
+        ? sanitizeChronopostErrorMessage(error.message, fields)
+        : "erreur réseau";
+    throw new ChronopostServiceError(safeMessage);
   }
 }
 
@@ -91,12 +90,9 @@ export class ChronopostApiProvider implements ShippingProvider {
       };
     }
 
-    const account = getChronopostAccountNumber()!;
-    const password = getChronopostPassword()!;
-
-    const query = new URLSearchParams({
-      accountNumber: account,
-      password,
+    const credentials = relayCredentials();
+    const body: Record<string, string> = {
+      ...credentials,
       address: "",
       zipCode: params.zip.replace(/\s/g, ""),
       city: params.city?.trim() ?? "",
@@ -108,17 +104,16 @@ export class ChronopostApiProvider implements ShippingProvider {
       maxPointChronopost: String(MAX_POINTS),
       maxDistanceSearch: String(MAX_DISTANCE_KM),
       holidayTolerant: "1",
-      language: "FR",
-      version: "2.0",
-    });
+    };
 
     let parsed: ReturnType<typeof parseChronopostResponse>;
 
     try {
-      const xml = await fetchChronopost("recherchePointChronopost", query);
+      const xml = await fetchChronopost("recherchePointChronopost", body);
       parsed = parseChronopostResponse(xml);
     } catch (error) {
       logSecure("error", "chronopost: recherche de points injoignable", {
+        operation: "recherchePointChronopost",
         zip: params.zip,
         error: error instanceof Error ? error.message : String(error),
       });
@@ -138,6 +133,7 @@ export class ChronopostApiProvider implements ShippingProvider {
 
     if (parsed.errorCode !== "0") {
       logSecure("error", "chronopost: erreur applicative recherche de points", {
+        operation: "recherchePointChronopost",
         errorCode: describeChronopostError(parsed.errorCode),
         zip: params.zip,
       });
@@ -164,26 +160,29 @@ export class ChronopostApiProvider implements ShippingProvider {
     };
   }
 
-  async findRelayPoint(relayPointId: string, country: string): Promise<PickupLookupResult> {
+  async findRelayPoint(
+    relayPointId: string,
+    country: string,
+  ): Promise<PickupLookupResult> {
+    void country;
+
     if (!isChronopostConfigured()) {
       return { status: "unconfigured" };
     }
 
-    const query = new URLSearchParams({
-      accountNumber: getChronopostAccountNumber()!,
-      password: getChronopostPassword()!,
+    const body: Record<string, string> = {
+      ...relayCredentials(),
       identifiant: relayPointId.trim(),
-      countryCode: country.toUpperCase(),
-      language: "FR",
-    });
+    };
 
     let parsed: ReturnType<typeof parseChronopostResponse>;
 
     try {
-      const xml = await fetchChronopost("rechercheDetailPointChronopost", query);
+      const xml = await fetchChronopost("rechercheDetailPointChronopost", body);
       parsed = parseChronopostResponse(xml);
     } catch (error) {
       logSecure("warn", "chronopost: consultation directe injoignable", {
+        operation: "rechercheDetailPointChronopost",
         relayPointId,
         error: error instanceof Error ? error.message : String(error),
       });
@@ -196,6 +195,7 @@ export class ChronopostApiProvider implements ShippingProvider {
 
     if (parsed.errorCode === CHRONOPOST_ERROR_BAD_CREDENTIALS) {
       logSecure("error", "chronopost: identifiants invalides (consultation directe)", {
+        operation: "rechercheDetailPointChronopost",
         errorCode: describeChronopostError(parsed.errorCode),
       });
       return { status: "configuration" };
@@ -203,6 +203,7 @@ export class ChronopostApiProvider implements ShippingProvider {
 
     if (parsed.errorCode !== "0") {
       logSecure("warn", "chronopost: erreur applicative consultation directe", {
+        operation: "rechercheDetailPointChronopost",
         errorCode: describeChronopostError(parsed.errorCode),
         relayPointId,
       });

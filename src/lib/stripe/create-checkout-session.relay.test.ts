@@ -118,7 +118,8 @@ describe("createCheckoutSession — point relais", () => {
         },
       }),
     ).rejects.toMatchObject({
-      message: "Les points relais de développement ne sont pas autorisés en production.",
+      message:
+        "Les points relais de développement ne sont pas autorisés en production.",
     });
     expect(mocks.createPendingOrder).not.toHaveBeenCalled();
   });
@@ -150,7 +151,9 @@ describe("createCheckoutSession — point relais", () => {
       discountCents: 0,
       totalCents: 5490,
     });
-    mocks.buildStripeCheckoutLineItems.mockReturnValue([{ price_data: {}, quantity: 1 }]);
+    mocks.buildStripeCheckoutLineItems.mockReturnValue([
+      { price_data: {}, quantity: 1 },
+    ]);
     mocks.getStripeClient.mockReturnValue({
       checkout: {
         sessions: {

@@ -13,12 +13,82 @@ interface ProductGalleryProps {
   productName: string;
   /** true si au moins une variante en stock a ≤ 2 exemplaires */
   showLowStockBadge?: boolean;
+  sellable?: boolean;
+}
+
+function GalleryPlaceholder({ productName }: { productName: string }) {
+  return (
+    <div
+      className="product-image-frame min-h-[min(72vw,28rem)] shadow-[var(--shadow-card)] lg:min-h-[34rem]"
+      role="img"
+      aria-label={`Illustration en cours pour ${productName}`}
+    >
+      <div className="bg-tilouki-jade-soft flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+        <ImageIcon className="text-muted-foreground size-12 opacity-35" aria-hidden />
+        <div>
+          <p className="text-foreground text-base font-semibold">
+            Illustration en préparation
+          </p>
+          <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+            Ce produit n&apos;est pas encore disponible à l&apos;achat en ligne.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ThumbnailButton({
+  image,
+  index,
+  total,
+  productName,
+  active,
+  onSelect,
+  layout,
+}: {
+  image: ProductImage;
+  index: number;
+  total: number;
+  productName: string;
+  active: boolean;
+  onSelect: () => void;
+  layout: "row" | "column";
+}) {
+  const thumbAlt = image.alt ?? `${productName} — vue ${index + 1} sur ${total}`;
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      aria-controls="product-gallery-main"
+      onClick={onSelect}
+      className={cn(
+        "relative shrink-0 overflow-hidden rounded-[var(--radius-button)] border-2 transition-colors duration-[var(--transition-fast)]",
+        layout === "column" ? "aspect-[4/5] w-full" : "aspect-square w-full",
+        active
+          ? "border-primary ring-primary/20 ring-1"
+          : "border-transparent opacity-80 hover:opacity-100",
+      )}
+    >
+      <Image
+        src={image.url}
+        alt={thumbAlt}
+        fill
+        loading="lazy"
+        sizes={layout === "column" ? "96px" : "80px"}
+        className="object-cover"
+      />
+    </button>
+  );
 }
 
 export function ProductGallery({
   images,
   productName,
   showLowStockBadge = false,
+  sellable = true,
 }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
@@ -57,98 +127,96 @@ export function ProductGallery({
     touchStartX.current = null;
   };
 
-  if (images.length === 0) {
-    return (
-      <div
-        className="product-image-frame shadow-[var(--shadow-card)]"
-        role="img"
-        aria-label={`Aucune photo disponible pour ${productName}`}
-      >
-        <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2">
-          <ImageIcon className="size-10 opacity-40" aria-hidden />
-          <span className="text-sm">Photo à venir</span>
-        </div>
-      </div>
-    );
+  if (!sellable || images.length === 0) {
+    return <GalleryPlaceholder productName={productName} />;
   }
 
   return (
     <div className="space-y-3">
-      <div
-        id="product-gallery-main"
-        className="product-image-frame shadow-[var(--shadow-card)]"
-        onPointerMove={handlePointerMove}
-        onPointerEnter={() => setIsZooming(true)}
-        onPointerLeave={() => setIsZooming(false)}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <Image
-          src={active.url}
-          alt={active.alt ?? productName}
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className={cn(
-            "object-cover transition-transform duration-[var(--transition-base)]",
-            isZooming && "scale-[1.65] max-md:scale-100",
-          )}
-          style={
-            isZooming
-              ? { transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%` }
-              : undefined
-          }
-        />
-
-        {showLowStockBadge ? (
-          <div className="absolute top-3 left-3 z-10">
-            <Badge className="bg-tilouki-rose text-tilouki-ink border-0 shadow-[var(--shadow-soft)]">
-              Dernières pièces
-            </Badge>
+      <div className="lg:flex lg:items-start lg:gap-3">
+        {images.length > 1 ? (
+          <div
+            className="scrollbar-hide hidden max-h-[34rem] w-[4.75rem] shrink-0 flex-col gap-2 overflow-y-auto lg:flex"
+            role="tablist"
+            aria-label={`Miniatures — ${productName}`}
+          >
+            {images.map((image, index) => (
+              <ThumbnailButton
+                key={image.id}
+                image={image}
+                index={index}
+                total={images.length}
+                productName={productName}
+                active={index === activeIndex}
+                onSelect={() => goTo(index)}
+                layout="column"
+              />
+            ))}
           </div>
         ) : null}
 
-        {images.length > 1 ? (
-          <p className="text-muted-foreground absolute right-3 bottom-3 rounded-full bg-card/90 px-2 py-0.5 text-xs font-medium backdrop-blur-sm md:hidden">
-            {activeIndex + 1} / {images.length}
-          </p>
-        ) : null}
+        <div
+          id="product-gallery-main"
+          className="product-image-frame min-h-[min(78vw,30rem)] flex-1 shadow-[var(--shadow-card)] lg:min-h-[34rem]"
+          onPointerMove={handlePointerMove}
+          onPointerEnter={() => setIsZooming(true)}
+          onPointerLeave={() => setIsZooming(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <Image
+            src={active.url}
+            alt={active.alt ?? productName}
+            fill
+            priority
+            fetchPriority="high"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+            className={cn(
+              "object-cover transition-transform duration-[var(--transition-base)]",
+              isZooming && "scale-[1.55] max-md:scale-100",
+            )}
+            style={
+              isZooming
+                ? { transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%` }
+                : undefined
+            }
+          />
+
+          {showLowStockBadge ? (
+            <div className="absolute top-3 left-3 z-10">
+              <Badge className="bg-tilouki-persimmon-soft text-tilouki-persimmon-dark border-tilouki-persimmon/20 border shadow-[var(--shadow-soft)]">
+                Dernières pièces
+              </Badge>
+            </div>
+          ) : null}
+
+          {images.length > 1 ? (
+            <p className="text-muted-foreground bg-card/92 absolute right-3 bottom-3 rounded-[var(--radius-button)] px-2.5 py-1 text-xs font-medium backdrop-blur-sm lg:hidden">
+              {activeIndex + 1} / {images.length}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {images.length > 1 ? (
         <div
-          className="grid grid-cols-4 gap-2 sm:grid-cols-5"
+          className="scrollbar-hide -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden"
           role="tablist"
           aria-label={`Photos de ${productName}`}
         >
-          {images.map((image, index) => {
-            const thumbAlt =
-              image.alt ?? `${productName} — vue ${index + 1} sur ${images.length}`;
-
-            return (
-              <button
-                key={image.id}
-                type="button"
-                role="tab"
-                aria-selected={index === activeIndex}
-                aria-controls="product-gallery-main"
-                onClick={() => goTo(index)}
-                className={cn(
-                  "relative aspect-square overflow-hidden rounded-lg border-2 transition-colors duration-[var(--transition-fast)]",
-                  index === activeIndex ? "border-primary" : "border-transparent",
-                )}
-              >
-                <Image
-                  src={image.url}
-                  alt={thumbAlt}
-                  fill
-                  loading="lazy"
-                  sizes="80px"
-                  className="object-cover"
-                />
-              </button>
-            );
-          })}
+          {images.map((image, index) => (
+            <div key={image.id} className="w-[4.5rem] shrink-0">
+              <ThumbnailButton
+                image={image}
+                index={index}
+                total={images.length}
+                productName={productName}
+                active={index === activeIndex}
+                onSelect={() => goTo(index)}
+                layout="row"
+              />
+            </div>
+          ))}
         </div>
       ) : null}
     </div>

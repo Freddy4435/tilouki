@@ -29,7 +29,9 @@ function mapRelayFromAdmin(order: AdminOrderDetail): OrderEmailRelayPoint {
   };
 }
 
-export function orderForWebhookToEmailPayload(order: OrderForWebhook): OrderEmailPayload {
+export function orderForWebhookToEmailPayload(
+  order: OrderForWebhook,
+): OrderEmailPayload {
   const { shopName, siteUrl } = getEmailConfig();
 
   return {

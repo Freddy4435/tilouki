@@ -1,10 +1,23 @@
 "use client";
 
-import { Menu, ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import {
+  Baby,
+  Flower2,
+  Heart,
+  Mail,
+  Menu,
+  Moon,
+  RotateCcw,
+  Ruler,
+  Shirt,
+  Sparkles,
+  Tag,
+  Truck,
+} from "lucide-react";
 import { useState } from "react";
 
 import { CartTrigger } from "@/components/cart/cart-trigger";
-import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { SearchBar } from "@/components/layout/search-bar";
 import { SiteLogo } from "@/components/layout/site-logo";
 import { useShop } from "@/components/providers/shop-provider";
@@ -18,11 +31,62 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { footerNavItems, mainNavItems } from "@/lib/constants/site";
+import type { NavMobileLink } from "@/lib/navigation/types";
+
+const MOBILE_LINK_ICONS = {
+  sparkles: Sparkles,
+  baby: Baby,
+  "flower-2": Flower2,
+  shirt: Shirt,
+  moon: Moon,
+  tag: Tag,
+  ruler: Ruler,
+  truck: Truck,
+  "rotate-ccw": RotateCcw,
+  heart: Heart,
+  mail: Mail,
+} as const;
+
+function resolveMobileHref(href: string, contactEmail: string): string {
+  if (href === "__contact__") {
+    return `mailto:${contactEmail}`;
+  }
+  return href;
+}
+
+function MobileNavLink({
+  link,
+  contactEmail,
+  onNavigate,
+}: {
+  link: NavMobileLink;
+  contactEmail: string;
+  onNavigate: () => void;
+}) {
+  const Icon = link.icon ? MOBILE_LINK_ICONS[link.icon] : null;
+  const href = resolveMobileHref(link.href, contactEmail);
+
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className="text-foreground hover:bg-tilouki-jade-soft/50 flex min-h-11 items-center gap-3 rounded-[var(--radius-button)] px-3 text-sm font-medium transition-colors"
+    >
+      {Icon ? (
+        <span className="bg-tilouki-jade-soft text-tilouki-teal-dark flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-button)]">
+          <Icon className="size-4" aria-hidden />
+        </span>
+      ) : null}
+      <span>{link.label}</span>
+    </Link>
+  );
+}
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
-  const { categories } = useShop();
+  const { navigation, contactEmail } = useShop();
+
+  const close = () => setOpen(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -34,14 +98,17 @@ export function MobileNav() {
           </Button>
         }
       />
-      <SheetContent side="left" className="flex w-[min(100vw-2rem,22rem)] flex-col p-0">
-        <SheetHeader className="border-b bg-tilouki-cream/50 p-4">
+      <SheetContent
+        side="left"
+        className="flex w-[min(100vw-2rem,22rem)] flex-col p-0 pb-[calc(var(--mobile-bottom-nav-height)+0.75rem)]"
+      >
+        <SheetHeader className="bg-tilouki-cloud/80 border-b p-4">
           <SheetTitle className="sr-only">Menu navigation</SheetTitle>
           <div className="flex items-center justify-between gap-2">
-            <div onClick={() => setOpen(false)}>
+            <div onClick={close}>
               <SiteLogo />
             </div>
-            <div onClick={() => setOpen(false)}>
+            <div onClick={close}>
               <CartTrigger />
             </div>
           </div>
@@ -50,96 +117,34 @@ export function MobileNav() {
         <div className="flex-1 space-y-5 overflow-y-auto p-4">
           <SearchBar placeholder="Rechercher un vêtement…" />
 
-          <ButtonLink
-            href="/catalogue"
-            size="lg"
-            className="w-full rounded-full"
-            onClick={() => setOpen(false)}
-          >
-            <ShoppingBag className="size-4" />
-            Voir le catalogue
+          <ButtonLink href="/catalogue" size="lg" className="w-full" onClick={close}>
+            Voir tout le catalogue
           </ButtonLink>
 
-          <nav aria-label="Navigation principale">
-            <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-              Menu
-            </p>
-            <ul className="space-y-0.5">
-              {mainNavItems.map((item) => (
-                <li key={item.href}>
-                  <ButtonLink
-                    href={item.href}
-                    variant="ghost"
-                    className="h-10 w-full justify-start rounded-xl px-3"
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </ButtonLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {navigation.mobileSections.map((section) => (
+            <nav key={section.id} aria-label={section.title}>
+              <p className="text-retail-label text-tilouki-ink-muted mb-2">
+                {section.title}
+              </p>
+              <ul className="space-y-0.5">
+                {section.links.map((link) => (
+                  <li key={`${section.id}-${link.href}-${link.label}`}>
+                    <MobileNavLink
+                      link={link}
+                      contactEmail={contactEmail}
+                      onNavigate={close}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
 
           <Separator />
 
-          <nav aria-label="Catégories">
-            <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-              Catégories
-            </p>
-            <ul className="flex flex-wrap gap-2">
-              <li>
-                <ButtonLink
-                  href="/catalogue"
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full"
-                  onClick={() => setOpen(false)}
-                >
-                  Tout voir
-                </ButtonLink>
-              </li>
-              {categories.map((category) => (
-                <li key={category.slug}>
-                  <ButtonLink
-                    href={`/categorie/${category.slug}`}
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
-                    onClick={() => setOpen(false)}
-                  >
-                    {category.label}
-                  </ButtonLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <Separator />
-
-          <nav aria-label="Liens légaux">
-            <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-              Informations
-            </p>
-            <ul className="space-y-0.5">
-              {footerNavItems.legal.map((item) => (
-                <li key={item.href}>
-                  <ButtonLink
-                    href={item.href}
-                    variant="ghost"
-                    size="sm"
-                    className="h-9 w-full justify-start rounded-lg px-3 text-muted-foreground"
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </ButtonLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-
-        <div className="border-t bg-tilouki-beige/40 p-4">
-          <ReassuranceStrip variant="stack" />
+          <p className="text-muted-foreground text-xs leading-relaxed">
+            Boutique indépendante — tailles et stock affichés sur chaque fiche produit.
+          </p>
         </div>
       </SheetContent>
     </Sheet>

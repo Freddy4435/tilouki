@@ -23,7 +23,12 @@ export async function GET() {
     });
   } catch {
     return NextResponse.json(
-      { rates: [], ratesByCarrier: {}, carriers: [], error: "Impossible de charger les tarifs." },
+      {
+        rates: [],
+        ratesByCarrier: {},
+        carriers: [],
+        error: "Impossible de charger les tarifs.",
+      },
       { status: 500 },
     );
   }

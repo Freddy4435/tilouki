@@ -53,7 +53,9 @@ export function CarrierSelector({
 
   return (
     <fieldset>
-      <legend className="mb-2 text-sm font-medium">Choisissez votre transporteur</legend>
+      <legend className="mb-2 text-sm font-medium">
+        Choisissez votre transporteur
+      </legend>
       <div className="grid gap-2 sm:grid-cols-2">
         {carriers.map((info) => {
           const quote = quotes.find((q) => q.carrier === info.id);

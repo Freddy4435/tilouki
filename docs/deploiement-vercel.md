@@ -9,23 +9,23 @@ Guide technique pour mettre en ligne la boutique **Tilouki** (Next.js 16, Supaba
 
 ## 1. Audit du projet (état au 09/06/2026)
 
-| Point | Statut | Détail |
-|-------|--------|--------|
-| `next.config.ts` | ✅ OK | `poweredByHeader: false`, redirects SEO, images Supabase, en-têtes de base |
-| Build production | ✅ OK | `npm run build` et `npm run check` passent |
-| Variables d'environnement | ⚠️ À configurer | Voir `.env.example` + script `npm run verify:deploy:prod` |
-| Supabase production | ⚠️ À valider | Migrations à appliquer, bucket `product-images`, admin créé |
-| Stripe Live | ⚠️ À basculer | Production Vercel : utiliser clés `sk_live_` / `pk_live_` |
-| Webhook Stripe prod | ⚠️ À créer | Endpoint `https://votre-domaine.fr/api/webhooks/stripe` |
-| Domaine personnalisé | ❌ Non branché | Seul `tilouki.vercel.app` est actif sur le projet Vercel |
-| HTTPS | ✅ OK | Certificat Vercel + `Strict-Transport-Security` en production |
-| `sitemap.xml` | ✅ OK | Généré dynamiquement (`src/app/sitemap.ts`) |
-| `robots.txt` | ✅ OK | Admin, API, panier et checkout exclus de l'indexation |
-| Metadata SEO | ✅ OK | `metadataBase`, Open Graph, pages produit/catalogue |
-| Page 404 | ✅ OK | `src/app/not-found.tsx` |
-| Page erreur | ✅ OK | `src/app/error.tsx` (boundary client) |
-| Headers sécurité | ✅ OK | Middleware : CSP, HSTS, X-Frame-Options, etc. |
-| Fichiers sensibles git | ✅ OK | `.env*`, `.vercel`, `.next`, `node_modules` dans `.gitignore` |
+| Point                     | Statut          | Détail                                                                     |
+| ------------------------- | --------------- | -------------------------------------------------------------------------- |
+| `next.config.ts`          | ✅ OK           | `poweredByHeader: false`, redirects SEO, images Supabase, en-têtes de base |
+| Build production          | ✅ OK           | `npm run build` et `npm run check` passent                                 |
+| Variables d'environnement | ⚠️ À configurer | Voir `.env.example` + script `npm run verify:deploy:prod`                  |
+| Supabase production       | ⚠️ À valider    | Migrations à appliquer, bucket `product-images`, admin créé                |
+| Stripe Live               | ⚠️ À basculer   | Production Vercel : utiliser clés `sk_live_` / `pk_live_`                  |
+| Webhook Stripe prod       | ⚠️ À créer      | Endpoint `https://votre-domaine.fr/api/webhooks/stripe`                    |
+| Domaine personnalisé      | ❌ Non branché  | Seul `tilouki.vercel.app` est actif sur le projet Vercel                   |
+| HTTPS                     | ✅ OK           | Certificat Vercel + `Strict-Transport-Security` en production              |
+| `sitemap.xml`             | ✅ OK           | Généré dynamiquement (`src/app/sitemap.ts`)                                |
+| `robots.txt`              | ✅ OK           | Admin, API, panier et checkout exclus de l'indexation                      |
+| Metadata SEO              | ✅ OK           | `metadataBase`, Open Graph, pages produit/catalogue                        |
+| Page 404                  | ✅ OK           | `src/app/not-found.tsx`                                                    |
+| Page erreur               | ✅ OK           | `src/app/error.tsx` (boundary client)                                      |
+| Headers sécurité          | ✅ OK           | Middleware : CSP, HSTS, X-Frame-Options, etc.                              |
+| Fichiers sensibles git    | ✅ OK           | `.env*`, `.vercel`, `.next`, `node_modules` dans `.gitignore`              |
 
 ---
 
@@ -61,24 +61,26 @@ Copier depuis `.env.example`. **Référence détaillée** : [variables-productio
 
 Tableau des variables critiques :
 
-| Variable | Production | Secret |
-|----------|------------|--------|
-| `NEXT_PUBLIC_SITE_URL` | `https://tilouki.fr` | Non |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL projet Supabase prod | Non |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clé anon prod | Non |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role prod | **Oui** |
-| `STRIPE_SECRET_KEY` | `sk_live_…` | **Oui** |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_…` | Non |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_…` (endpoint Live) | **Oui** |
-| `RESEND_API_KEY` | Clé API Resend | **Oui** |
-| `FROM_EMAIL` | `commandes@tilouki.fr` (domaine vérifié) | Non |
-| `ADMIN_EMAIL` | Votre boîte de réception | Non |
-| `MONDIAL_RELAY_ENSEIGNE` | Code enseigne MR | Non |
-| `MONDIAL_RELAY_PRIVATE_KEY` | Clé privée MR | **Oui** |
-| `NEXT_PUBLIC_MONDIAL_RELAY_BRAND_ID` | Même code enseigne (widget) | Non |
-| `CRON_SECRET` | Chaîne aléatoire longue (32+ car.) | **Oui** |
-| `UPSTASH_REDIS_REST_URL` | URL REST de la base Upstash (rate limiting) | Non |
-| `UPSTASH_REDIS_REST_TOKEN` | Token REST Upstash | **Oui** |
+| Variable                             | Production                                  | Secret  |
+| ------------------------------------ | ------------------------------------------- | ------- |
+| `NEXT_PUBLIC_SITE_URL`               | `https://tilouki.fr`                        | Non     |
+| `NEXT_PUBLIC_SUPABASE_URL`           | URL projet Supabase prod                    | Non     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Clé anon prod                               | Non     |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Service role prod                           | **Oui** |
+| `STRIPE_SECRET_KEY`                  | `sk_live_…`                                 | **Oui** |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_…`                                 | Non     |
+| `STRIPE_WEBHOOK_SECRET`              | `whsec_…` (endpoint Live)                   | **Oui** |
+| `RESEND_API_KEY`                     | Clé API Resend                              | **Oui** |
+| `FROM_EMAIL`                         | `commandes@tilouki.fr` (domaine vérifié)    | Non     |
+| `ADMIN_EMAIL`                        | Votre boîte de réception                    | Non     |
+| `MONDIAL_RELAY_ENSEIGNE`             | Code enseigne MR                            | Non     |
+| `MONDIAL_RELAY_PRIVATE_KEY`          | Clé privée MR                               | **Oui** |
+| `NEXT_PUBLIC_MONDIAL_RELAY_BRAND_ID` | Même code enseigne (widget)                 | Non     |
+| `CRON_SECRET`                        | Chaîne aléatoire longue (32+ car.)          | **Oui** |
+| `UPSTASH_REDIS_REST_URL`             | URL REST de la base Upstash (rate limiting) | Non     |
+| `UPSTASH_REDIS_REST_TOKEN`           | Token REST Upstash                          | **Oui** |
+
+**Obligatoires en production** — `npm run verify:deploy:prod` échoue si absentes.
 
 **Ne pas définir en production :**
 
@@ -121,10 +123,10 @@ La limitation de débit (checkout 10/min, points relais 20/min, etc.) utilise un
 
 **Comportement :**
 
-- Variables présentes → limitation via Upstash (sliding window, clé `IP:route`)
-- Variables absentes → fallback Map mémoire (aucun Redis requis pour `npm run dev`)
-- Erreur Redis ponctuelle → bascule automatique sur la Map mémoire (la requête n'est pas bloquée)
-- `npm run verify:deploy:prod` avertit si Upstash n'est pas configuré
+- **Production** — Upstash **obligatoire** : limitation via sliding window partagé (clé `IP:route`). Sans variables ou en cas d'erreur Redis, les routes sensibles répondent **503** (pas de fallback mémoire).
+- **Développement** — sans Upstash : fallback Map mémoire (pratique pour `npm run dev`).
+- Erreur Redis ponctuelle en dev → bascule sur la Map mémoire.
+- `npm run verify:deploy:prod` **échoue** si Upstash n'est pas configuré.
 
 ---
 
@@ -168,11 +170,11 @@ curl https://tilouki.vercel.app/api/health
 
 ### Mode Test (développement / recette)
 
-| Élément | Valeur |
-|---------|--------|
-| Clés | `sk_test_…`, `pk_test_…` |
-| Carte | `4242 4242 4242 4242` |
-| Webhook | Stripe CLI ou endpoint test Dashboard |
+| Élément   | Valeur                                                       |
+| --------- | ------------------------------------------------------------ |
+| Clés      | `sk_test_…`, `pk_test_…`                                     |
+| Carte     | `4242 4242 4242 4242`                                        |
+| Webhook   | Stripe CLI ou endpoint test Dashboard                        |
 | Checklist | [STRIPE_SANDBOX_CHECKLIST.md](./STRIPE_SANDBOX_CHECKLIST.md) |
 
 ### Mode Live (production)
@@ -209,7 +211,7 @@ curl https://tilouki.vercel.app/api/health
 
 - Certificat TLS automatique (Let's Encrypt) par Vercel
 - Redirection HTTP → HTTPS automatique
-- HSTS activé via middleware en production (`max-age=63072000`)
+- HSTS activé via proxy en production (`max-age=63072000`)
 
 **Test :**
 
@@ -244,27 +246,27 @@ Après changement de domaine, vérifier que les URLs du sitemap utilisent `NEXT_
 
 ### Pages d'erreur
 
-| Route | Fichier | Usage |
-|-------|---------|-------|
-| 404 | `src/app/not-found.tsx` | Page inexistante |
-| 500 | `src/app/error.tsx` | Erreur runtime React (bouton Réessayer) |
+| Route | Fichier                 | Usage                                   |
+| ----- | ----------------------- | --------------------------------------- |
+| 404   | `src/app/not-found.tsx` | Page inexistante                        |
+| 500   | `src/app/error.tsx`     | Erreur runtime React (bouton Réessayer) |
 
 ---
 
 ## 8. Sécurité
 
-### En-têtes (middleware)
+### En-têtes (proxy)
 
-Fichier : `src/lib/security/headers.ts`, appliqué via `src/middleware.ts`.
+Fichier : `src/lib/security/headers.ts`, appliqué via `src/proxy.ts`.
 
-| En-tête | Valeur |
-|---------|--------|
-| `Content-Security-Policy` | Restreint scripts (Stripe, Mondial Relay), images Supabase |
-| `Strict-Transport-Security` | Production uniquement |
-| `X-Frame-Options` | `DENY` |
-| `X-Content-Type-Options` | `nosniff` |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | Caméra, micro, géoloc désactivés |
+| En-tête                     | Valeur                                                     |
+| --------------------------- | ---------------------------------------------------------- |
+| `Content-Security-Policy`   | Restreint scripts (Stripe, Mondial Relay), images Supabase |
+| `Strict-Transport-Security` | Production uniquement                                      |
+| `X-Frame-Options`           | `DENY`                                                     |
+| `X-Content-Type-Options`    | `nosniff`                                                  |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`                          |
+| `Permissions-Policy`        | Caméra, micro, géoloc désactivés                           |
 
 ### Fichiers à ne jamais versionner
 
@@ -311,15 +313,15 @@ git push origin main
 
 ## 10. Dépannage
 
-| Symptôme | Cause probable | Action |
-|----------|----------------|--------|
-| Build Vercel échoue | Erreur TypeScript / lint | `npm run check` en local |
-| Images produits cassées | `NEXT_PUBLIC_SUPABASE_URL` incorrect | Vérifier variables Vercel |
-| Paiement indisponible | Clés Stripe absentes | Dashboard admin → alerte Stripe |
-| Webhook 400/503 | `STRIPE_WEBHOOK_SECRET` incorrect | Recréer endpoint, mettre à jour Vercel |
-| Points relais vides | MR non configuré | Variables MR + pas de `SHIPPING_DEV_MOCK` |
-| Sitemap avec mauvaise URL | `NEXT_PUBLIC_SITE_URL` obsolète | Mettre l'URL finale + redéployer |
-| Admin inaccessible | Utilisateur pas dans `admin_users` | Supabase → SQL ou Dashboard |
+| Symptôme                  | Cause probable                       | Action                                    |
+| ------------------------- | ------------------------------------ | ----------------------------------------- |
+| Build Vercel échoue       | Erreur TypeScript / lint             | `npm run check` en local                  |
+| Images produits cassées   | `NEXT_PUBLIC_SUPABASE_URL` incorrect | Vérifier variables Vercel                 |
+| Paiement indisponible     | Clés Stripe absentes                 | Dashboard admin → alerte Stripe           |
+| Webhook 400/503           | `STRIPE_WEBHOOK_SECRET` incorrect    | Recréer endpoint, mettre à jour Vercel    |
+| Points relais vides       | MR non configuré                     | Variables MR + pas de `SHIPPING_DEV_MOCK` |
+| Sitemap avec mauvaise URL | `NEXT_PUBLIC_SITE_URL` obsolète      | Mettre l'URL finale + redéployer          |
+| Admin inaccessible        | Utilisateur pas dans `admin_users`   | Supabase → SQL ou Dashboard               |
 
 ---
 

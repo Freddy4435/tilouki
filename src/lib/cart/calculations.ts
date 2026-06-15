@@ -15,7 +15,9 @@ export function computeItemCount(items: CartLineItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
-export function getLineStockIssue(item: CartLineItem): CartLineItem["variantId"] | null {
+export function getLineStockIssue(
+  item: CartLineItem,
+): CartLineItem["variantId"] | null {
   if (item.stockQuantity <= 0) return item.variantId;
   if (item.quantity > item.stockQuantity) return item.variantId;
   return null;

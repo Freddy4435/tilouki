@@ -18,4 +18,16 @@ export const adminOrdersExportQuerySchema = z.object({
   q: z.string().max(100).optional(),
 });
 
+export const companyLookupQuerySchema = z.object({
+  siret: z
+    .string()
+    .trim()
+    .min(1, "SIRET requis.")
+    .max(20)
+    .refine((value) => /^\d{14}$/.test(value.replace(/\D/g, "")), {
+      message: "SIRET invalide (14 chiffres).",
+    }),
+});
+
 export type AdminOrdersExportQuery = z.infer<typeof adminOrdersExportQuerySchema>;
+export type CompanyLookupQuery = z.infer<typeof companyLookupQuerySchema>;

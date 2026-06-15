@@ -6,8 +6,10 @@ import { useTransition } from "react";
 import { ProductStatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import {
+  formatPublishBlockMessage,
   getProductReadinessIssues,
   isReadyToPublish,
+  mapImagesToReadiness,
   type ProductReadinessVariant,
 } from "@/lib/admin/product-readiness";
 import {
@@ -20,16 +22,23 @@ interface ProductStatusActionsProps {
   productId: string;
   status: ProductStatus;
   hasOrders: boolean;
+  images?: Array<{ url: string; alt?: string | null; sortOrder?: number }>;
+  /** @deprecated Préférer images */
   imagesCount?: number;
   variants?: ProductReadinessVariant[];
+  categoryId?: string | null;
+  slug?: string;
 }
 
 export function ProductStatusActions({
   productId,
   status,
   hasOrders,
+  images,
   imagesCount = 0,
   variants = [],
+  categoryId,
+  slug,
 }: ProductStatusActionsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -46,11 +55,15 @@ export function ProductStatusActions({
   };
 
   const publish = () => {
-    const issues = getProductReadinessIssues({ imagesCount, variants });
+    const issues = getProductReadinessIssues({
+      images: images ? mapImagesToReadiness(images) : undefined,
+      imagesCount,
+      variants,
+      categoryId,
+      slug,
+    });
     if (!isReadyToPublish(issues)) {
-      alert(
-        "Impossible de publier : ajoutez des photos, du stock et le poids de chaque variante active.",
-      );
+      alert(formatPublishBlockMessage(issues));
       return;
     }
     run(() => setProductStatusAction(productId, "active"));

@@ -5,7 +5,9 @@ import { ButtonLink } from "@/components/ui/button-link";
 export default function NotFound() {
   return (
     <main className="container-tilouki flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">Erreur 404</p>
+      <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
+        Erreur 404
+      </p>
       <h1 className="font-heading mt-2 text-3xl font-semibold">Page introuvable</h1>
       <p className="text-muted-foreground mt-3 max-w-md text-sm">
         La page demandée n&apos;existe pas ou a été déplacée.

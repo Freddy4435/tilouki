@@ -29,6 +29,7 @@ export async function sendAdminNewOrderNotification(
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      previewTag: "admin-new-order",
     });
   } catch (error) {
     logEmail("error", "Échec envoi notification admin", {

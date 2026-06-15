@@ -2,8 +2,10 @@ import { expect, type Page } from "@playwright/test";
 
 import { dismissCookieBanner } from "./mocks";
 
-/** Ouvre la première fiche produit disponible depuis le catalogue. */
-export async function openFirstProductFromCatalogue(
+const SELLABLE_PRODUCT_LINK = /choisir la taille|voir le produit/i;
+
+/** Ouvre la première fiche produit vendable (photo commerciale) depuis le catalogue. */
+export async function openSellableProductFromCatalogue(
   page: Page,
   options?: { skipGoto?: boolean },
 ): Promise<string | null> {
@@ -12,14 +14,23 @@ export async function openFirstProductFromCatalogue(
   }
   await page.getByRole("heading", { name: /catalogue vêtements enfants/i }).waitFor();
 
-  const productLink = page.locator('a[href^="/produit/"]').first();
-  const count = await productLink.count();
-  if (count === 0) return null;
+  const sellableLink = page.getByRole("link", { name: SELLABLE_PRODUCT_LINK }).first();
+  if ((await sellableLink.count()) === 0) return null;
 
-  const href = await productLink.getAttribute("href");
-  await productLink.click();
+  const href = await sellableLink.getAttribute("href");
+  if (!href?.startsWith("/produit/")) return null;
+
+  await sellableLink.click();
   await page.waitForURL(/\/produit\//);
   return href;
+}
+
+/** @deprecated Préférer openSellableProductFromCatalogue */
+export async function openFirstProductFromCatalogue(
+  page: Page,
+  options?: { skipGoto?: boolean },
+): Promise<string | null> {
+  return openSellableProductFromCatalogue(page, options);
 }
 
 function addToCartButton(page: Page) {
@@ -27,14 +38,23 @@ function addToCartButton(page: Page) {
   if (width >= 1024) {
     return page.getByRole("button", { name: "Ajouter au panier" });
   }
-  return page.locator('[aria-label="Ajouter au panier"]').getByRole("button", { name: /^ajouter$/i });
+  return page
+    .locator('[aria-label="Ajouter au panier"]')
+    .or(page.getByRole("button", { name: /^ajouter$/i }))
+    .first();
 }
 
 export async function addCurrentProductToCart(page: Page) {
   await dismissCookieBanner(page);
 
   const addButton = addToCartButton(page);
-  await addButton.waitFor({ state: "visible" });
+  const visible = await addButton.isVisible().catch(() => false);
+  if (!visible) {
+    throw new Error(
+      "Aucun bouton d'achat visible — ouvrez une fiche avec photo commerciale (openSellableProductFromCatalogue).",
+    );
+  }
+
   await addButton.scrollIntoViewIfNeeded();
   await addButton.click();
 

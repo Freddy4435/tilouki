@@ -3,7 +3,10 @@ const ALLOWED_PREFIXES = ["/admin", "/auth/callback"] as const;
 /**
  * Valide un chemin de redirection interne (anti open-redirect).
  */
-export function getSafeRedirectPath(next: string | null | undefined, fallback = "/admin"): string {
+export function getSafeRedirectPath(
+  next: string | null | undefined,
+  fallback = "/admin",
+): string {
   if (!next?.trim()) return fallback;
 
   const path = next.trim();

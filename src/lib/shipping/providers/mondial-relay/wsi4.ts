@@ -148,7 +148,9 @@ export function categorizeWsi2LabelStat(stat: string): Wsi2LabelStatCategory {
 
 export function describeWsi2LabelStat(stat: string): string {
   return (
-    WSI2_LABEL_STAT_LABELS[stat] ?? WSI4_STAT_LABELS[stat] ?? `Code STAT inconnu (${stat})`
+    WSI2_LABEL_STAT_LABELS[stat] ??
+    WSI4_STAT_LABELS[stat] ??
+    `Code STAT inconnu (${stat})`
   );
 }
 
@@ -334,6 +336,13 @@ const OPENING_HOURS_DAYS = [
   "Dimanche",
 ] as const;
 
+function parseDistanceMeters(block: string): number | undefined {
+  const raw = extractXmlValue(block, "Distance")?.trim();
+  if (!raw) return undefined;
+  const meters = Number.parseInt(raw, 10);
+  return Number.isFinite(meters) && meters >= 0 ? meters : undefined;
+}
+
 function parseOpeningHours(block: string): string | undefined {
   const lines: string[] = [];
 
@@ -369,6 +378,7 @@ function parsePointRelaisBlock(block: string): RelayPoint | null {
     zip,
     city,
     country,
+    distanceMeters: parseDistanceMeters(block),
     openingHours: parseOpeningHours(block),
   };
 }

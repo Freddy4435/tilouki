@@ -2,6 +2,7 @@ import "server-only";
 
 import type Stripe from "stripe";
 
+import { sendRefundConfirmationEmail } from "@/lib/email/send-refund-confirmation";
 import {
   getOrderByPaymentIntentId,
   markOrderRefunded,
@@ -16,7 +17,10 @@ function extractPaymentIntentId(
   return typeof paymentIntent === "string" ? paymentIntent : paymentIntent.id;
 }
 
-export async function handleChargeRefunded(charge: Stripe.Charge, eventId: string): Promise<void> {
+export async function handleChargeRefunded(
+  charge: Stripe.Charge,
+  eventId: string,
+): Promise<void> {
   const paymentIntentId = extractPaymentIntentId(charge.payment_intent);
 
   logStripeWebhook("info", "Traitement charge.refunded", {
@@ -60,6 +64,19 @@ export async function handleChargeRefunded(charge: Stripe.Charge, eventId: strin
       amountRefunded: charge.amount_refunded,
       amount: charge.amount,
     });
+
+    try {
+      await sendRefundConfirmationEmail(order, {
+        partial: true,
+        refundedCents: charge.amount_refunded,
+      });
+    } catch (error) {
+      logStripeWebhook("error", "Échec envoi e-mail remboursement partiel", {
+        eventId,
+        orderId: order.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
     return;
   }
 
@@ -82,4 +99,23 @@ export async function handleChargeRefunded(charge: Stripe.Charge, eventId: strin
     orderId: order.id,
     orderNumber: order.order_number,
   });
+
+  try {
+    await sendRefundConfirmationEmail(order);
+    logStripeWebhook("info", "E-mail de remboursement envoyé", {
+      eventId,
+      orderId: order.id,
+      orderNumber: order.order_number,
+    });
+  } catch (error) {
+    logStripeWebhook(
+      "error",
+      "Échec envoi e-mail remboursement (commande déjà remboursée)",
+      {
+        eventId,
+        orderId: order.id,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    );
+  }
 }

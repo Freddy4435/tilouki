@@ -40,6 +40,10 @@ logs/
 .env*
 !.env.example
 
+# archives manuelles à la racine (zip/rar du dossier entier — interdit)
+/*.zip
+/*.rar
+
 # vercel (lien projet + variables locales)
 .vercel
 .vercel/
@@ -49,7 +53,7 @@ logs/
 # supabase cli temp
 supabase/.temp/
 
-# archives de livraison locales (npm run prepare:archive)
+# archives de livraison locales (npm run archive:clean)
 /archives/
 
 # caches & artefacts locaux
@@ -57,9 +61,21 @@ supabase/.temp/
 .cache/
 dist/
 *.tsbuildinfo
+tsconfig.tsbuildinfo
 next-env.d.ts
+
+# exports preview e-mails (npm run email:preview)
+.email-preview/
 
 # rapports Lighthouse / audits locaux
 lighthouse*.html
 lighthouse*.json
 .eslintcache
+
+# captures locales & exports temporaires (QA, recette, admin)
+/screenshots/
+/captures/
+/exports/
+/export/
+/temp/
+/tmp/

@@ -18,7 +18,10 @@ interface CartSummaryProps {
   onContinueShopping?: () => void;
 }
 
-export function CartSummary({ variant = "page", onContinueShopping }: CartSummaryProps) {
+export function CartSummary({
+  variant = "page",
+  onContinueShopping,
+}: CartSummaryProps) {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
   const subtotalCents = useCartStore((s) => s.subtotalCents());
@@ -50,22 +53,26 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
     <aside
       className={
         variant === "page"
-          ? "h-fit rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-28"
+          ? "bg-card h-fit rounded-[var(--radius-card)] border p-5 shadow-[var(--shadow-card)] lg:sticky lg:top-28"
           : "space-y-4"
       }
     >
       {variant === "page" ? (
-        <h2 className="font-heading text-lg font-semibold">Récapitulatif</h2>
+        <h2 className="text-lg font-semibold">Récapitulatif</h2>
       ) : null}
 
       <div className="space-y-2 text-sm">
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Sous-total</span>
-          <span className="font-semibold tabular-nums">{formatPrice(subtotalCents)}</span>
+          <span className="font-semibold tabular-nums">
+            {formatPrice(subtotalCents)}
+          </span>
         </div>
         <div className="flex justify-between gap-4">
           <span className="text-muted-foreground">Livraison point relais</span>
-          <span className="font-semibold tabular-nums">{formatPrice(shippingCents)}</span>
+          <span className="font-semibold tabular-nums">
+            {formatPrice(shippingCents)}
+          </span>
         </div>
         <p className="text-muted-foreground text-xs leading-relaxed">
           Estimation Mondial Relay selon le poids. Expédié depuis la France.
@@ -88,7 +95,7 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
       <div className={variant === "page" ? "mt-4 space-y-2" : "space-y-2 pt-2"}>
         <Button
           size="lg"
-          className="w-full rounded-full"
+          className="w-full"
           disabled={!canCheckout || isValidating}
           onClick={() => void handleCheckout()}
         >
@@ -108,12 +115,7 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
         </p>
 
         {variant === "page" ? (
-          <ButtonLink
-            href="/catalogue"
-            variant="outline"
-            size="lg"
-            className="w-full rounded-full"
-          >
+          <ButtonLink href="/catalogue" variant="outline" size="lg" className="w-full">
             Continuer mes achats
           </ButtonLink>
         ) : (
@@ -121,7 +123,7 @@ export function CartSummary({ variant = "page", onContinueShopping }: CartSummar
             type="button"
             variant="outline"
             size="lg"
-            className="w-full rounded-full"
+            className="w-full"
             onClick={onContinueShopping ?? closeDrawer}
           >
             Continuer mes achats

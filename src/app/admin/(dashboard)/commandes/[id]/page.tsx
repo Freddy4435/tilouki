@@ -85,10 +85,13 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.productName}</TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {[item.sizeLabel, item.ageLabel].filter(Boolean).join(" · ") || "—"}
+                        {[item.sizeLabel, item.ageLabel].filter(Boolean).join(" · ") ||
+                          "—"}
                       </TableCell>
                       <TableCell className="font-mono text-xs">{item.sku}</TableCell>
-                      <TableCell className="text-right tabular-nums">{item.quantity}</TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {item.quantity}
+                      </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {formatPrice(item.unitPriceCents)}
                       </TableCell>
@@ -118,7 +121,9 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
               {order.discountCents > 0 ? (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Remise</span>
-                  <span className="tabular-nums">-{formatPrice(order.discountCents)}</span>
+                  <span className="tabular-nums">
+                    -{formatPrice(order.discountCents)}
+                  </span>
                 </div>
               ) : null}
               <div className="flex justify-between border-t pt-2 font-semibold">
@@ -164,12 +169,12 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
                 <PaymentStatusBadge status={order.paymentStatus} />
               </div>
               {order.stripePaymentIntentId ? (
-                <p className="text-muted-foreground break-all font-mono text-xs">
+                <p className="text-muted-foreground font-mono text-xs break-all">
                   Payment Intent : {order.stripePaymentIntentId}
                 </p>
               ) : null}
               {order.stripeSessionId ? (
-                <p className="text-muted-foreground break-all font-mono text-xs">
+                <p className="text-muted-foreground font-mono text-xs break-all">
                   Session : {order.stripeSessionId}
                 </p>
               ) : null}
@@ -200,7 +205,10 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
               <CardTitle className="text-base">Notes internes</CardTitle>
             </CardHeader>
             <CardContent>
-              <OrderInternalNotesForm orderId={order.id} initialNotes={order.internalNotes} />
+              <OrderInternalNotesForm
+                orderId={order.id}
+                initialNotes={order.internalNotes}
+              />
             </CardContent>
           </Card>
         </div>

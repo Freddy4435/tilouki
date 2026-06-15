@@ -37,7 +37,9 @@ export function writeCookieConsent(analytics: boolean): CookieConsentState {
   };
   if (typeof window !== "undefined") {
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(state));
-    window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_UPDATED_EVENT, { detail: state }));
+    window.dispatchEvent(
+      new CustomEvent(COOKIE_CONSENT_UPDATED_EVENT, { detail: state }),
+    );
   }
   return state;
 }
@@ -49,4 +51,10 @@ export function hasAnalyticsConsent(): boolean {
 export function needsCookieConsent(): boolean {
   if (typeof window === "undefined") return false;
   return !localStorage.getItem(COOKIE_CONSENT_KEY);
+}
+
+/** Vrai une fois le bandeau cookies accepté ou refusé (choix enregistré). */
+export function hasCookieConsentChoice(): boolean {
+  if (typeof window === "undefined") return true;
+  return Boolean(localStorage.getItem(COOKIE_CONSENT_KEY));
 }

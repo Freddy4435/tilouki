@@ -39,6 +39,8 @@ export interface ProductListItem {
   compareAtPriceCents: number | null;
   primaryImageUrl: string | null;
   primaryImageAlt: string | null;
+  secondaryImageUrl?: string | null;
+  secondaryImageAlt?: string | null;
   categorySlug: string | null;
   categoryName: string | null;
   season: string | null;
@@ -48,6 +50,53 @@ export interface ProductListItem {
   totalStock: number;
   badges: ProductBadgeType[];
   createdAt: string;
+  colorOptions?: ProductCardColorOption[];
+  quickAddVariants?: ProductQuickAddVariant[];
+  ratingAverage?: number | null;
+  ratingCount?: number;
+}
+
+export interface ProductCardColorOption {
+  color: string;
+  imageUrl: string | null;
+}
+
+export interface ProductQuickAddVariant {
+  id: string;
+  sizeLabel: string | null;
+  ageLabel: string | null;
+  color: string | null;
+  priceCents: number;
+  stockQuantity: number;
+  sku: string;
+  weightGrams: number | null;
+}
+
+export type ProductReviewStatus = "pending" | "published" | "rejected";
+
+export interface ProductRatingSummary {
+  average: number;
+  count: number;
+}
+
+export interface ProductReview {
+  id: string;
+  productId: string;
+  authorName: string;
+  rating: number;
+  title: string;
+  body: string;
+  verifiedPurchase: boolean;
+  createdAt: string;
+  publishedAt: string | null;
+}
+
+export interface ProductReviewAdmin extends ProductReview {
+  status: ProductReviewStatus;
+  authorEmail: string;
+  productName: string;
+  productSlug: string;
+  orderId: string | null;
 }
 
 export type ProductSort = "newest" | "price_asc" | "price_desc" | "name_asc";
@@ -63,6 +112,25 @@ export interface CatalogueQuery {
   page?: number;
   pageSize?: number;
   promo?: "petit-prix";
+  sizes?: string[];
+  colors?: string[];
+  ages?: string[];
+  ageBand?: "bebe" | "1-3-ans" | "4-8-ans";
+}
+
+export interface CatalogueFacetValue {
+  value: string;
+  count: number;
+}
+
+export interface CatalogueFacets {
+  sizes: CatalogueFacetValue[];
+  colors: CatalogueFacetValue[];
+  ages: CatalogueFacetValue[];
+}
+
+export interface PaginatedCatalogueResult extends PaginatedProducts {
+  facets: CatalogueFacets;
 }
 
 export interface PaginatedProducts {

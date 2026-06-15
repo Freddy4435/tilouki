@@ -1,4 +1,9 @@
-import type { EmailProviderAdapter, ProviderSendInput, ProviderSendResult } from "@/lib/email/providers/types";
+import { formatResendHttpError } from "@/lib/email/providers/errors";
+import type {
+  EmailProviderAdapter,
+  ProviderSendInput,
+  ProviderSendResult,
+} from "@/lib/email/providers/types";
 
 export function createResendProvider(apiKey: string): EmailProviderAdapter {
   return {
@@ -20,7 +25,7 @@ export function createResendProvider(apiKey: string): EmailProviderAdapter {
 
       if (!response.ok) {
         const body = await response.text();
-        throw new Error(`Échec envoi e-mail Resend (${response.status}) : ${body}`);
+        throw new Error(formatResendHttpError(response.status, body));
       }
 
       const data = (await response.json()) as { id?: string };

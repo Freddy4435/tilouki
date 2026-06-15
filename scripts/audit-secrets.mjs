@@ -46,21 +46,38 @@ const SECRET_PATTERNS = [
   },
   {
     name: "Clé privée Mondial Relay assignée",
-    regex: /MONDIAL_RELAY_PRIVATE_KEY[ \t]*[=:][ \t]*['"]?[A-Za-z0-9][A-Za-z0-9_-]{7,}/g,
+    regex:
+      /MONDIAL_RELAY_PRIVATE_KEY[ \t]*[=:][ \t]*['"]?[A-Za-z0-9][A-Za-z0-9_-]{7,}/g,
   },
 ];
 
 // Extensions binaires : inutile (et risqué en faux positifs) de les scanner.
 const BINARY_EXTENSIONS = new Set([
-  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".ico", ".svg",
-  ".woff", ".woff2", ".ttf", ".otf", ".eot",
-  ".pdf", ".zip", ".gz", ".mp4", ".webm",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".avif",
+  ".ico",
+  ".svg",
+  ".woff",
+  ".woff2",
+  ".ttf",
+  ".otf",
+  ".eot",
+  ".pdf",
+  ".zip",
+  ".gz",
+  ".mp4",
+  ".webm",
 ]);
 
 const EXCLUDED_DIRS = ["node_modules/", ".next/"];
 
 // Valeurs manifestement factices utilisées dans la documentation.
-const PLACEHOLDER_REGEX = /VOTRE|YOUR|EXAMPLE|EXEMPLE|PLACEHOLDER|CHANGE[_-]?ME|XXXX|\.\.\.|…/i;
+const PLACEHOLDER_REGEX =
+  /VOTRE|YOUR|EXAMPLE|EXEMPLE|PLACEHOLDER|CHANGE[_-]?ME|XXXX|\.\.\.|…/i;
 
 function gitTrackedFiles() {
   const out = execFileSync("git", ["ls-files", "-z"], {
@@ -90,7 +107,8 @@ const findings = [];
 let scanned = 0;
 
 for (const file of files) {
-  if (EXCLUDED_DIRS.some((dir) => file.startsWith(dir) || file.includes(`/${dir}`))) continue;
+  if (EXCLUDED_DIRS.some((dir) => file.startsWith(dir) || file.includes(`/${dir}`)))
+    continue;
   if (BINARY_EXTENSIONS.has(extension(file))) continue;
 
   let content;

@@ -15,9 +15,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartShipping } from "@/hooks/use-cart-shipping";
 import { useCartStore } from "@/lib/cart/store";
+import { mapRelaySearchError } from "@/lib/checkout/client-messages";
+import {
+  CHECKOUT_DELIVERY_DELAY_NOTE,
+  getCarrierEstimatedDelay,
+} from "@/lib/shipping/delivery-copy";
 import { formatPrice } from "@/lib/utils";
 import type { CheckoutFormValues } from "@/lib/validations/checkout";
 import { isClientRelayPointSelectable } from "@/lib/shipping/client-guards";
+import { formatRelayDistance } from "@/lib/shipping/labels";
 import type { CarrierName, RelayPoint, RelayPointSource } from "@/lib/shipping/types";
 import { cn } from "@/lib/utils";
 
@@ -47,8 +53,14 @@ interface RelaySearchResponse {
 export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
   const carrier = useCartStore((s) => s.carrier);
   const setCarrier = useCartStore((s) => s.setCarrier);
-  const { shippingCents, totalWeightGrams, rateLabel, isLoadingRates, carriers, quotes } =
-    useCartShipping();
+  const {
+    shippingCents,
+    totalWeightGrams,
+    rateLabel,
+    isLoadingRates,
+    carriers,
+    quotes,
+  } = useCartShipping();
   const {
     setValue,
     watch,
@@ -115,7 +127,9 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
     const city = searchCity.trim();
 
     if (zip.length < 4 && city.length < 2) {
-      setSearchError("Saisissez un code postal (4 caractères) ou une ville (2 caractères minimum).");
+      setSearchError(
+        "Saisissez un code postal (4 caractères) ou une ville (2 caractères minimum).",
+      );
       return;
     }
 
@@ -138,23 +152,23 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
       const response = await fetch(`/api/shipping/relay-points?${params.toString()}`);
       const data = (await response.json()) as RelaySearchResponse;
 
+      const pointList = data.points ?? [];
+
       setSearchSource(data.source);
       setIsDevMock(Boolean(data.devMock));
-      setPoints(data.points ?? []);
+      setPoints(pointList);
       setInfoMessage(data.message ?? null);
 
-      if (!data.configured) {
-        setSearchError(data.error ?? "Service de points relais non configuré.");
-        return;
-      }
-
-      if ((data.points ?? []).length === 0) {
-        setSearchError(
-          data.error ?? "Aucun point relais trouvé pour cette recherche.",
-        );
+      const searchFailure = mapRelaySearchError({
+        configured: Boolean(data.configured),
+        error: data.error,
+        hasResults: pointList.length > 0,
+      });
+      if (searchFailure) {
+        setSearchError(searchFailure);
       }
     } catch {
-      setSearchError("Recherche impossible. Vérifiez votre connexion.");
+      setSearchError("Recherche impossible. Vérifiez votre connexion et réessayez.");
     } finally {
       setIsSearching(false);
     }
@@ -176,6 +190,9 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
         city: point.city,
         country: point.country,
         ...(point.openingHours ? { openingHours: point.openingHours } : {}),
+        ...(point.distanceMeters !== undefined
+          ? { distanceMeters: point.distanceMeters }
+          : {}),
       },
       { shouldValidate: true, shouldDirty: true },
     );
@@ -193,7 +210,9 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
 
       <div className="bg-muted/50 space-y-2 rounded-xl border px-4 py-3 text-sm">
         <div className="flex items-center justify-between gap-4">
-          <span className="text-muted-foreground">Frais de livraison point relais</span>
+          <span className="text-muted-foreground">
+            Frais de livraison point relais TTC
+          </span>
           <span className="font-semibold tabular-nums">
             {isLoadingRates ? "…" : formatPrice(shippingCents)}
           </span>
@@ -201,7 +220,21 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
         <p className="text-muted-foreground text-xs">
           Poids estimé du colis : {totalWeightGrams} g — tranche {rateLabel}
         </p>
+        <p className="text-muted-foreground flex items-center gap-1 text-xs">
+          <Clock className="size-3 shrink-0" aria-hidden="true" />
+          Délai indicatif : {getCarrierEstimatedDelay(carrier)} après expédition.{" "}
+          {CHECKOUT_DELIVERY_DELAY_NOTE}
+        </p>
       </div>
+
+      {carriers.length === 1 ? (
+        <p className="text-muted-foreground text-xs">
+          Transporteur :{" "}
+          <span className="text-foreground font-medium">{carriers[0]!.label}</span>
+          {" — "}
+          {carriers[0]!.methodLabel}
+        </p>
+      ) : null}
 
       {isMapSupported ? (
         <div
@@ -352,7 +385,7 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
                       className={cn(
                         "min-h-11 w-full rounded-xl border p-4 text-left text-sm transition-colors",
                         isSelected
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                          ? "border-primary bg-primary/5 ring-primary/20 ring-2"
                           : "hover:border-primary/40 active:bg-muted/50",
                       )}
                     >
@@ -365,15 +398,26 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
                           aria-hidden="true"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium leading-snug">{point.name}</p>
+                          <p className="leading-snug font-medium">{point.name}</p>
                           <p className="text-muted-foreground mt-1 leading-relaxed">
                             {point.address}
                             <br />
                             {point.zip} {point.city}
+                            {point.distanceMeters !== undefined ? (
+                              <>
+                                <br />
+                                <span className="text-foreground/80">
+                                  {formatRelayDistance(point.distanceMeters)}
+                                </span>
+                              </>
+                            ) : null}
                           </p>
                           {point.openingHours ? (
                             <p className="text-muted-foreground mt-2 flex items-start gap-1.5 text-xs leading-relaxed">
-                              <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                              <Clock
+                                className="mt-0.5 size-3.5 shrink-0"
+                                aria-hidden="true"
+                              />
                               <span>{point.openingHours}</span>
                             </p>
                           ) : null}
@@ -419,6 +463,12 @@ export function RelayPointSelector({ form, nonce }: RelayPointSelectorProps) {
             <br />
             {selectedPoint.zip} {selectedPoint.city} ({selectedPoint.country})
           </p>
+          {"distanceMeters" in selectedPoint &&
+          typeof selectedPoint.distanceMeters === "number" ? (
+            <p className="text-muted-foreground mt-1 text-xs">
+              {formatRelayDistance(selectedPoint.distanceMeters)}
+            </p>
+          ) : null}
           {"openingHours" in selectedPoint && selectedPoint.openingHours ? (
             <p className="text-muted-foreground mt-2 flex items-start gap-1.5 text-xs">
               <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />

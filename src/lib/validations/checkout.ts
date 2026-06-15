@@ -12,19 +12,20 @@ export const checkoutCustomerSchema = z.object({
 });
 
 export const relayPointSchema = z.object({
-  id: z.string().min(1, "Sélectionnez un point relais."),
+  id: z.string().min(1, "Choisissez un point relais avant de continuer."),
   name: z.string().min(1),
   address: z.string().min(1),
   zip: z.string().min(4, "Code postal invalide."),
   city: z.string().min(1),
   country: z.string().length(2, "Pays invalide."),
   openingHours: z.string().max(500).optional(),
+  distanceMeters: z.number().int().min(0).optional(),
 });
 
 export const checkoutFormSchema = checkoutCustomerSchema.extend({
   relayPoint: relayPointSchema,
   acceptTerms: z.boolean().refine((value) => value === true, {
-    message: "Vous devez accepter les conditions générales de vente.",
+    message: "Vous devez accepter les conditions générales de vente avant de payer.",
   }),
 });
 
@@ -41,7 +42,11 @@ export const checkoutSessionSchema = z
       .array(
         z.object({
           variantId: z.string().uuid(),
-          quantity: z.number().int().min(1).max(20, "Quantité maximale : 20 par article."),
+          quantity: z
+            .number()
+            .int()
+            .min(1)
+            .max(20, "Quantité maximale : 20 par article."),
         }),
       )
       .min(1, "Le panier est vide."),

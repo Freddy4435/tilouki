@@ -38,7 +38,11 @@ function buildDevMockPoints(
   const city = params.city?.trim() || "Ville exemple";
   const country = params.country ?? "FR";
   const prefix = DEV_MOCK_ID_PREFIX[carrier];
-  const addresses = ["12 rue de la Paix", "45 avenue Jean Jaurès", "8 place de la Mairie"];
+  const addresses = [
+    "12 rue de la Paix",
+    "45 avenue Jean Jaurès",
+    "8 place de la Mairie",
+  ];
 
   const hours = ["Lun-Ven 9h-19h", "Lun-Sam 8h30-20h", "7j/7 24h/24"];
 

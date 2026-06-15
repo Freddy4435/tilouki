@@ -1,57 +1,89 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
+import { CategoryNavDropdown } from "@/components/layout/category-nav-dropdown";
 import { useShop } from "@/components/providers/shop-provider";
+import { NAV_HREF } from "@/lib/navigation/nav-config";
 import { cn } from "@/lib/utils";
 
 interface CategoryMenuProps {
   className?: string;
 }
 
+function isNavItemActive(
+  pathname: string,
+  href: string,
+  searchParams: URLSearchParams,
+): boolean {
+  if (href.startsWith("/#")) {
+    return pathname === "/";
+  }
+
+  if (href === NAV_HREF.petitsPrix) {
+    return pathname === "/catalogue" && searchParams.get("promo") === "petit-prix";
+  }
+
+  if (href.startsWith("/categorie/")) {
+    return pathname === href.split("?")[0];
+  }
+
+  if (href.startsWith("/catalogue")) {
+    return pathname === "/catalogue" && !searchParams.get("promo");
+  }
+
+  return pathname === href;
+}
+
+function isUniverseActive(pathname: string, slug: string): boolean {
+  return (
+    pathname === `/categorie/${slug}` || pathname.startsWith(`/categorie/${slug}/`)
+  );
+}
+
 export function CategoryMenu({ className }: CategoryMenuProps) {
-  const { categories } = useShop();
+  const { navigation } = useShop();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   return (
     <nav
       className={cn(
-        "border-border/60 border-b bg-card/90",
+        "border-border/40 bg-tilouki-cloud/50 hidden border-b md:block",
         className,
       )}
-      aria-label="Catégories"
+      aria-label="Navigation boutique"
     >
-      <div className="container-tilouki flex flex-col justify-center py-2 md:h-[var(--category-nav-height)] md:py-0">
-        <ul className="flex flex-wrap items-center gap-1.5 md:flex-nowrap md:overflow-x-auto md:py-1.5 md:scrollbar-hide">
-          <li className="shrink-0">
-            <Link
-              href="/catalogue"
-              className={cn(
-                "inline-flex min-h-9 items-center rounded-full px-3.5 text-sm font-medium transition-colors",
-                pathname === "/catalogue"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-foreground hover:bg-muted",
-              )}
-            >
-              Tout voir
-            </Link>
-          </li>
-          {categories.map((category) => {
-            const href = `/categorie/${category.slug}`;
-            const isActive = pathname === href;
+      <div className="container-tilouki flex h-[var(--category-nav-height)] items-center">
+        <ul className="scrollbar-hide flex min-w-0 flex-nowrap items-center gap-0.5 overflow-x-auto py-1">
+          {navigation.topItems.map((item) => {
+            if (item.kind === "universe") {
+              return (
+                <li key={item.id} className="shrink-0">
+                  <CategoryNavDropdown
+                    item={item}
+                    isActive={isUniverseActive(pathname, item.slug)}
+                  />
+                </li>
+              );
+            }
+
+            const isActive = isNavItemActive(pathname, item.href, searchParams);
+
             return (
-              <li key={category.slug} className="shrink-0">
+              <li key={item.id} className="shrink-0">
                 <Link
-                  href={href}
+                  href={item.href}
                   className={cn(
-                    "inline-flex min-h-9 items-center rounded-full px-3.5 text-sm font-medium whitespace-nowrap transition-colors",
+                    "inline-flex h-9 shrink-0 items-center rounded-[var(--radius-button)] px-3 text-sm font-medium whitespace-nowrap transition-colors",
                     isActive
-                      ? "bg-primary/10 text-primary ring-primary/20 ring-1"
-                      : "text-foreground hover:bg-muted",
+                      ? "bg-tilouki-jade-soft text-tilouki-teal-dark"
+                      : "text-foreground hover:bg-tilouki-jade-soft/50 hover:text-tilouki-teal-dark",
                   )}
+                  aria-current={isActive ? "page" : undefined}
                 >
-                  {category.label}
+                  {item.label}
                 </Link>
               </li>
             );

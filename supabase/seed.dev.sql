@@ -6,50 +6,16 @@
 -- Les 12 produits de démo sont dans seed.dev-products.sql (chargé ensuite).
 -- =============================================================================
 
--- Paramètres boutique par défaut (ID fixe — singleton)
-INSERT INTO public.shop_settings (
-  id,
-  shop_name,
-  legal_name,
-  legal_status,
-  siret,
-  address,
-  email,
-  phone,
-  vat_enabled,
-  vat_rate,
-  vat_notice,
-  currency,
-  mediation_url,
-  rep_idu,
-  host_name,
-  host_address,
-  host_phone
-) VALUES (
-  '00000000-0000-0000-0000-000000000001',
-  'Tilouki',
-  'Prénom Nom (dev)',
-  'Auto-entrepreneur',
-  NULL,
-  '1 rue de la Démo, 75001 Paris',
-  'contact@tilouki.fr',
-  '0600000000',
-  false,
-  0.2000,
-  'TVA non applicable, art. 293 B du CGI',
-  'EUR',
-  NULL,
-  NULL,
-  'Vercel Inc.',
-  '440 N Barranca Ave #4133, Covina, CA 91723, États-Unis',
-  'support@vercel.com'
-)
-ON CONFLICT (id) DO NOTHING;
-
+-- Enrichit la ligne bootstrap (migration shop_settings_bootstrap) avec des valeurs dev
 UPDATE public.shop_settings SET
+  legal_name = 'Prénom Nom (dev)',
+  legal_status = 'Auto-entrepreneur',
+  address = '1 rue de la Démo, 75001 Paris',
+  email = 'contact@tilouki.fr',
+  phone = '0600000000',
+  host_phone = 'support@vercel.com',
   return_policy = 'Frais de retour à la charge du client sauf erreur du vendeur. Remboursement sous 14 jours après réception du retour (dev).',
-  exchange_policy = 'Retour puis nouvelle commande sous réserve du stock (dev).'
-WHERE id = '00000000-0000-0000-0000-000000000001';
+  exchange_policy = 'Retour puis nouvelle commande sous réserve du stock (dev).';
 
 -- Catégories de navigation (structure, pas de produits)
 INSERT INTO public.categories (name, slug, description, sort_order, is_active) VALUES

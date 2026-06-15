@@ -1,41 +1,10 @@
-import {
-  CreditCard,
-  PackageCheck,
-  RotateCcw,
-  Truck,
-  type LucideIcon,
-} from "lucide-react";
+"use client";
 
+import { type LucideIcon } from "lucide-react";
+
+import { useShop } from "@/components/providers/shop-provider";
+import { buildTrustSectionItems } from "@/lib/legal/trust-content";
 import { cn } from "@/lib/utils";
-
-interface TrustItem {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-}
-
-const trustItems: TrustItem[] = [
-  {
-    icon: CreditCard,
-    title: "Paiement sécurisé",
-    description: "Règlement protégé via Stripe. Aucune carte bancaire stockée.",
-  },
-  {
-    icon: Truck,
-    title: "Livraison point relais",
-    description: "Retrait près de chez vous avec Mondial Relay, frais maîtrisés.",
-  },
-  {
-    icon: RotateCcw,
-    title: "Retour sous 14 jours",
-    description: "Changez d'avis ? Retour simple selon nos conditions.",
-  },
-  {
-    icon: PackageCheck,
-    title: "Stock réel",
-    description: "Disponibilité affichée par taille, mise à jour en temps réel.",
-  },
-];
 
 interface TrustSectionProps {
   variant?: "bar" | "grid";
@@ -43,6 +12,11 @@ interface TrustSectionProps {
 }
 
 export function TrustSection({ variant = "grid", className }: TrustSectionProps) {
+  const shop = useShop();
+  const trustItems = buildTrustSectionItems(shop);
+
+  if (trustItems.length === 0) return null;
+
   if (variant === "bar") {
     return (
       <div
@@ -66,33 +40,59 @@ export function TrustSection({ variant = "grid", className }: TrustSectionProps)
   }
 
   return (
-    <section className={cn("bg-tilouki-beige/40 border-y", className)} aria-label="Réassurance">
+    <section
+      className={cn("bg-tilouki-beige/40 border-y", className)}
+      aria-label="Réassurance"
+    >
       <div className="container-tilouki section-tilouki py-10 md:py-12">
         <div className="mb-8 text-center">
-          <h2 className="font-heading text-2xl font-semibold">Acheter en toute sérénité</h2>
+          <h2 className="text-section-title">Acheter en toute sérénité</h2>
           <p className="text-muted-foreground mt-2 text-sm">
             Une expérience simple et rassurante, pensée pour les parents pressés.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          className={cn(
+            "grid gap-4",
+            trustItems.length >= 4
+              ? "sm:grid-cols-2 lg:grid-cols-4"
+              : "sm:grid-cols-2 lg:grid-cols-3",
+          )}
+        >
           {trustItems.map((item) => (
-            <div
+            <TrustCard
               key={item.title}
-              className="bg-card flex flex-col gap-3 rounded-2xl p-5 shadow-[var(--shadow-soft)]"
-            >
-              <div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-xl">
-                <item.icon className="size-5" aria-hidden />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold">{item.title}</h3>
-                <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            </div>
+              icon={item.icon}
+              title={item.title}
+              description={item.description}
+            />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function TrustCard({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="bg-card flex flex-col gap-3 rounded-[var(--radius-card)] p-5 shadow-[var(--shadow-soft)]">
+      <div className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-[var(--radius-button)]">
+        <Icon className="size-5" aria-hidden />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold">{title}</h3>
+        <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+          {description}
+        </p>
+      </div>
+    </div>
   );
 }

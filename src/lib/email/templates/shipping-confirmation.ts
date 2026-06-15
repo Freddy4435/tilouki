@@ -1,8 +1,18 @@
-import { escapeHtml, formatRelayPointHtml, formatRelayPointText } from "@/lib/email/format";
-import { emailButton, emailInfoBox, wrapEmailLayout } from "@/lib/email/templates/layout";
+import {
+  escapeHtml,
+  formatRelayPointHtml,
+  formatRelayPointText,
+} from "@/lib/email/format";
+import {
+  emailButton,
+  emailInfoBox,
+  wrapEmailLayout,
+} from "@/lib/email/templates/layout";
 import type { OrderEmailPayload, RenderedEmail } from "@/lib/email/types";
 
-export function renderShippingConfirmationEmail(order: OrderEmailPayload): RenderedEmail {
+export function renderShippingConfirmationEmail(
+  order: OrderEmailPayload,
+): RenderedEmail {
   const trackingUrl = `${order.siteUrl}/suivi-commande`;
   const firstName = escapeHtml(order.customerFirstName);
   const orderNumber = escapeHtml(order.orderNumber);

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 
+import { CheckoutShippingRecap } from "@/components/checkout/checkout-shipping-recap";
 import { Separator } from "@/components/ui/separator";
 import { useCartShipping } from "@/hooks/use-cart-shipping";
 import { useCartStore } from "@/lib/cart/store";
@@ -21,7 +22,7 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
   const items = useCartStore((s) => s.items);
   const carrier = useCartStore((s) => s.carrier);
   const subtotalCents = useCartStore((s) => s.subtotalCents());
-  const { shippingCents, carriers } = useCartShipping();
+  const { shippingCents, carriers, rateLabel } = useCartShipping();
   const carrierLabel =
     carriers.find((info) => info.id === carrier)?.label ??
     (carrier === "chronopost" ? "Chronopost relais" : "Mondial Relay");
@@ -29,10 +30,18 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
   const relayPoint = form.watch("relayPoint");
 
   return (
-    <aside className="space-y-4 rounded-2xl border bg-card p-5 shadow-[var(--shadow-soft)]">
-      <h2 className="font-heading text-lg font-semibold">Résumé de commande</h2>
+    <aside
+      id="checkout-order-summary"
+      className="bg-card space-y-4 rounded-[var(--radius-card)] border p-5 shadow-[var(--shadow-soft)] lg:sticky lg:top-24"
+    >
+      <div>
+        <h2 className="text-lg font-semibold">Résumé de commande</h2>
+        <p className="text-muted-foreground mt-1 text-xs">
+          Tous les montants sont en euros TTC.
+        </p>
+      </div>
 
-      <ul className="space-y-3">
+      <ul className="space-y-3" aria-label="Articles commandés">
         {items.map((item) => (
           <li key={item.variantId} className="flex gap-3 text-sm">
             <div className="bg-muted relative size-14 shrink-0 overflow-hidden rounded-lg">
@@ -52,49 +61,39 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
                 {variantLabel(item.sizeLabel, item.ageLabel)} · Qté {item.quantity}
               </p>
             </div>
-            <p className="shrink-0 font-medium tabular-nums">
+            <p className="shrink-0 text-right font-medium tabular-nums">
               {formatPrice(item.unitPriceCents * item.quantity)}
+              <span className="text-muted-foreground block text-[10px] font-normal uppercase">
+                TTC
+              </span>
             </p>
           </li>
         ))}
       </ul>
 
-      {relayPoint?.id ? (
-        <>
-          <Separator />
-          <div className="text-sm">
-            <p className="font-medium">Livraison point relais</p>
-            <p className="text-muted-foreground mt-0.5 text-xs">{carrierLabel}</p>
-            <p className="text-muted-foreground mt-2 leading-relaxed">
-              <span className="text-foreground font-medium">{relayPoint.name}</span>
-              <br />
-              {relayPoint.address}
-              <br />
-              {relayPoint.zip} {relayPoint.city} ({relayPoint.country})
-            </p>
-            {"openingHours" in relayPoint && relayPoint.openingHours ? (
-              <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
-                Horaires : {relayPoint.openingHours}
-              </p>
-            ) : null}
-            <p className="text-muted-foreground mt-2 text-xs">Réf. {relayPoint.id}</p>
-          </div>
-        </>
-      ) : null}
+      <Separator />
+
+      <CheckoutShippingRecap
+        carrier={carrier}
+        carrierLabel={carrierLabel}
+        shippingCents={shippingCents}
+        rateLabel={rateLabel}
+        relayPoint={relayPoint}
+      />
 
       <Separator />
 
       <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Sous-total</span>
+        <div className="flex justify-between gap-3">
+          <span className="text-muted-foreground">Sous-total TTC</span>
           <span className="tabular-nums">{formatPrice(subtotalCents)}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Livraison point relais</span>
+        <div className="flex justify-between gap-3">
+          <span className="text-muted-foreground">Livraison point relais TTC</span>
           <span className="tabular-nums">{formatPrice(shippingCents)}</span>
         </div>
-        <div className="flex justify-between text-base font-semibold">
-          <span>Total</span>
+        <div className="border-border/70 flex justify-between gap-3 border-t pt-2 text-base font-semibold">
+          <span>Total TTC</span>
           <span className="tabular-nums">{formatPrice(totalCents)}</span>
         </div>
       </div>

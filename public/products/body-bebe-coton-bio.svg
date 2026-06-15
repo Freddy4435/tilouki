@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Body bébé coton bio">
+  <rect fill="#faf8f5" width="800" height="1000"/>
+  <rect fill="#e8d4d8" x="72" y="100" width="656" height="800" rx="28" opacity="0.85"/>
+  <circle fill="#faf8f5" cx="400" cy="420" r="120" opacity="0.5"/>
+  <text x="400" y="480" text-anchor="middle" font-family="system-ui,sans-serif" font-size="32" font-weight="600" fill="#4a4540">Body bébé coton bio</text>
+  <text x="400" y="530" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#7a7570">Tilouki</text>
+</svg>

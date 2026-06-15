@@ -87,7 +87,11 @@ export function CategoryForm({ category, onSuccess }: CategoryFormProps) {
         </p>
       ) : null}
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Enregistrement…" : category ? "Mettre à jour" : "Créer la catégorie"}
+        {isPending
+          ? "Enregistrement…"
+          : category
+            ? "Mettre à jour"
+            : "Créer la catégorie"}
       </Button>
     </form>
   );

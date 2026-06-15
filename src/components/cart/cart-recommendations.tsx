@@ -19,17 +19,25 @@ export function CartRecommendations({
         {products.map((product) => (
           <ProductCard
             key={product.id}
+            productId={product.id}
             slug={product.slug}
             name={product.name}
             priceCents={product.minPriceCents}
             compareAtPriceCents={product.compareAtPriceCents}
             imageUrl={product.primaryImageUrl}
             imageAlt={product.primaryImageAlt ?? product.name}
+            secondaryImageUrl={product.secondaryImageUrl}
+            secondaryImageAlt={product.secondaryImageAlt}
+            colorOptions={product.colorOptions}
+            quickAddVariants={product.quickAddVariants}
             categoryName={product.categoryName}
+            material={product.material}
             sizes={product.sizes}
             ageLabel={product.ageLabels[0]}
             badges={product.badges}
             totalStock={product.totalStock}
+            ratingAverage={product.ratingAverage}
+            ratingCount={product.ratingCount}
           />
         ))}
       </div>

@@ -2,6 +2,7 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
+import { buildStorefrontNavigation } from "@/lib/navigation/build-storefront-nav";
 import { CACHE_TAGS, REVALIDATE } from "@/lib/supabase/cache";
 import { SHOP_SETTINGS_SINGLETON_ID } from "@/lib/supabase/env";
 import { assertNoError } from "@/lib/supabase/errors";
@@ -10,16 +11,23 @@ import { mapShopCategory, mapShopSettings } from "@/lib/supabase/mappers/shop";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { ShopSettings } from "@/lib/shop/types";
+import { defaultShopSettings } from "@/lib/shop/defaults";
 import { fetchCategoriesUncached } from "@/lib/supabase/queries/categories";
+import { getActiveProducts } from "@/lib/supabase/queries/products";
 
 async function fetchShopSettings(): Promise<ShopSettings> {
-  const [categories, minShippingCents] = await Promise.all([
+  const [categories, minShippingCents, products] = await Promise.all([
     fetchCategoriesUncached().then((rows) => rows.map(mapShopCategory)),
     getMinShippingPriceCents(),
+    getActiveProducts(),
   ]);
 
+  const resolvedCategories =
+    categories.length > 0 ? categories : defaultShopSettings.categories;
+  const navigation = buildStorefrontNavigation(resolvedCategories, products);
+
   if (!isSupabaseConfigured()) {
-    return mapShopSettings(null, categories, minShippingCents);
+    return mapShopSettings(null, resolvedCategories, minShippingCents, navigation);
   }
 
   const supabase = createPublicClient();
@@ -39,10 +47,10 @@ async function fetchShopSettings(): Promise<ShopSettings> {
       .maybeSingle();
 
     assertNoError(fallbackError, "getShopSettings");
-    return mapShopSettings(fallback, categories, minShippingCents);
+    return mapShopSettings(fallback, resolvedCategories, minShippingCents, navigation);
   }
 
-  return mapShopSettings(data, categories, minShippingCents);
+  return mapShopSettings(data, resolvedCategories, minShippingCents, navigation);
 }
 
 export async function getShopSettings(): Promise<ShopSettings> {

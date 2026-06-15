@@ -1,6 +1,9 @@
 "use client";
 
-import { COLOR_PRESETS, DEFAULT_WEIGHT_GRAMS } from "@/lib/admin/product-form-constants";
+import {
+  COLOR_PRESETS,
+  DEFAULT_WEIGHT_GRAMS,
+} from "@/lib/admin/product-form-constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -20,7 +23,10 @@ export interface VariantFieldValues {
 
 interface VariantFormFieldsProps {
   values: VariantFieldValues;
-  onChange: <K extends keyof VariantFieldValues>(key: K, value: VariantFieldValues[K]) => void;
+  onChange: <K extends keyof VariantFieldValues>(
+    key: K,
+    value: VariantFieldValues[K],
+  ) => void;
   productSlug?: string;
   compact?: boolean;
   showAdvanced?: boolean;
@@ -34,7 +40,12 @@ export function VariantFormFields({
   showAdvanced = false,
 }: VariantFormFieldsProps) {
   return (
-    <div className={cn("grid gap-3", compact ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3")}>
+    <div
+      className={cn(
+        "grid gap-3",
+        compact ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3",
+      )}
+    >
       <div className="space-y-1.5 sm:col-span-2">
         <Label>Prix de vente (€) *</Label>
         <Input
@@ -97,7 +108,9 @@ export function VariantFormFields({
           min="1"
           placeholder={DEFAULT_WEIGHT_GRAMS}
         />
-        <p className="text-muted-foreground text-xs">Pour les frais de livraison (ex. tee-shirt ≈ 120 g)</p>
+        <p className="text-muted-foreground text-xs">
+          Pour les frais de livraison (ex. tee-shirt ≈ 120 g)
+        </p>
       </div>
 
       {showAdvanced ? (
@@ -110,7 +123,9 @@ export function VariantFormFields({
               placeholder="Généré automatiquement"
             />
             {productSlug ? (
-              <p className="text-muted-foreground text-xs">Basé sur « {productSlug} » + taille/âge/couleur</p>
+              <p className="text-muted-foreground text-xs">
+                Basé sur « {productSlug} » + taille/âge/couleur
+              </p>
             ) : null}
           </div>
           <div className="space-y-1.5">

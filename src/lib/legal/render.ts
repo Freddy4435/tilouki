@@ -3,12 +3,27 @@ import { getDefaultLegalTemplate } from "@/lib/legal/templates";
 
 export const PLACEHOLDER_CONTENT_MARKERS = [
   "Contenu à compléter",
+  "Contenu a completer",
   "Contenu à initialiser",
+  "Contenu a initialiser",
   "<p>Contenu à compléter",
+  "à compléter depuis l'administration",
+  "a completer depuis l'administration",
 ] as const;
 
+const LEGAL_REVIEW_MARKERS = [
+  "à valider avec un professionnel du droit",
+  "document type",
+] as const;
+
+const LEGAL_REVIEW_BLOCK_REGEX =
+  /<(?:aside|p|td|div)[^>]*class="legal-review"[^>]*>[\s\S]*?<\/(?:aside|p|td|div)>/gi;
+const LEGAL_DISCLAIMER_BLOCK_REGEX =
+  /<aside class="legal-disclaimer[\s\S]*?<\/aside>/gi;
 const ADMIN_PLACEHOLDER_REGEX = /\[À renseigner\s*:[^\]]+\]/gi;
-const INCOMPLETE_CONTENT_REGEX = /contenu à compléter/gi;
+const INCOMPLETE_CONTENT_REGEX =
+  /contenu à compléter|contenu à initialiser|contenu a completer|contenu a initialiser/gi;
+const UNRESOLVED_VARIABLE_REGEX = /\{\{[a-z_]+\}\}/gi;
 
 export function isPlaceholderLegalContent(content: string): boolean {
   const trimmed = content.trim();
@@ -17,7 +32,36 @@ export function isPlaceholderLegalContent(content: string): boolean {
 }
 
 export function hasUnresolvedAdminPlaceholders(html: string): boolean {
+  ADMIN_PLACEHOLDER_REGEX.lastIndex = 0;
   return ADMIN_PLACEHOLDER_REGEX.test(html);
+}
+
+export function containsPublicLegalPlaceholder(html: string): boolean {
+  const normalized = html.normalize("NFC");
+
+  if (
+    PLACEHOLDER_CONTENT_MARKERS.some((marker) =>
+      normalized.toLowerCase().includes(marker.toLowerCase()),
+    )
+  ) {
+    return true;
+  }
+
+  ADMIN_PLACEHOLDER_REGEX.lastIndex = 0;
+  if (ADMIN_PLACEHOLDER_REGEX.test(normalized)) return true;
+
+  UNRESOLVED_VARIABLE_REGEX.lastIndex = 0;
+  if (UNRESOLVED_VARIABLE_REGEX.test(normalized)) return true;
+
+  if (
+    LEGAL_REVIEW_MARKERS.some((marker) => normalized.toLowerCase().includes(marker))
+  ) {
+    return true;
+  }
+
+  if (/class="legal-(disclaimer|review)"/i.test(normalized)) return true;
+
+  return false;
 }
 
 /**
@@ -25,14 +69,19 @@ export function hasUnresolvedAdminPlaceholders(html: string): boolean {
  */
 export function finalizePublicLegalHtml(html: string): string {
   let output = html
+    .replace(LEGAL_DISCLAIMER_BLOCK_REGEX, "")
+    .replace(LEGAL_REVIEW_BLOCK_REGEX, "")
     .replace(ADMIN_PLACEHOLDER_REGEX, "")
-    .replace(INCOMPLETE_CONTENT_REGEX, "");
+    .replace(INCOMPLETE_CONTENT_REGEX, "")
+    .replace(UNRESOLVED_VARIABLE_REGEX, "");
 
   // Listes / paragraphes vides après suppression des placeholders
   output = output
     .replace(/<li>\s*<strong>[^<]+:<\/strong>\s*<\/li>/gi, "")
+    .replace(/<li>\s*<\/li>/gi, "")
     .replace(/<p>\s*<strong>[^<]+:<\/strong>\s*<\/p>/gi, "")
     .replace(/<p>\s*<\/p>/gi, "")
+    .replace(/<td>\s*<\/td>/gi, "")
     .replace(/\n{3,}/g, "\n\n");
 
   return output.trim();
@@ -78,9 +127,11 @@ export function renderLegalContent(template: string, ctx: LegalRenderContext): s
     vat_section: ctx.vat_section,
     rep_section: ctx.rep_section,
     mediation_section: ctx.mediation_section,
+    rcs_section: ctx.rcs_section,
     payment_method: ctx.payment_method,
     delivery_method: ctx.delivery_method,
     shipping_info: ctx.shipping_info,
+    delivery_delays_info: ctx.delivery_delays_info,
     withdrawal_info: ctx.withdrawal_info,
     return_info: ctx.return_info,
     exchange_section: ctx.exchange_section,

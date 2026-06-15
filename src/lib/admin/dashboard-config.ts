@@ -1,6 +1,8 @@
 import "server-only";
 
 import type { AdminDashboardAlertContext } from "@/lib/admin/dashboard-alerts";
+import { loadAdminLegalComplianceInput } from "@/lib/admin/legal-compliance-context.server";
+import { countActiveDevSeedProducts } from "@/lib/catalog/dev-seed-guard";
 import { getEmailConfig } from "@/lib/email/config";
 import {
   isChronopostConfigured,
@@ -19,10 +21,15 @@ export async function buildAdminDashboardAlertContext(
   settings: AdminShopSettings | null,
   stats: AdminDashboardStats,
 ): Promise<AdminDashboardAlertContext> {
-  const storageConfigured = await isProductImagesStorageConfigured();
+  const [storageConfigured, activeDevSeedProductCount, legalSettings] =
+    await Promise.all([
+      isProductImagesStorageConfigured(),
+      countActiveDevSeedProducts().catch(() => 0),
+      loadAdminLegalComplianceInput(settings),
+    ]);
 
   return {
-    legalSettings: settings,
+    legalSettings,
     activeProductCount: stats.activeProductCount,
     productsWithoutPhotoCount: stats.productsWithoutPhotoCount,
     productsWithoutStockCount: stats.productsWithoutStockCount,
@@ -30,8 +37,10 @@ export async function buildAdminDashboardAlertContext(
     storageConfigured,
     stripeConfigured: isStripeServerConfigured() && isStripePublishableConfigured(),
     adminEmailConfigured: Boolean(getEmailConfig().adminEmail),
+    transactionEmailConfigured: getEmailConfig().provider !== "none",
     mondialRelayConfigured: isMondialRelayApiConfigured(),
     chronopostConfigured: isChronopostConfigured(),
     devMockShipping: isDevMockShippingEnabled(),
+    activeDevSeedProductCount,
   };
 }

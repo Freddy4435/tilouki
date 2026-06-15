@@ -1,6 +1,10 @@
 import { formatPrice } from "@/lib/utils";
 
-import type { OrderEmailItem, OrderEmailPayload, OrderEmailRelayPoint } from "@/lib/email/types";
+import type {
+  OrderEmailItem,
+  OrderEmailPayload,
+  OrderEmailRelayPoint,
+} from "@/lib/email/types";
 
 export function escapeHtml(value: string): string {
   return value
@@ -32,9 +36,7 @@ export function formatRelayPointText(relay: OrderEmailRelayPoint): string {
 
 export function formatRelayPointHtml(relay: OrderEmailRelayPoint): string {
   const countryLine =
-    relay.country && relay.country !== "FR"
-      ? `<br/>${escapeHtml(relay.country)}`
-      : "";
+    relay.country && relay.country !== "FR" ? `<br/>${escapeHtml(relay.country)}` : "";
 
   return [
     escapeHtml(relay.name),

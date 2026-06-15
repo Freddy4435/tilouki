@@ -121,7 +121,11 @@ export async function getAdminOrder(id: string): Promise<AdminOrderDetail | null
   const supabase = await getAdminSupabase();
   if (!supabase) return null;
 
-  const { data: order } = await supabase.from("orders").select("*").eq("id", id).maybeSingle();
+  const { data: order } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
   if (!order) return null;
 
   const [itemsResult, historyResult] = await Promise.all([

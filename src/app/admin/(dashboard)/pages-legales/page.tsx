@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { LegalComplianceAlert } from "@/components/admin/legal-compliance-alert";
 import { LegalComplianceChecklist } from "@/components/admin/legal-compliance-checklist";
+import { LegalPagesBulkGenerate } from "@/components/admin/legal-pages-bulk-generate";
 import { LegalPageForm } from "@/components/admin/legal-page-form";
+import { LegalProfessionalNotice } from "@/components/admin/legal-professional-notice";
+import { loadAdminLegalComplianceInput } from "@/lib/admin/legal-compliance-context.server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAdminLegalPages } from "@/lib/supabase/queries/admin/legal";
 import { getAdminShopSettings } from "@/lib/supabase/queries/admin/settings";
@@ -22,30 +25,12 @@ function formatDate(iso: string) {
 }
 
 export default async function AdminPagesLegalesPage() {
-  const [pages, settings] = await Promise.all([listAdminLegalPages(), getAdminShopSettings()]);
+  const [pages, settings] = await Promise.all([
+    listAdminLegalPages(),
+    getAdminShopSettings(),
+  ]);
 
-  const complianceInput = settings
-    ? {
-        shopName: settings.shopName,
-        legalName: settings.legalName,
-        legalStatus: settings.legalStatus,
-        siret: settings.siret,
-        address: settings.address,
-        email: settings.email,
-        phone: settings.phone,
-        vatEnabled: settings.vatEnabled,
-        vatNotice: settings.vatNotice,
-        mediationName: settings.mediationName,
-        mediationUrl: settings.mediationUrl,
-        repIdu: settings.repIdu,
-        hostName: settings.hostName,
-        hostAddress: settings.hostAddress,
-        hostPhone: settings.hostPhone,
-        hostEmail: settings.hostEmail,
-        returnPolicy: settings.returnPolicy,
-        exchangePolicy: settings.exchangePolicy,
-      }
-    : null;
+  const complianceInput = await loadAdminLegalComplianceInput(settings);
 
   return (
     <>
@@ -55,8 +40,10 @@ export default async function AdminPagesLegalesPage() {
       />
 
       <div className="mb-6 space-y-4">
+        <LegalProfessionalNotice />
         <LegalComplianceAlert settings={complianceInput} />
-        <LegalComplianceChecklist settings={complianceInput} />
+        <LegalPagesBulkGenerate />
+        <LegalComplianceChecklist settings={complianceInput} shopFieldsOnly />
       </div>
 
       {pages.length === 0 ? (

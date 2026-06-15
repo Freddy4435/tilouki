@@ -9,9 +9,15 @@ interface ReassuranceStripProps {
   className?: string;
 }
 
-export function ReassuranceStrip({ variant = "pills", className }: ReassuranceStripProps) {
-  const { minShippingCents } = useShop();
-  const items = getReassuranceMicrocopy(minShippingCents);
+export function ReassuranceStrip({
+  variant = "pills",
+  className,
+}: ReassuranceStripProps) {
+  const { minShippingCents, returnPolicy } = useShop();
+  const items = getReassuranceMicrocopy({
+    minShippingCents,
+    hasReturnPolicy: Boolean(returnPolicy?.trim()),
+  });
 
   if (variant === "stack") {
     return (

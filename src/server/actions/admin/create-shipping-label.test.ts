@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type {
-  CreateShipmentLabelInput,
-  ShipmentLabel,
-} from "@/lib/shipping/types";
+import type { CreateShipmentLabelInput, ShipmentLabel } from "@/lib/shipping/types";
 import type { AdminOrderDetail } from "@/lib/supabase/queries/admin/orders";
 
 vi.mock("server-only", () => ({}));
@@ -207,7 +204,7 @@ describe("createShippingLabelAction — garde-fous", () => {
 });
 
 describe("createShippingLabelAction — succès", () => {
-  it("génère, persiste, passe en shipped et envoie l'e-mail (commande paid)", async () => {
+  it("génère, persiste en préparation avec étiquette, sans e-mail (commande paid)", async () => {
     setupHappyPath();
 
     const result = await createShippingLabelAction({ orderId: ORDER_ID });
@@ -239,58 +236,40 @@ describe("createShippingLabelAction — succès", () => {
 
     expect(mocks.ordersUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: "shipped",
+        status: "preparing",
         shipping_number: "12345678",
         tracking_number: "12345678",
         shipping_label_url: expect.stringContaining("mondialrelay.com"),
         label_created_at: expect.any(String),
-        shipped_at: expect.any(String),
+        shipped_at: null,
       }),
     );
     expect(mocks.shipmentsUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         order_id: ORDER_ID,
         carrier_shipment_number: "12345678",
-        status: "shipped",
+        status: "label_created",
       }),
       { onConflict: "order_id" },
     );
 
-    // Machine d'états respectée : paid → preparing → shipped (2 entrées d'historique).
-    expect(mocks.historyInsert).toHaveBeenCalledTimes(2);
-    expect(mocks.historyInsert).toHaveBeenNthCalledWith(
-      1,
+    // Machine d'états : paid → preparing uniquement (expédition = action séparée).
+    expect(mocks.historyInsert).toHaveBeenCalledTimes(1);
+    expect(mocks.historyInsert).toHaveBeenCalledWith(
       expect.objectContaining({ from_status: "paid", to_status: "preparing" }),
     );
-    expect(mocks.historyInsert).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({ from_status: "preparing", to_status: "shipped" }),
-    );
 
-    expect(mocks.sendShippingConfirmation).toHaveBeenCalledTimes(1);
+    expect(mocks.sendShippingConfirmation).not.toHaveBeenCalled();
     expect(mocks.revalidatePath).toHaveBeenCalled();
   });
 
-  it("ne crée qu'une transition pour une commande déjà en préparation", async () => {
+  it("ne crée pas de transition pour une commande déjà en préparation", async () => {
     setupHappyPath({ status: "preparing" });
 
     const result = await createShippingLabelAction({ orderId: ORDER_ID });
 
     expect(result.error).toBeUndefined();
-    expect(mocks.historyInsert).toHaveBeenCalledTimes(1);
-    expect(mocks.historyInsert).toHaveBeenCalledWith(
-      expect.objectContaining({ from_status: "preparing", to_status: "shipped" }),
-    );
-  });
-
-  it("n'échoue pas si l'e-mail d'expédition échoue", async () => {
-    setupHappyPath();
-    mocks.sendShippingConfirmation.mockRejectedValue(new Error("smtp down"));
-
-    const result = await createShippingLabelAction({ orderId: ORDER_ID });
-
-    expect(result.error).toBeUndefined();
-    expect(result.shipmentNumber).toBe("12345678");
+    expect(mocks.historyInsert).not.toHaveBeenCalled();
   });
 });
 
@@ -332,7 +311,9 @@ describe("createShippingLabelAction — erreurs provider", () => {
 
     const result = await createShippingLabelAction({ orderId: ORDER_ID });
 
-    expect(result.error).toBe("Génération de l'étiquette impossible. Réessayez plus tard.");
+    expect(result.error).toBe(
+      "Génération de l'étiquette impossible. Réessayez plus tard.",
+    );
     expect(result.error).not.toContain("stack interne");
     expect(mocks.ordersUpdate).not.toHaveBeenCalled();
   });

@@ -58,6 +58,28 @@ describe("calculateShippingRate", () => {
     expect(result.priceCents).toBe(890);
     expect(result.rate.maxWeightGrams).toBe(3_000);
   });
+
+  it("applique un barème personnalisé (comme après édition admin)", () => {
+    const adminRates = [
+      {
+        label: "0 – 500 g",
+        minWeightGrams: 0,
+        maxWeightGrams: 500,
+        priceCents: 599,
+        sortOrder: 1,
+      },
+      {
+        label: "501 g – 2 kg",
+        minWeightGrams: 501,
+        maxWeightGrams: 2_000,
+        priceCents: 799,
+        sortOrder: 2,
+      },
+    ];
+
+    expect(calculateShippingRate(400, adminRates).priceCents).toBe(599);
+    expect(calculateShippingRate(800, adminRates).priceCents).toBe(799);
+  });
 });
 
 describe("calcul des frais par transporteur", () => {
@@ -99,9 +121,7 @@ describe("calculateRelayShippingCents / computeShippingCents", () => {
   });
 
   it("agrège poids et barème pour des lignes panier", () => {
-    const shipping = computeShippingCents([
-      { weightGrams: 120, quantity: 2 },
-    ]);
+    const shipping = computeShippingCents([{ weightGrams: 120, quantity: 2 }]);
 
     expect(shipping).toBe(390);
   });

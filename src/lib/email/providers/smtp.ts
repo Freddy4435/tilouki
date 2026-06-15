@@ -1,7 +1,11 @@
 import nodemailer from "nodemailer";
 
 import type { SmtpConfig } from "@/lib/email/config";
-import type { EmailProviderAdapter, ProviderSendInput, ProviderSendResult } from "@/lib/email/providers/types";
+import type {
+  EmailProviderAdapter,
+  ProviderSendInput,
+  ProviderSendResult,
+} from "@/lib/email/providers/types";
 
 export function createSmtpProvider(config: SmtpConfig): EmailProviderAdapter {
   const transport = nodemailer.createTransport({

@@ -45,7 +45,11 @@ describe("checkRateLimit (façade Upstash)", () => {
     const reset = Date.now() + 60_000;
     mocks.limit.mockResolvedValue({ success: true, limit: 10, remaining: 7, reset });
 
-    const result = await checkRateLimit({ key: "1.2.3.4:checkout", limit: 10, windowSec: 60 });
+    const result = await checkRateLimit({
+      key: "1.2.3.4:checkout",
+      limit: 10,
+      windowSec: 60,
+    });
 
     expect(mocks.redisConstructor).toHaveBeenCalledWith({
       url: "https://upstash.test",
@@ -66,7 +70,12 @@ describe("checkRateLimit (façade Upstash)", () => {
   });
 
   it("réutilise la même instance Ratelimit pour un couple (limite, fenêtre)", async () => {
-    mocks.limit.mockResolvedValue({ success: true, limit: 10, remaining: 9, reset: Date.now() });
+    mocks.limit.mockResolvedValue({
+      success: true,
+      limit: 10,
+      remaining: 9,
+      reset: Date.now(),
+    });
 
     await checkRateLimit({ key: "a", limit: 10, windowSec: 60 });
     await checkRateLimit({ key: "b", limit: 10, windowSec: 60 });
@@ -75,16 +84,29 @@ describe("checkRateLimit (façade Upstash)", () => {
     expect(mocks.ratelimitConstructor).toHaveBeenCalledTimes(2);
   });
 
-  it("bascule sur la Map mémoire si Upstash échoue", async () => {
+  it("bascule sur la Map mémoire si Upstash échoue (dev uniquement)", async () => {
+    vi.stubEnv("NODE_ENV", "development");
     mocks.limit.mockRejectedValue(new Error("Redis injoignable"));
 
     const result = await checkRateLimit({ key: "fallback", limit: 3, windowSec: 60 });
 
     expect(result.allowed).toBe(true);
     expect(result.remaining).toBe(2);
+    expect(result.unavailable).toBeUndefined();
   });
 
-  it("utilise la Map mémoire sans variables Upstash (aucun appel Redis)", async () => {
+  it("refuse la requête si Upstash échoue en production", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    mocks.limit.mockRejectedValue(new Error("Redis injoignable"));
+
+    const result = await checkRateLimit({ key: "prod-fail", limit: 3, windowSec: 60 });
+
+    expect(result.allowed).toBe(false);
+    expect(result.unavailable).toBe(true);
+  });
+
+  it("utilise la Map mémoire sans variables Upstash en dev", async () => {
+    vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "");
 
