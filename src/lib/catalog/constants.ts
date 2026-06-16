@@ -18,7 +18,7 @@ export const HOME_FAQ = [
   {
     question: "Quels sont les délais de livraison ?",
     answer:
-      "Les commandes sont préparées depuis mon stock en France et expédiées en point relais. Les délais exacts sont indiqués lors du checkout.",
+      "Les commandes sont préparées en France et expédiées en point relais. Les délais exacts sont indiqués avant le paiement.",
   },
   {
     question: "Puis-je retourner un article ?",

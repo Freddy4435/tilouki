@@ -22,12 +22,12 @@ export function CatalogueLaunchState() {
         <div className="space-y-4">
           <p className="text-retail-label text-tilouki-teal-dark">Chaque mercredi</p>
           <h2 className="text-section-title text-balance">
-            Le vestiaire Tilouki arrive
+            Le catalogue Tilouki arrive
           </h2>
           <p className="text-muted-foreground text-sm leading-relaxed sm:text-base">
             La boutique se prépare avec soin : pièces choisies, tailles affichées
             honnêtement, photos réelles. En attendant les premières arrivées, explorez
-            nos conseils et inscrivez-vous pour être prévenu·e.
+            nos conseils et inscrivez-vous pour être informé.
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <ButtonLink href="/guide-tailles" className="min-h-11">
@@ -53,7 +53,7 @@ export function CatalogueLaunchState() {
           <h3 className="font-display text-lg font-semibold">Une fois par mois, sans spam</h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Nouveautés du mercredi, conseils tailles et petits prix — inscrivez-vous en
-            bas de page pour être prévenu·e en premier.
+            bas de page pour être informé en premier.
           </p>
           <ButtonLink href="/#newsletter" variant="outline" className="min-h-11">
             <Mail className="size-4" aria-hidden />
@@ -78,7 +78,7 @@ export function CatalogueLaunchState() {
             href="/"
             className="text-tilouki-teal-dark text-sm font-semibold underline-offset-4 hover:underline"
           >
-            Retour à la Maison Tilouki
+            Retour à Tilouki
             <ArrowRight className="ml-1 inline size-3.5" aria-hidden />
           </Link>
         </div>

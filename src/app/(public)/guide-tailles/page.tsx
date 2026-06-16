@@ -32,7 +32,7 @@ export default async function GuideTaillesPage() {
             className="text-muted-foreground hover:text-foreground mb-5 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
           >
             <ArrowLeft className="size-4" aria-hidden />
-            Retour à la Maison Tilouki
+            Retour à Tilouki
           </Link>
 
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">

@@ -13,7 +13,7 @@ export function BlogHero() {
               Le Carnet Tilouki
             </p>
             <h1 className="font-heading text-section-title-plum text-3xl font-semibold tracking-tight sm:text-4xl">
-              Conseils doux pour le vestiaire enfant
+              Conseils pour la garde-robe enfant
             </h1>
             <p className="text-muted-foreground mx-auto max-w-2xl text-sm leading-relaxed sm:text-base lg:mx-0">
               Tailles, matières, entretien et petits rituels du quotidien — des articles

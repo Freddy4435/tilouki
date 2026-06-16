@@ -37,7 +37,7 @@ function RitualEmptyState({ ritual }: { ritual: Ritual }) {
             <BookOpen className="size-4" />
           </ButtonLink>
           <ButtonLink href="/#newsletter" variant="outline" className="min-h-11">
-            Être prévenu·e des arrivées
+            Être informé des arrivées
             <Mail className="size-4" />
           </ButtonLink>
         </div>
@@ -105,7 +105,7 @@ export function RitualDetailContent({ ritual, products }: RitualDetailContentPro
         </ul>
         {!hasProducts ? (
           <p className="text-muted-foreground mt-4 text-sm leading-relaxed">
-            Le vestiaire se remplit au fil des mercredis. En attendant, le{" "}
+            Le catalogue se remplit au fil des mercredis. En attendant, le{" "}
             <Link href={`/blog/${blogSlug}`} className="text-tilouki-teal-dark font-medium">
               carnet Tilouki
             </Link>{" "}

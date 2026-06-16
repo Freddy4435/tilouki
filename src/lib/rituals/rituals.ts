@@ -24,7 +24,7 @@ export const RITUALS: readonly Ritual[] = [
     imageId: "ritual-morning",
     categorySlugs: ["garcon", "fille", "bebe"],
     blogSlugs: ["composer-tenue-enfant-simple-trois-pieces"],
-    ctaLabel: "Voir le vestiaire du matin",
+    ctaLabel: "Voir le catalogue du matin",
     catalogueHref: buildCatalogueHref({ sort: "newest" }),
     emptyStateTitle: "Préparer un matin sans stress",
     emptyStateTips: [
@@ -84,14 +84,14 @@ export const RITUALS: readonly Ritual[] = [
     emptyStateTips: [
       "Superposez maille + sweat : on retire une couche à l'intérieur.",
       "Évitez le trop volumineux sous la combinaison de pluie.",
-      "Un pantalon qui sèche vite sauve les aprèmes à la maison.",
+      "Un pantalon qui sèche vite sauve les après-midis à la maison.",
     ],
   },
   {
     slug: "petit-budget",
     title: "Petit budget",
     description:
-      "Les essentiels du quotidien à prix doux — compléter la garde-robe sans culpabiliser.",
+      "Les essentiels du quotidien à prix doux — pour compléter la garde-robe sans culpabiliser.",
     imageId: "colors-soft",
     categorySlugs: ["bebe", "fille", "garcon", "pyjamas"],
     blogSlugs: ["acheter-vetements-enfants-malin-petits-prix"],

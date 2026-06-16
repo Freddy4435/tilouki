@@ -38,11 +38,11 @@ const badgeConfig: Record<ProductBadgeType, { label: string; className: string }
     className: "bg-tilouki-teal-dark/90 text-white border-transparent",
   },
   "spring-summer": {
-    label: "Printemps/été",
+    label: "Printemps-été",
     className: "bg-tilouki-powder-soft text-tilouki-plum border-tilouki-powder/60",
   },
   "autumn-winter": {
-    label: "Automne/hiver",
+    label: "Automne-hiver",
     className: "bg-tilouki-beige text-tilouki-ink border-border",
   },
   "all-season": {

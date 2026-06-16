@@ -59,10 +59,10 @@ export async function generateMetadata({
   return buildPageMetadata({
     title: catalogueHasProducts
       ? "Catalogue vêtements enfants"
-      : "Le vestiaire Tilouki arrive bientôt",
+      : "Le catalogue Tilouki arrive bientôt",
     description: catalogueHasProducts
       ? CATALOGUE_SEO_DESCRIPTION.replace("Tilouki", name)
-      : `Le vestiaire ${name} se prépare — conseils tailles, rituels doux et newsletter en attendant les premières pièces.`,
+      : `Le catalogue ${name} se prépare — conseils tailles, idées shopping et newsletter en attendant les premières pièces.`,
     path: canonicalPath,
     noIndex: hasActiveFilters,
   });
@@ -139,7 +139,7 @@ export default async function CataloguePage({ searchParams }: CataloguePageProps
             Catalogue vêtements enfants
           </h1>
           <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm">
-            Le vestiaire se remplit au fil des mercredis — en attendant, voici comment
+            Le catalogue se remplit au fil des mercredis — en attendant, voici comment
             préparer la garde-robe de votre enfant.
           </p>
         </header>

@@ -14,12 +14,11 @@ export function ShippingHighlights({ shopName }: ShippingHighlightsProps) {
           </div>
           <div>
             <h2 className="text-lg font-semibold">
-              Expédition depuis mon stock en France
+              Expédition depuis la France
             </h2>
             <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-              Chaque commande {shopName} est préparée avec soin depuis mon stock
-              personnel en France. Vous achetez directement auprès d&apos;une vendeuse
-              indépendante, avec une préparation attentive de chaque colis.
+              Chaque commande {shopName} est préparée avec soin en France. Nous sommes
+              une boutique indépendante : chaque colis est vérifié avant l&apos;envoi.
             </p>
           </div>
         </article>

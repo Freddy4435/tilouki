@@ -68,7 +68,7 @@ test.describe("QA visuelle retail — production", () => {
     }
 
     await expect(
-      page.getByRole("heading", { name: /le vestiaire tilouki arrive/i }),
+      page.getByRole("heading", { name: /le catalogue tilouki arrive/i }),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: /atelier des tailles/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /carnet tilouki/i })).toBeVisible();

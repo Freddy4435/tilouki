@@ -77,7 +77,7 @@ export const ATELIER_USAGES: readonly AtelierUsage[] = [
   {
     id: "quotidien",
     label: "Quotidien",
-    description: "École, maison, jeux — le vestiaire qui bouge souvent.",
+    description: "École, maison, jeux — la garde-robe qui bouge souvent.",
   },
   {
     id: "sortie",
@@ -255,7 +255,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
     sizeAdvice:
       "Demandez la taille en années ou la pointure vestimentaire actuelle avant d'acheter.",
     marginAdvice:
-      "Montez d'une taille si vous n'êtes pas sûr·e — mieux vaut un peu grand que trop juste.",
+      "Montez d'une taille si vous hésitez — mieux vaut un peu grand que trop juste.",
     materials: ["Coton", "Molleton", "Matières faciles d'entretien"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
     blogTitle: "Comment choisir la bonne taille",

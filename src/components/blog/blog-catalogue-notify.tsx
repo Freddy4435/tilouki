@@ -18,7 +18,7 @@ export function BlogCatalogueNotify() {
             Prévenez-moi quand la sélection arrive
           </h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Le vestiaire Tilouki se prépare avec soin. Inscrivez-vous pour être prévenu·e dès
+            Le catalogue Tilouki se prépare avec soin. Inscrivez-vous pour être informé dès
             les premières pièces en ligne — nouveautés du mercredi et conseils tailles, une
             fois par mois.
           </p>

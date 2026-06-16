@@ -3,7 +3,7 @@ import type { CarrierName } from "@/lib/shipping/types";
 
 /** Texte légal — mode de livraison (CGV, page livraison/retours). */
 export const LEGAL_DELIVERY_METHOD =
-  "Les commandes sont expédiées depuis la France en point relais (Mondial Relay et/ou Chronopost selon votre choix au checkout), en France métropolitaine uniquement.";
+  "Les commandes sont expédiées depuis la France en point relais (Mondial Relay et/ou Chronopost selon votre choix lors de la commande), en France métropolitaine uniquement.";
 
 /** Texte légal — calcul des frais (CGV, page livraison/retours). */
 export const LEGAL_SHIPPING_FEES =
@@ -35,7 +35,7 @@ export function buildLegalDeliveryDelaysHtml(): string {
       `<li><strong>${service.label}</strong> (${service.methodLabel}) : délai indicatif <strong>${service.estimatedDelay}</strong> après expédition</li>`,
   );
 
-  return `<p>Les délais suivants sont communiqués au client avant paiement et affichés au checkout :</p>
+  return `<p>Les délais suivants sont communiqués au client avant paiement et affichés lors de la commande :</p>
 <ul>${items.join("")}</ul>
 <p>Ils sont donnés à titre indicatif (préparation de commande + acheminement transporteur). Le vendeur ne saurait être tenu responsable des retards imputables au transporteur.</p>`;
 }

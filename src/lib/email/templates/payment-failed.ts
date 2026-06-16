@@ -27,7 +27,7 @@ export function renderPaymentFailedEmail(
     ${emailInfoBox("Montant de la commande", totalsText)}
     ${reasonBlock}
     <p style="margin:0 0 16px;">Aucun montant n'a été débité sur votre compte. Le stock réservé pour cette tentative a été libéré.</p>
-    <p style="margin:0 0 16px;">Vous pouvez reprendre votre commande depuis le panier ou le checkout.</p>
+    <p style="margin:0 0 16px;">Vous pouvez reprendre votre commande depuis le panier ou la page de commande.</p>
     ${emailButton(checkoutUrl, "Reprendre ma commande")}
     <p style="margin:0;font-size:13px;color:#71717a;">Si le problème persiste, contactez votre banque ou notre service client. Aucune donnée de carte bancaire n'est transmise par e-mail.</p>
   `.trim();

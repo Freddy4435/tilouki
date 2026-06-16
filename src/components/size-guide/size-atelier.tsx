@@ -234,7 +234,7 @@ export function SizeAtelier({
         <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:flex-wrap">
           {catalogueHasProducts ? (
             <ButtonLink href={catalogueHref} className="min-h-11">
-              Voir le vestiaire filtré
+              Voir le catalogue filtré
               <ArrowRight className="size-4" />
             </ButtonLink>
           ) : (
@@ -244,7 +244,7 @@ export function SizeAtelier({
                 <BookOpen className="size-4" />
               </ButtonLink>
               <ButtonLink href="/#newsletter" variant="outline" className="min-h-11">
-                Être prévenu·e des arrivées
+                Être informé des arrivées
               </ButtonLink>
             </>
           )}

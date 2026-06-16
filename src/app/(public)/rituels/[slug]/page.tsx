@@ -61,7 +61,7 @@ export default async function RitualPage({ params }: RitualPageProps) {
               className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-white/90 transition-colors hover:text-white"
             >
               <ArrowLeft className="size-4" aria-hidden />
-              La Maison Tilouki
+              Retour à Tilouki
             </Link>
             <p className="text-retail-label text-white/85">Rituels doux</p>
             <h1 className="font-display mt-1 max-w-2xl text-3xl font-semibold tracking-tight text-white text-balance sm:text-4xl">

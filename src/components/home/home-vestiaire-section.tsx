@@ -23,9 +23,9 @@ function VestiaireEditorialFallback() {
       <div className="space-y-5">
         <div>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Chaque mercredi, de nouvelles pièces peuvent rejoindre le vestiaire. En
-            attendant les prochaines arrivées, parcourez le catalogue ou inscrivez-vous à
-            la newsletter pour être prévenu·e en premier.
+            Chaque mercredi, de nouvelles pièces rejoignent le catalogue. En
+            attendant les prochaines arrivées, parcourez la boutique ou inscrivez-vous à
+            la newsletter pour être informé en premier.
           </p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <ButtonLink href="/catalogue" className="min-h-11">
@@ -75,7 +75,7 @@ export function HomeVestiaireSection({
             <div className="wednesday-accent-bar mb-2" aria-hidden />
             <p className="text-wednesday-label mb-1.5">Nouveautés</p>
             <h2 id="home-vestiaire-title" className="text-section-title text-tilouki-navy">
-              À shopper cette semaine
+              À découvrir cette semaine
             </h2>
             <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm leading-relaxed">
               {hasProducts
@@ -103,7 +103,7 @@ export function HomeVestiaireSection({
             />
             <div className="mt-6 sm:hidden">
               <ButtonLink href={viewAllHref} variant="outline" className="min-h-11 w-full">
-                Voir tout le vestiaire
+                Voir tout le catalogue
               </ButtonLink>
             </div>
           </>
