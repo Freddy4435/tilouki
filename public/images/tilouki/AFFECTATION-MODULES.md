@@ -1,0 +1,54 @@
+# Affectation recommandee par module
+
+- Categorie Garcon : 01-categories/categorie-garcon-look-moderne.jpg - Petit garcon en tenue moderne beige, fond studio sobre.
+- Categorie Fille : 01-categories/categorie-fille-look-doux.jpg - Petite fille avec chapeau et veste verte, look doux et estival.
+- Categorie Bebe : 01-categories/categorie-bebe-combinaison-grise.jpg - Bebe souriant en combinaison grise, ambiance claire et rassurante.
+- Categorie Pyjamas : 01-categories/categorie-pyjama-fille-doudou.jpg - Petite fille en pyjama avec doudou, image claire pour le rayon nuit.
+- Categorie Pluie : 01-categories/categorie-pluie-garcon-bottes.jpg - Petit garcon avec bottes qui saute dans une flaque.
+- Categorie Robes : 01-categories/categorie-robes-fille-couleurs.jpg - Robes enfant colorees sur cintres, presentation propre de rayon.
+- Categorie Bodies bebe : 01-categories/categorie-bebe-body-neutre.jpg - Body bebe blanc avec chaussettes et petits accessoires.
+- Categorie Vetements : 01-categories/categorie-vetements-enfant-rack.jpg - Portant de vetements enfant dans des tons doux et naturels.
+- Categorie Accessoires : 01-categories/categorie-accessoires-bebe-chaussettes.jpg - Petites chaussettes bebe suspendues, visuel detail et accessoire.
+- Categorie Ceremonie : 01-categories/categorie-ceremonie-fille-robe.jpg - Petite fille en robe de ceremonie avec couronne de fleurs.
+- Categorie Nouveautes ou boutique : 01-categories/categorie-boutique-enfants-mannequins.jpg - Rayon de vetements enfant avec mannequins et piles colorees.
+- Categorie Ensembles : 01-categories/categorie-tenues-fratrie-ete.jpg - Deux enfants avec tenues assorties, style ete et fratrie.
+- Module Nuit calme : 02-rituels-et-moments/rituel-nuit-calme-enfant-dort.jpg - Enfant endormi dans un lit doux, ambiance nuit calme et cocooning.
+- Module Lecture du soir : 02-rituels-et-moments/rituel-lecture-au-lit-pyjama.jpg - Petit garcon en pyjama qui lit sur le lit, moment calme du soir.
+- Module Jour de pluie : 02-rituels-et-moments/rituel-jour-de-pluie-flaque.jpg - Petit garcon avec veste chaude et bottes dans une flaque.
+- Module Jeu dehors : 02-rituels-et-moments/rituel-jeu-apres-pluie.jpg - Enfant qui joue dans l'eau apres la pluie, scene spontanée.
+- Module Balade fraiche : 02-rituels-et-moments/rituel-balade-veste-jaune.jpg - Enfant avec veste jaune, atmosphere de balade fraiche.
+- Module Sortie famille : 02-rituels-et-moments/rituel-promenade-bulles.jpg - Petit garcon qui joue avec des bulles dans un champ.
+- Module Looks du week-end : 02-rituels-et-moments/rituel-copains-casquettes.jpg - Deux enfants en tenues casual avec casquettes, style week-end.
+- Module Jardin apres pluie : 02-rituels-et-moments/rituel-jardin-bottes-pluie.jpg - Deux enfants en vestes bleues et bottes dans un jardin.
+- Module Explorateurs : 02-rituels-et-moments/rituel-exploration-jumelles.jpg - Enfant avec jumelles dans l'herbe, tenue confortable d'exploration.
+- Module Automne doux : 02-rituels-et-moments/rituel-balancoire-automne.jpg - Enfant sur une balancoire en pull, bottes et ambiance automne.
+- Module Tenues d'automne : 02-rituels-et-moments/rituel-automne-fille-robe.jpg - Petite fille en tenue habillee dans un parc aux couleurs d'automne.
+- Module Week-end dehors : 02-rituels-et-moments/rituel-weekend-fille-blouson.jpg - Petite fille en blouson bleu et jupe, balade douce en exterieur.
+- Module Matin organise : 02-rituels-et-moments/rituel-matin-dressing-bebe.jpg - Tiroir de linge bebe soigneusement plie, routine du matin.
+- Module Cocon bebe : 02-rituels-et-moments/rituel-bebe-panier-cocon.jpg - Panier de vetements bebe moelleux, couleurs calmes et rassurantes.
+- Hero ou bandeau collections : 03-home-et-marque/home-hero-dressing-couleurs.jpg - Dressing enfant colore et joyeux, ideal pour relancer l'envie de parcourir.
+- Bloc selection boutique : 03-home-et-marque/home-boutique-cocooning.jpg - Vetements enfant sur portant dans une boutique douce et haut de gamme.
+- Bloc marque rassurante : 03-home-et-marque/home-fratrie-complice.jpg - Deux enfants complices en pulls doux, image chaleureuse et familiale.
+- Bloc dehors par tous les temps : 03-home-et-marque/home-bottes-pluie-parc.jpg - Enfant qui saute avec bottes de pluie, sensation de mouvement et de jeu.
+- Bloc bebe rassurant : 03-home-et-marque/home-bebe-sourire-cocon.jpg - Bebe en tenue claire, regard doux et ambiance naturelle.
+- Bloc naissance ou nuits douces : 03-home-et-marque/home-bebe-pyjama-bleu.jpg - Bebe en pyjama bleu, scene simple et apaisante.
+- Bloc pyjamas bebe : 03-home-et-marque/home-bebe-pyjama-rouge.jpg - Bebe assis en pyjama rouge, image nette pour rayon nuit bebe.
+- Bloc confort actif : 03-home-et-marque/home-enfant-survetement-parc.jpg - Tout-petit en ensemble confortable dans un parc.
+- Article choisir un pyjama bebe : 04-blog/blog-bien-choisir-pyjama.jpg - Bebe debout en pyjama bleu doux, parfait pour un article sommeil.
+- Article rituel du soir : 04-blog/blog-rituel-du-soir.jpg - Nouveau-ne en tenue de nuit claire, ambiance calme.
+- Article pyjamas enfants : 04-blog/blog-pyjama-enfant-rose.jpg - Enfant en pyjama rose avec jouet, usage blog nuit et confort.
+- Article matieres et superpositions : 04-blog/blog-matieres-douces-pull-jean.jpg - Pull, bonnet et jean poses a plat, inspiration matieres douces.
+- Article valise naissance ou confort bebe : 04-blog/blog-preparer-valise-enfant.jpg - Detail tendre de bebe sur lit clair, image d'introduction douce.
+- Article looks garcon : 04-blog/blog-look-garcon-quotidien.jpg - Petit garcon souriant en t-shirt colore, look quotidien.
+- Article tenues ceremonie garcon : 04-blog/blog-ceremonie-garcon.jpg - Petit garcon en gilet et cravate, tenue de ceremonie.
+- Article habiller enfant sous la pluie : 04-blog/blog-pluie-bottes-et-veste.jpg - Enfant en veste jaune, inspiration protection pluie et vent.
+- Article tenues habillees fille : 04-blog/blog-tenue-dimanche-fille.jpg - Petite robe blanche et chaussures, tenue du dimanche ou ceremonie.
+- Article organiser le dressing bebe : 04-blog/blog-organisation-dressing.jpg - Bodies bebe sur cintres, visuel propre pour rangement et organisation.
+- Detail produit bebe rose : 05-details-et-matieres/detail-body-rose-ourson.jpg - Body bebe blanc sur fond rose avec chaussons et peluche.
+- Detail rayon robes ou nouveautes : 05-details-et-matieres/detail-robe-jaune-enfant.jpg - Robe enfant jaune a pois en boutique, couleur joyeuse et lumineuse.
+- Detail naissance et cadeaux : 05-details-et-matieres/detail-panier-naissance-blanc.jpg - Coffret naissance blanc avec vetements et accessoires bebe.
+- Detail palette douce 2026 : 05-details-et-matieres/detail-short-moutarde-radiateur.jpg - Short bebe moutarde suspendu, image minimaliste et chaleureuse.
+- Detail tee-shirt bebe : 05-details-et-matieres/detail-tee-shirt-bebe-flatlay.jpg - T-shirt bebe blanc avec chaussettes et petits objets colores.
+- Detail pyjama ludique : 05-details-et-matieres/detail-pyjama-deguisement-bebe.jpg - Bebe en pyjama combinaison orange, visuel ludique pour nuit enfant.
+- Guide tailles ou age : 06-reassurance-et-guides/guide-tailles-tenues-enfants.jpg - Deux enfants ensemble, image neutre pour guide tailles et ages.
+- Guide entretien du linge bebe : 06-reassurance-et-guides/guide-linge-bebe-propre.jpg - Vetements bebe suspendus sur une corde a linge, parfait pour parler entretien.

@@ -8,6 +8,9 @@ import { cn } from "@/lib/utils";
 
 type EditorialImageProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
   imageId: EditorialImageId;
+  /** Surcharge déterministe (ex. héros blog résolu via tilouki-images). */
+  src?: `/images/tilouki/${string}`;
+  alt?: string;
   className?: string;
   imageClassName?: string;
 };
@@ -17,6 +20,8 @@ type EditorialImageProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> 
  */
 export function EditorialImage({
   imageId,
+  src: srcOverride,
+  alt: altOverride,
   className,
   imageClassName,
   fill,
@@ -24,7 +29,12 @@ export function EditorialImage({
   sizes,
   ...props
 }: EditorialImageProps) {
-  const image = getEditorialImage(imageId);
+  const base = getEditorialImage(imageId);
+  const image = {
+    ...base,
+    ...(srcOverride ? { src: srcOverride } : {}),
+    ...(altOverride ? { alt: altOverride } : {}),
+  };
 
   if (fill) {
     return (

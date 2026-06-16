@@ -28,7 +28,7 @@ export function buildEditorialBlocksFromCategories(
   return categories.slice(0, 3).map((category) => {
     const imageUrl = isRealEditorialImage(category.imageUrl)
       ? category.imageUrl
-      : (resolveUniverseEditorialImage(category.slug)?.src ?? null);
+      : resolveUniverseEditorialImage(category.slug).src;
 
     return {
       title: category.name,

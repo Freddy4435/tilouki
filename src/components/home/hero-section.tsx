@@ -2,7 +2,7 @@ import Image from "next/image";
 import { ArrowRight, CreditCard, RotateCcw, Truck } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/button-link";
-import { getDefaultHeroEditorialImage, getEditorialImageOrNull } from "@/lib/media/editorial-images";
+import { getDefaultHeroEditorialImage, resolveEditorialAltFromSrc } from "@/lib/media/editorial-images";
 
 interface HeroSectionProps {
   shopName: string;
@@ -20,8 +20,7 @@ const REASSURANCE_ITEMS = [
 ] as const;
 
 function editorialAltFromSrc(src: string, fallback: string): string {
-  const id = src.replace(/^\/editorial\//, "").replace(/\.webp$/, "");
-  return getEditorialImageOrNull(id)?.alt ?? fallback;
+  return resolveEditorialAltFromSrc(src, fallback);
 }
 
 function resolveHeroImageSrc(heroImageUrl?: string | null): string {

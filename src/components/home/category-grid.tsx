@@ -51,7 +51,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
             const editorialFallback = resolveUniverseEditorialImage(category.slug);
             const imageSrc = isRealEditorialImage(category.imageUrl)
               ? category.imageUrl!
-              : (editorialFallback?.src ?? null);
+              : editorialFallback.src;
             const hasPhoto = Boolean(imageSrc);
             const tone = SURFACE_TONES[index % SURFACE_TONES.length];
 
@@ -64,7 +64,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                 {hasPhoto ? (
                   <Image
                     src={imageSrc!}
-                    alt={editorialFallback?.alt ?? category.name}
+                    alt={editorialFallback.alt}
                     fill
                     loading="lazy"
                     sizes="(max-width: 640px) 45vw, 20vw"

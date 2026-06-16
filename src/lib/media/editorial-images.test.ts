@@ -9,10 +9,10 @@ import {
 } from "@/lib/media/editorial-images";
 
 describe("editorial-images", () => {
-  it("référence 21 images locales avec crédits", () => {
+  it("référence 21 modules éditoriaux branchés sur le pack Tilouki", () => {
     expect(Object.keys(editorialImages)).toHaveLength(21);
     for (const image of Object.values(editorialImages)) {
-      expect(image.src).toMatch(/^\/editorial\/[\w-]+\.webp$/);
+      expect(image.src).toMatch(/^\/images\/tilouki\/.+\.jpg$/);
       expect(image.sourceUrl).toMatch(/^https:\/\//);
       expect(image.licenseUrl).toBeTruthy();
       expect(image.credit).toBeTruthy();
@@ -22,24 +22,40 @@ describe("editorial-images", () => {
     }
   });
 
-  it("utilise le hero éditorial par défaut", () => {
-    expect(getDefaultHeroEditorialImage().id).toBe("hero-home");
+  it("utilise le hero pack par défaut", () => {
+    const hero = getDefaultHeroEditorialImage();
+    expect(hero.id).toBe("hero-home");
+    expect(hero.src).toBe(
+      "/images/tilouki/03-home-et-marque/home-hero-dressing-couleurs.jpg",
+    );
   });
 
-  it("résout les visuels blog avec repli blog-default", () => {
+  it("résout les visuels blog avec repli déterministe", () => {
     const mapped = resolveBlogHeroImage("pyjama-plie-lit-soir");
-    expect(mapped.id).toBe("pajamas-evening");
-    expect(getEditorialImage(mapped.id).src).toBe(mapped.src);
+    expect(mapped.src).toBe(
+      "/images/tilouki/04-blog/blog-bien-choisir-pyjama.jpg",
+    );
+    expect(getEditorialImage("pajamas-evening").src).toMatch(/blog-rituel-du-soir/);
 
     const fallback = resolveBlogHeroImage("id-inconnu");
-    expect(fallback.id).toBe("blog-default");
+    expect(fallback.src).toBe(
+      "/images/tilouki/04-blog/blog-organisation-dressing.jpg",
+    );
   });
 
-  it("associe chaque univers catalogue à une photo sémantique", () => {
-    expect(resolveUniverseEditorialImage("garcon")?.id).toBe("universe-garcon");
-    expect(resolveUniverseEditorialImage("fille")?.id).toBe("universe-fille");
-    expect(resolveUniverseEditorialImage("bebe")?.id).toBe("universe-bebe");
-    expect(resolveUniverseEditorialImage("pyjamas")?.id).toBe("universe-pyjamas");
-    expect(resolveUniverseEditorialImage("accessoires")?.id).toBe("universe-accessoires");
+  it("associe chaque univers catalogue à une photo sémantique du pack", () => {
+    expect(resolveUniverseEditorialImage("garcon").src).toMatch(
+      /categorie-garcon-look-moderne/,
+    );
+    expect(resolveUniverseEditorialImage("fille").src).toMatch(/categorie-fille-look-doux/);
+    expect(resolveUniverseEditorialImage("bebe").src).toMatch(
+      /categorie-bebe-combinaison-grise/,
+    );
+    expect(resolveUniverseEditorialImage("pyjamas").src).toMatch(
+      /categorie-pyjama-fille-doudou/,
+    );
+    expect(resolveUniverseEditorialImage("accessoires").src).toMatch(
+      /categorie-accessoires-bebe-chaussettes/,
+    );
   });
 });

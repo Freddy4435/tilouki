@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { EditorialSurface } from "@/components/home/editorial-surface";
 import { isRealEditorialImage } from "@/lib/editorial/images";
-import { getEditorialImageOrNull } from "@/lib/media/editorial-images";
+import { resolveEditorialAltFromSrc } from "@/lib/media/editorial-images";
 import type { EditorialBlock } from "@/lib/editorial/types";
 
 const SURFACE_TONES = ["jade", "powder", "cloud", "butter", "teal"] as const;
@@ -43,11 +43,7 @@ export function EditorialUniverseSection({ blocks }: EditorialUniverseSectionPro
                 {isRealEditorialImage(block.imageUrl) ? (
                   <Image
                     src={block.imageUrl!}
-                    alt={
-                      getEditorialImageOrNull(
-                        block.imageUrl!.replace("/editorial/", "").replace(".webp", ""),
-                      )?.alt ?? `Univers ${block.title}`
-                    }
+                    alt={resolveEditorialAltFromSrc(block.imageUrl!, `Univers ${block.title}`)}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

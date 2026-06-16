@@ -22,6 +22,8 @@ export function BlogArticleCard({ article }: { article: BlogArticle }) {
     <article className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-tilouki-plum/15 bg-card shadow-[var(--shadow-soft)] transition-shadow hover:border-tilouki-plum/25 hover:shadow-[var(--shadow-card)]">
       <EditorialImage
         imageId={heroImage.id}
+        src={heroImage.src}
+        alt={heroImage.alt}
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         className="aspect-[16/10]"

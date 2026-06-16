@@ -121,6 +121,8 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
 
       <EditorialImage
         imageId={heroImage.id}
+        src={heroImage.src}
+        alt={heroImage.alt}
         fill
         sizes="(max-width: 1280px) 100vw, 1024px"
         className="mx-auto aspect-[21/9] max-w-5xl"

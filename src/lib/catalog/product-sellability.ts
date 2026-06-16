@@ -32,7 +32,7 @@ const PLACEHOLDER_URL_PATTERN =
 
 const STOCK_PHOTO_HOST_PATTERN =
   /(?:pexels\.com|unsplash\.com|pixabay\.com|images\.pexels\.com)/i;
-const EDITORIAL_ASSET_PATH_PATTERN = /^\/editorial\//i;
+const EDITORIAL_ASSET_PATH_PATTERN = /^\/(?:editorial|images\/tilouki)\//i;
 
 /** URLs interdites comme photo produit (stock ou éditorial local). */
 export function isStockOrEditorialImageUrl(url: string): boolean {
