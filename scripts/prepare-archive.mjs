@@ -14,8 +14,10 @@ import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
+  ARCHIVE_MANDATORY_EXCLUSION_KEYS,
   findArchivePathViolations,
   findDeliverableViolations,
+  findMandatoryExclusionViolations,
   formatArchiveViolations,
 } from "./lib/archive-guard.mjs";
 
@@ -59,10 +61,13 @@ function listArchivedPaths() {
 }
 
 function assertArchiveIsClean(paths) {
-  const violations = findArchivePathViolations(paths);
+  const violations = [
+    ...findMandatoryExclusionViolations(paths),
+    ...findArchivePathViolations(paths),
+  ];
   if (violations.length > 0) {
     console.error("\n  ✗ Archive refusée — chemins interdits détectés :\n");
-    console.error(`${formatArchiveViolations(violations)}\n`);
+    console.error(`${formatArchiveViolations(deduplicateViolations(violations))}\n`);
     process.exit(1);
   }
 }
@@ -90,6 +95,17 @@ function assertZipArchiveIsClean(entries) {
     console.error(`${formatArchiveViolations(violations)}\n`);
     process.exit(1);
   }
+}
+
+/** @param {Array<{ path: string, reason: string }>} violations */
+function deduplicateViolations(violations) {
+  const seen = new Set();
+  return violations.filter((violation) => {
+    const key = `${violation.path}::${violation.reason}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function main() {
@@ -120,14 +136,21 @@ function main() {
 
   console.log(`\n  ✓ Archive prête : archives/tilouki-${date}.zip`);
   console.log(`    ${paths.length} fichier(s) versionné(s) inclus`);
-  console.log("\n  Exclusions garanties (non versionnées ou bloquées) :");
+  console.log("\n  Exclusions obligatoires vérifiées (absentes du zip) :");
+  for (const key of ARCHIVE_MANDATORY_EXCLUSION_KEYS) {
+    console.log(`    - ${key}`);
+  }
+  console.log("\n  Autres exclusions (non versionnées ou bloquées) :");
   console.log("    - .env* sauf .env.example");
-  console.log("    - node_modules/, .next/, .vercel/, .email-preview/");
-  console.log("    - supabase/.temp/, tsconfig.tsbuildinfo");
-  console.log("    - archives/, playwright-report/, test-results/, blob-report/");
+  console.log("    - .email-preview/, supabase/.temp/, tsconfig.tsbuildinfo");
+  console.log("    - blob-report/, screenshots/, captures/, exports/");
   console.log("    - fichiers *.zip / *.rar à la racine du dépôt");
   console.log("\n  ⛔ LIVRABLE INTERDIT : zip / .rar manuel du dossier projet.");
-  console.log("  Seule méthode autorisée : npm run delivery:clean");
+  console.log("  Procédure complète avant envoi :");
+  console.log("    npm run audit:secrets");
+  console.log("    npm run delivery:clean");
+  console.log(`    npm run verify:archive -- archives/tilouki-${date}.zip`);
+  console.log("  (ou : npm run delivery:release)");
   console.log("  Contrôler un export suspect : npm run scan:deliverable -- <chemin>");
   console.log("  En cas de fuite : docs/rotation-secrets-apres-fuite-archive.md\n");
 }

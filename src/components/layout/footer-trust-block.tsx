@@ -19,8 +19,12 @@ export function FooterTrustBlock() {
         id="footer-trust-title"
         className="text-retail-label text-tilouki-ink-muted mb-4"
       >
-        Contact, livraison & garanties
+        Contact, livraison &amp; garanties
       </h2>
+      <p className="text-muted-foreground mb-4 text-sm leading-relaxed">
+        Paiement sécurisé Stripe, livraison en point relais et conditions de retour
+        détaillées avant le paiement.
+      </p>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {links.map((item) => (
           <li key={item.id} className="flex gap-3">

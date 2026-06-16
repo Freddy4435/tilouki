@@ -1,11 +1,11 @@
 import localFont from "next/font/local";
 
 /**
- * Typographie Tilouki — 2 familles auto-hébergées, pas de Google Fonts (CI déterministe).
- * Régénérer les fichiers : npm run fonts:fetch
+ * Typographie Tilouki — Cocon marchand 2026 (auto-hébergée, CI déterministe).
+ * Régénérer : npm run fonts:fetch
  *
- * - DM Sans (`bodyFont`) : UI retail — formulaires, filtres, prix, checkout, cartes produit.
- * - Fraunces (`headingFont`) : voix éditoriale — hero, titres de section, blocs marque.
+ * - DM Sans (`bodyFont`) : UI retail — formulaires, filtres, prix, checkout, cartes, titres rayon.
+ * - Fraunces (`headingFont`) : hero, grands titres marque, rituels — pas les panneaux compacts.
  */
 export const bodyFont = localFont({
   src: "../assets/fonts/dm-sans-latin.woff2",

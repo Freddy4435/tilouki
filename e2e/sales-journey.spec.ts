@@ -2,21 +2,35 @@ import { test, expect } from "./fixtures";
 
 import {
   addCurrentProductToCart,
-  openFirstProductFromCatalogue,
+  goToCatalogueFromHome,
+  openCategoryFromCatalogue,
+  openSellableProductFromCatalogue,
+  openSellableProductFromCurrentListing,
+  expectCataloguePageReady,
 } from "./helpers/catalog";
 import {
   acceptCgvAndPay,
   assertCgvBlocksPayment,
+  assertShippingRecapBeforePayment,
   fillCustomerStep,
   FINAL_PAYMENT_BUTTON,
   openCheckoutFromCart,
   selectMockRelayPoint,
 } from "./helpers/checkout";
 import { setupPurchaseMocks } from "./helpers/mocks";
+import { ensureSeededCartOnPage } from "./helpers/cart";
+import {
+  expectEditorialTiloukiImage,
+  expectHomeProductsBeforeBuyingGuides,
+  expectNoTiloukiPackInProductMain,
+  openProductSizeGuideSection,
+  searchCatalogue,
+  toggleFavoriteOnProductPage,
+} from "./helpers/retail";
 
 /**
- * Parcours client principal — une suite séquentielle par viewport (desktop + mobile).
- * Critère d'acceptation recette : accueil → catalogue → produit → panier → checkout → relais → CGV → paiement mocké.
+ * Parcours client e-commerce après recentrage retail.
+ * Accueil → catalogue → catégorie → fiche → taille → panier → commande (+ recherche, favoris, guide tailles).
  */
 test.describe("Parcours de vente complet", () => {
   test.describe.configure({ mode: "serial" });
@@ -25,63 +39,113 @@ test.describe("Parcours de vente complet", () => {
     await setupPurchaseMocks(page);
   });
 
-  test("1. Accueil — navigation et liens légaux", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("main")).toBeVisible();
+  test("1. Accueil — produits avant guides et accès catalogue", async ({ page }) => {
+    await expectHomeProductsBeforeBuyingGuides(page);
     await expect(page.getByRole("link", { name: /catalogue/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /mentions légales/i })).toBeVisible();
   });
 
-  test("2. Catalogue — liste et accès fiche produit", async ({ page }) => {
-    await page.goto("/catalogue");
+  test("2. Accueil → catalogue", async ({ page }) => {
+    await goToCatalogueFromHome(page);
     await expect(
-      page.getByRole("heading", { name: /catalogue vêtements enfants/i }),
+      page.getByRole("main").getByRole("heading", { name: /^catalogue$/i }),
     ).toBeVisible();
-
-    const href = await openFirstProductFromCatalogue(page, { skipGoto: true });
-    test.skip(!href, "Aucun produit vendable — photo commerciale requise");
-
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 
-  test("3. Fiche produit — ajout au panier", async ({ page }) => {
-    const href = await openFirstProductFromCatalogue(page);
+  test("3. Catalogue → catégorie", async ({ page }) => {
+    const categoryHref = await openCategoryFromCatalogue(page, /^bébé$/i);
+    test.skip(!categoryHref, "Catégorie bébé inaccessible ou catalogue vide");
+
+    await expect(page).toHaveURL(/\/categorie\/bebe/);
+    await expectEditorialTiloukiImage(page);
+  });
+
+  test("4. Catégorie → fiche produit (photo commerciale)", async ({ page }) => {
+    const categoryHref = await openCategoryFromCatalogue(page, /^pyjamas$/i);
+    test.skip(!categoryHref, "Catégorie pyjamas inaccessible");
+
+    const productHref = await openSellableProductFromCurrentListing(page);
+    test.skip(!productHref, "Aucun produit vendable dans la catégorie");
+
+    await expect(
+      page.getByRole("main").getByRole("heading", { level: 1 }),
+    ).toBeVisible();
+    await expectNoTiloukiPackInProductMain(page);
+  });
+
+  test("5. Recherche produit dans le catalogue", async ({ page }) => {
+    await page.goto("/catalogue");
+    const ready = await expectCataloguePageReady(page);
+    test.skip(!ready, "Catalogue en mode lancement");
+
+    await searchCatalogue(page, "body");
+    await expect(page).toHaveURL(/[?&]q=/);
+    await expect(
+      page.getByRole("main").getByRole("heading", { name: /^catalogue$/i }),
+    ).toBeVisible();
+  });
+
+  test("6. Fiche — guide des tailles et favoris", async ({ page }) => {
+    const href = await openSellableProductFromCatalogue(page);
+    test.skip(!href, "Aucun produit vendable — photo commerciale requise");
+
+    await openProductSizeGuideSection(page);
+    await expect(page.locator("#size-guide")).toContainText(/taille|âge/i);
+
+    await toggleFavoriteOnProductPage(page);
+    await page.goto("/favoris");
+    await expect(page.getByRole("heading", { name: /mes favoris/i })).toBeVisible();
+    await expect(page.locator("article.tilouki-product-card").first()).toBeVisible();
+  });
+
+  test("7. Fiche produit — choix taille et ajout au panier", async ({ page }) => {
+    const href = await openSellableProductFromCatalogue(page);
     test.skip(!href, "Aucun produit vendable — photo commerciale requise");
 
     await addCurrentProductToCart(page);
     await expect(page.getByRole("heading", { name: /votre panier/i })).toBeVisible();
   });
 
-  test("4. Checkout — formulaire client", async ({ page }) => {
-    const href = await openFirstProductFromCatalogue(page);
-    test.skip(!href, "Aucun produit vendable — photo commerciale requise");
+  test("8. Panier → commande — formulaire client", async ({ page }) => {
+    const href = await openSellableProductFromCatalogue(page);
+    if (href) {
+      await addCurrentProductToCart(page);
+    } else {
+      await ensureSeededCartOnPage(page);
+    }
 
-    await addCurrentProductToCart(page);
     await openCheckoutFromCart(page);
     await fillCustomerStep(page);
 
     await expect(page.getByLabel("Code postal")).toBeVisible();
   });
 
-  test("5. Checkout — sélection point relais mock", async ({ page }) => {
-    const href = await openFirstProductFromCatalogue(page);
-    test.skip(!href, "Aucun produit vendable — photo commerciale requise");
+  test("9. Checkout — sélection point relais mock", async ({ page }) => {
+    const href = await openSellableProductFromCatalogue(page);
+    if (href) {
+      await addCurrentProductToCart(page);
+    } else {
+      await ensureSeededCartOnPage(page);
+    }
 
-    await addCurrentProductToCart(page);
     await openCheckoutFromCart(page);
     await fillCustomerStep(page);
     await selectMockRelayPoint(page);
 
+    await assertShippingRecapBeforePayment(page);
     await expect(
       page.getByRole("button", { name: FINAL_PAYMENT_BUTTON }),
     ).toBeVisible();
   });
 
-  test("6. Checkout — blocage sans CGV", async ({ page }) => {
-    const href = await openFirstProductFromCatalogue(page);
-    test.skip(!href, "Aucun produit vendable — photo commerciale requise");
+  test("10. Checkout — blocage sans CGV", async ({ page }) => {
+    const href = await openSellableProductFromCatalogue(page);
+    if (href) {
+      await addCurrentProductToCart(page);
+    } else {
+      await ensureSeededCartOnPage(page);
+    }
 
-    await addCurrentProductToCart(page);
     await openCheckoutFromCart(page);
     await fillCustomerStep(page);
     await selectMockRelayPoint(page);
@@ -89,11 +153,14 @@ test.describe("Parcours de vente complet", () => {
     await assertCgvBlocksPayment(page);
   });
 
-  test("7. Checkout — session Stripe mockée", async ({ page }) => {
-    const href = await openFirstProductFromCatalogue(page);
-    test.skip(!href, "Aucun produit vendable — photo commerciale requise");
+  test("11. Checkout — session Stripe mockée", async ({ page }) => {
+    const href = await openSellableProductFromCatalogue(page);
+    if (href) {
+      await addCurrentProductToCart(page);
+    } else {
+      await ensureSeededCartOnPage(page);
+    }
 
-    await addCurrentProductToCart(page);
     await openCheckoutFromCart(page);
     await fillCustomerStep(page);
     await selectMockRelayPoint(page);

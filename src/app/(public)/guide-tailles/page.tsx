@@ -12,10 +12,10 @@ import { hasActiveCatalogueProducts } from "@/lib/supabase/queries/products";
 export const revalidate = 3600;
 
 const PAGE_DESCRIPTION =
-  "Choisissez l'âge et l'usage : conseils taille, marge recommandée et matières douces — sans jargon, pour choisir sereinement.";
+  "Choisissez l'âge et l'usage : repères taille, coupe conseillée et matières adaptées — pour commander la bonne pièce au bon format.";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "L'Atelier des tailles — Guide vêtements enfants",
+  title: "Guide des tailles — Vêtements enfants",
   description: PAGE_DESCRIPTION,
   path: "/guide-tailles",
 });
@@ -39,9 +39,9 @@ export default async function GuideTaillesPage() {
             <div>
               <p className="text-retail-label text-tilouki-teal-dark mb-2 inline-flex items-center gap-1.5">
                 <Ruler className="size-3.5" aria-hidden />
-                Aide au choix
+                Guide des tailles
               </p>
-              <h1 className="text-editorial-title">L&apos;Atelier des tailles</h1>
+              <h1 className="text-editorial-title">Guide des tailles enfants</h1>
               <p className="text-muted-foreground mt-3 max-w-xl text-sm leading-relaxed sm:text-base">
                 {PAGE_DESCRIPTION} Partagez votre sélection avec un lien — aucune donnée
                 personnelle n&apos;est enregistrée.

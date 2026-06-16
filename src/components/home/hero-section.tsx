@@ -2,16 +2,21 @@ import Image from "next/image";
 import { ArrowRight, CreditCard, RotateCcw, Truck } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/button-link";
-import { getDefaultHeroEditorialImage, resolveEditorialAltFromSrc } from "@/lib/media/editorial-images";
+import { IMAGE_SIZES } from "@/lib/media/image-sizes";
+import { resolveEditorialAltFromSrc } from "@/lib/media/editorial-images";
+import {
+  isTiloukiPackImageUrl,
+  resolveEditorialModuleTiloukiImage,
+} from "@/lib/tilouki-images";
 
 interface HeroSectionProps {
   shopName: string;
-  /** Photo admin optionnelle — sinon visuel éditorial local. */
+  /** Photo admin optionnelle — sinon visuel pack Tilouki. */
   heroImageUrl?: string | null;
 }
 
 const HERO_BASELINE =
-  "Tee-shirts, bodies et pyjamas pour le quotidien — livrés en point relais.";
+  "Vêtements enfants en stock — tailles visibles, livraison en point relais.";
 
 const REASSURANCE_ITEMS = [
   { icon: CreditCard, label: "Paiement sécurisé" },
@@ -19,74 +24,74 @@ const REASSURANCE_ITEMS = [
   { icon: Truck, label: "Livraison point relais" },
 ] as const;
 
-function editorialAltFromSrc(src: string, fallback: string): string {
-  return resolveEditorialAltFromSrc(src, fallback);
-}
-
-function resolveHeroImageSrc(heroImageUrl?: string | null): string {
-  return heroImageUrl ?? getDefaultHeroEditorialImage().src;
+function resolveHeroImage(heroImageUrl?: string | null) {
+  if (heroImageUrl?.trim()) {
+    return {
+      src: heroImageUrl,
+      alt: resolveEditorialAltFromSrc(heroImageUrl, "Vêtements enfants Tilouki"),
+    };
+  }
+  const pack = resolveEditorialModuleTiloukiImage("hero-home");
+  return { src: pack.src, alt: pack.alt };
 }
 
 export function HeroSection({ shopName, heroImageUrl }: HeroSectionProps) {
-  const imageSrc = resolveHeroImageSrc(heroImageUrl);
-  const imageAlt = heroImageUrl
-    ? editorialAltFromSrc(heroImageUrl, `Ambiance ${shopName}`)
-    : getDefaultHeroEditorialImage().alt;
+  const heroImage = resolveHeroImage(heroImageUrl);
+  const usePackImage = isTiloukiPackImageUrl(heroImage.src) || !heroImageUrl;
 
   return (
     <section
       aria-labelledby="hero-heading"
-      className="home-maison-hero border-border/60 border-b"
+      className="home-maison-hero border-tilouki-border/60 border-b"
     >
-      <div className="relative min-h-[var(--home-hero-min-height)] max-h-[min(82vh,680px)] overflow-hidden">
+      <div className="relative max-h-[min(82vh,680px)] min-h-[var(--home-hero-min-height)] overflow-hidden">
         <Image
-          src={imageSrc}
-          alt={imageAlt}
+          src={heroImage.src}
+          alt={heroImage.alt}
           fill
           priority
           fetchPriority="high"
-          sizes="100vw"
+          sizes={IMAGE_SIZES.hero}
           className="object-cover object-[center_42%]"
         />
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--tilouki-navy)_88%,transparent)] via-[color-mix(in_srgb,var(--tilouki-navy)_42%,transparent)] to-[color-mix(in_srgb,var(--tilouki-brand-blue)_18%,transparent)]"
           aria-hidden
         />
-        <div className="container-tilouki relative z-10 flex min-h-[var(--home-hero-min-height)] max-h-[min(82vh,680px)] flex-col justify-end pb-6 pt-20 sm:pb-8 sm:pt-24 lg:pb-10">
+        <div className="container-tilouki relative z-10 flex max-h-[min(82vh,680px)] min-h-[var(--home-hero-min-height)] flex-col justify-end pt-20 pb-6 sm:pt-24 sm:pb-8 lg:pb-10">
           <div className="max-w-xl space-y-3 sm:space-y-4">
-            <p className="text-retail-label text-tilouki-mint">Boutique vêtements enfants</p>
-            <h1
-              id="hero-heading"
-              className="font-display text-[clamp(2.25rem,6vw,3.5rem)] leading-[1.05] font-semibold tracking-tight text-white text-balance"
-            >
+            <p className="text-retail-label text-tilouki-mint">
+              {usePackImage ? "Boutique vêtements enfants" : shopName}
+            </p>
+            <h1 id="hero-heading" className="text-editorial-title text-white">
               {shopName}
             </h1>
-            <p className="max-w-md text-base font-medium leading-relaxed text-white/92 text-balance sm:text-lg">
+            <p className="max-w-md text-base leading-relaxed font-medium text-balance text-white/92 sm:text-lg">
               {HERO_BASELINE}
             </p>
             <div className="flex flex-col gap-2 pt-1 min-[400px]:flex-row min-[400px]:flex-wrap">
               <ButtonLink
-                href="/catalogue"
+                href="#home-vestiaire"
                 size="lg"
                 className="min-h-11 flex-1 shadow-[var(--shadow-cta)] sm:flex-none"
               >
-                Voir le catalogue
+                Voir les nouveautés
                 <ArrowRight className="size-4" />
               </ButtonLink>
               <ButtonLink
-                href="#home-vestiaire"
+                href="#home-rayons"
                 variant="outline"
                 size="lg"
                 className="min-h-11 flex-1 border-white/35 bg-white/12 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white sm:flex-none"
               >
-                Nouveautés du mercredi
+                Choisir par âge
               </ButtonLink>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="maison-surface-milk border-border/50 border-t">
+      <div className="maison-surface-milk border-tilouki-border/50 border-t">
         <ul className="container-tilouki text-muted-foreground flex flex-wrap justify-center gap-x-4 gap-y-2 py-3 text-[11px] sm:justify-start sm:gap-x-5 sm:py-3.5 sm:text-xs">
           {REASSURANCE_ITEMS.map((item) => (
             <li key={item.label} className="inline-flex items-center gap-1.5">

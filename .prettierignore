@@ -17,6 +17,8 @@ supabase/.temp
 .vercel
 # Secrets locaux — jamais formater
 .env
+.env.local
+.env.vercel
 .env.*
 *.tsbuildinfo
 next-env.d.ts

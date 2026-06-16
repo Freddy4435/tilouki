@@ -8,6 +8,21 @@ export interface NavDropdownPanel {
   links: NavDropdownLink[];
 }
 
+/** Mise en avant visuelle dans le mega-menu desktop. */
+export interface NavMegaMenuFeatured {
+  title: string;
+  description: string;
+  href: string;
+  /** Slug catégorie pour resolveCategoryTiloukiImage, ou id module éditorial. */
+  imageSlug: string;
+  imageKind: "category" | "editorial";
+}
+
+export interface NavMegaMenuBase {
+  panels: NavDropdownPanel[];
+  featured?: NavMegaMenuFeatured;
+}
+
 export interface NavLinkItem {
   id: string;
   kind: "link";
@@ -15,17 +30,27 @@ export interface NavLinkItem {
   href: string;
 }
 
-export interface NavUniverseItem {
+export interface NavUniverseItem extends NavMegaMenuBase {
   id: string;
   kind: "universe";
   label: string;
   slug: string;
   href: string;
   productCount: number;
-  panels: NavDropdownPanel[];
 }
 
-export type NavTopItem = NavLinkItem | NavUniverseItem;
+export interface NavCategoryMegaItem extends NavMegaMenuBase {
+  id: string;
+  kind: "category";
+  label: string;
+  slug: string;
+  href: string;
+  productCount: number;
+}
+
+export type NavMegaMenuItem = NavUniverseItem | NavCategoryMegaItem;
+
+export type NavTopItem = NavLinkItem | NavMegaMenuItem;
 
 export interface NavMobileLink {
   label: string;
@@ -41,7 +66,9 @@ export interface NavMobileLink {
     | "truck"
     | "rotate-ccw"
     | "heart"
-    | "mail";
+    | "mail"
+    | "book-open"
+    | "package";
 }
 
 export interface NavMobileSection {

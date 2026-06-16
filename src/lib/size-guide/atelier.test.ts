@@ -37,7 +37,9 @@ describe("atelier size guide", () => {
     expect(buildAtelierPageHref("4-8-ans", "sortie")).toBe(
       "/guide-tailles?age=4-8-ans&usage=sortie",
     );
-    expect(buildAtelierCatalogueHref("0-3-mois", "nuit")).toContain("/categorie/pyjamas");
+    expect(buildAtelierCatalogueHref("0-3-mois", "nuit")).toContain(
+      "/categorie/pyjamas",
+    );
     expect(buildAtelierCatalogueHref("1-3-ans", "quotidien")).toContain("ages=");
   });
 });

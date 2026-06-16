@@ -17,8 +17,7 @@ export function BlogKeyTakeaways({ items }: BlogKeyTakeawaysProps) {
         id="blog-key-takeaways-title"
         className="font-heading text-tilouki-plum mb-4 flex items-center gap-2 text-lg font-semibold"
       >
-        <Sparkles className="size-5" aria-hidden />
-        À retenir
+        <Sparkles className="size-5" aria-hidden />À retenir
       </h2>
       <ul className="space-y-2 text-sm leading-relaxed">
         {items.map((item) => (

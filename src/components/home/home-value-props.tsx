@@ -3,7 +3,7 @@ import { HOME_VALUE_PROPS } from "@/lib/constants/reassurance";
 export function HomeValueProps() {
   return (
     <section
-      className="maison-surface maison-surface-beige border-y border-tilouki-sand/80"
+      className="maison-surface maison-surface-beige border-tilouki-sand/80 border-y"
       aria-labelledby="why-tilouki-title"
     >
       <div className="container-tilouki section-tilouki py-12 md:py-14">
@@ -49,7 +49,7 @@ export function HomeValueProps() {
                 />
               </div>
               <div>
-                <h3 className="font-display text-sm font-semibold sm:text-base">
+                <h3 className="font-sans text-sm font-semibold sm:text-base">
                   {item.label}
                 </h3>
                 {item.description ? (

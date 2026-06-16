@@ -4,14 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Lock, ShieldCheck } from "lucide-react";
 
+import { OrderTotalsBreakdown } from "@/components/commerce/order-totals-breakdown";
 import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Separator } from "@/components/ui/separator";
 import { useCartShipping } from "@/hooks/use-cart-shipping";
 import { useCartValidation } from "@/hooks/use-cart-validation";
+import { CHECKOUT_CLIENT_MESSAGES } from "@/lib/checkout/client-messages";
 import { useCartStore } from "@/lib/cart/store";
-import { formatPrice } from "@/lib/utils";
 
 interface CartSummaryProps {
   variant?: "page" | "drawer";
@@ -24,9 +25,9 @@ export function CartSummary({
 }: CartSummaryProps) {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
+  const carrier = useCartStore((s) => s.carrier);
   const subtotalCents = useCartStore((s) => s.subtotalCents());
-  const { shippingCents } = useCartShipping();
-  const totalCents = subtotalCents + shippingCents;
+  const { shippingCents, rateLabel } = useCartShipping();
   const canCheckout = useCartStore((s) => s.canCheckout());
   const closeDrawer = useCartStore((s) => s.closeDrawer);
   const { isValidating, validate } = useCartValidation({ enabled: false });
@@ -37,9 +38,7 @@ export function CartSummary({
     const isValid = await validate();
 
     if (!isValid) {
-      setCheckoutError(
-        "Certains articles ne sont plus disponibles en quantité suffisante. Ajustez votre panier.",
-      );
+      setCheckoutError(CHECKOUT_CLIENT_MESSAGES.stockChanged);
       return;
     }
 
@@ -58,41 +57,32 @@ export function CartSummary({
       }
     >
       {variant === "page" ? (
-        <h2 className="text-lg font-semibold">Récapitulatif</h2>
+        <div>
+          <h2 className="text-lg font-semibold">Récapitulatif</h2>
+          <p className="text-muted-foreground mt-1 text-xs">
+            Montants TTC — livraison estimée au point relais.
+          </p>
+        </div>
       ) : null}
 
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Sous-total</span>
-          <span className="font-semibold tabular-nums">
-            {formatPrice(subtotalCents)}
-          </span>
-        </div>
-        <div className="flex justify-between gap-4">
-          <span className="text-muted-foreground">Livraison point relais</span>
-          <span className="font-semibold tabular-nums">
-            {formatPrice(shippingCents)}
-          </span>
-        </div>
-        <p className="text-muted-foreground text-xs leading-relaxed">
-          Estimation Mondial Relay selon le poids. Expédié depuis la France.
-        </p>
-      </div>
-
-      <Separator className={variant === "page" ? "my-4" : "my-2"} />
-
-      <div className="flex justify-between text-base font-bold">
-        <span>Total estimé</span>
-        <span className="tabular-nums">{formatPrice(totalCents)}</span>
-      </div>
+      <OrderTotalsBreakdown
+        subtotalCents={subtotalCents}
+        shippingCents={shippingCents}
+        shippingNote={`Estimation selon le poids (tranche ${rateLabel}). Expédié depuis la France.`}
+        carrier={carrier}
+        showDeliveryEstimate
+        totalLabel="Total estimé TTC"
+      />
 
       {checkoutError ? (
-        <p className="text-destructive text-sm" role="alert">
+        <p className="text-destructive mt-3 text-sm" role="alert">
           {checkoutError}
         </p>
       ) : null}
 
-      <div className={variant === "page" ? "mt-4 space-y-2" : "space-y-2 pt-2"}>
+      <Separator className={variant === "page" ? "my-4" : "my-2"} />
+
+      <div className={variant === "page" ? "space-y-2" : "space-y-2 pt-0"}>
         <Button
           size="lg"
           className="w-full"
@@ -111,7 +101,7 @@ export function CartSummary({
 
         <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-center text-xs">
           <ShieldCheck className="text-primary size-3.5 shrink-0" aria-hidden />
-          Paiement sécurisé — étape suivante
+          Paiement sécurisé Stripe à l&apos;étape suivante
         </p>
 
         {variant === "page" ? (

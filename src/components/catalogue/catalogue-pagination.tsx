@@ -8,6 +8,7 @@ interface CataloguePaginationProps {
   totalPages: number;
   searchParams: Record<string, string | undefined>;
   basePath?: string;
+  className?: string;
 }
 
 function buildPageHref(
@@ -29,6 +30,7 @@ export function CataloguePagination({
   totalPages,
   searchParams,
   basePath = "/catalogue",
+  className,
 }: CataloguePaginationProps) {
   if (totalPages <= 1) return null;
 
@@ -38,7 +40,7 @@ export function CataloguePagination({
 
   return (
     <nav
-      className="mt-10 flex items-center justify-center gap-2"
+      className={cn("mt-10 flex items-center justify-center gap-2", className)}
       aria-label="Pagination"
     >
       {page <= 1 ? (

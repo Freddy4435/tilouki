@@ -9,6 +9,7 @@ import { Loader2, Lock } from "lucide-react";
 import { CartAlerts } from "@/components/cart/cart-alerts";
 import { CheckoutErrorAlert } from "@/components/checkout/checkout-error-alert";
 import { CheckoutFlowSkeleton } from "@/components/checkout/checkout-flow-skeleton";
+import { CheckoutPurchaseTrust } from "@/components/checkout/checkout-purchase-trust";
 import { CheckoutShippingRecap } from "@/components/checkout/checkout-shipping-recap";
 import { CheckoutSteps } from "@/components/checkout/checkout-steps";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
@@ -316,11 +317,10 @@ export function CheckoutFlow({ nonce }: CheckoutFlowProps) {
                 />
 
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  En cliquant sur « Commander et payer », vous confirmez votre commande
-                  avec obligation de paiement et serez redirigé vers Stripe pour régler
-                  le montant total TTC affiché. Aucun débit n&apos;est effectué tant que
-                  la transaction n&apos;est pas confirmée.
+                  Total TTC affiché ci-dessous. Redirection vers Stripe — aucun débit
+                  sans confirmation de votre part.
                 </p>
+                <CheckoutPurchaseTrust showReturnSummary className="lg:hidden" />
                 <ReassuranceStrip variant="compact" className="justify-start" />
 
                 <TermsCheckbox form={form} />

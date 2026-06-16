@@ -27,14 +27,14 @@ function CtaCopy({
       <>
         <Ruler className="text-tilouki-teal-dark size-6" aria-hidden />
         <div className="space-y-2">
-          <h3 className="font-heading text-lg font-semibold">L&apos;atelier des tailles</h3>
+          <h3 className="font-heading text-lg font-semibold">Guide des tailles</h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Indiquez l&apos;âge et l&apos;usage pour un conseil rapide — puis comparez avec un
-            vêtement qui va déjà bien à l&apos;enfant.
+            Indiquez l&apos;âge et l&apos;usage pour un conseil rapide — puis comparez
+            avec un vêtement qui va déjà bien à l&apos;enfant.
           </p>
         </div>
         <ButtonLink href={NAV_HREF.guideTailles} className="w-fit rounded-full">
-          Ouvrir l&apos;atelier
+          Ouvrir le guide
           <ArrowRight className="size-4" />
         </ButtonLink>
       </>
@@ -47,8 +47,8 @@ function CtaCopy({
       <div className="space-y-2">
         <h3 className="font-heading text-lg font-semibold">Explorer la sélection</h3>
         <p className="text-muted-foreground text-sm leading-relaxed">
-          Des pièces choisies, tailles affichées clairement et photos honnêtes — pour passer
-          du conseil à l&apos;action en douceur.
+          Des pièces choisies, tailles affichées clairement et photos honnêtes — pour
+          passer du conseil à l&apos;action en douceur.
         </p>
       </div>
       <ButtonLink href={catalogueHref} className="w-fit rounded-full">
@@ -59,7 +59,10 @@ function CtaCopy({
   );
 }
 
-export function BlogArticleShopCta({ category, catalogueHasProducts }: BlogArticleShopCtaProps) {
+export function BlogArticleShopCta({
+  category,
+  catalogueHasProducts,
+}: BlogArticleShopCtaProps) {
   const meta = getBlogCategoryCatalogMeta(category);
   const primaryCta = resolveBlogArticleCta(category, catalogueHasProducts);
   const catalogueHref = meta.catalogueHref;

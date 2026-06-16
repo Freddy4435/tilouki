@@ -38,6 +38,8 @@ logs/
 
 # env files — jamais versionner (modèle public : .env.example uniquement)
 .env*
+.env.local
+.env.vercel
 !.env.example
 !.env.production.local.example
 
@@ -78,5 +80,6 @@ lighthouse*.json
 /captures/
 /exports/
 /export/
+/outputs/
 /temp/
 /tmp/

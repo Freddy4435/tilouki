@@ -9,6 +9,8 @@ import {
   classifyProductImage,
   countCommercialStorefrontImages,
   filterStorefrontListedProducts,
+  getStorefrontListingBlockers,
+  getStorefrontPhotoStatus,
   hasCommercialStorefrontImages,
   isCommercialProductImage,
   isDescriptiveCommercialAlt,
@@ -93,8 +95,11 @@ describe("isCommercialProductImage", () => {
       ),
     ).toBe(false);
     expect(
+      isCommercialProductImage("https://images.unsplash.com/photo-123", descriptiveAlt),
+    ).toBe(false);
+    expect(
       isCommercialProductImage(
-        "https://images.unsplash.com/photo-123",
+        "/images/tilouki/01-categories/categorie-bebe-combinaison-grise.jpg",
         descriptiveAlt,
       ),
     ).toBe(false);
@@ -233,6 +238,56 @@ describe("applyStorefrontListItemGuards", () => {
       listItem({ slug: DEV_SEED_PRODUCT_SLUGS[0]!, primaryImageUrl: null }),
     );
     expect(guarded.quickAddVariants).toEqual([]);
+  });
+});
+
+describe("getStorefrontListingBlockers", () => {
+  it("explique l'absence boutique pour un SVG catalogue", () => {
+    const blockers = getStorefrontListingBlockers(
+      listItem({
+        primaryImageUrl: "/products/robe-liberty-fleurie.svg",
+        primaryImageAlt: descriptiveAlt,
+      }),
+    );
+    expect(blockers).toHaveLength(1);
+    expect(blockers[0]?.id).toBe("demo-generated-image");
+    expect(blockers[0]?.message).toMatch(/SVG/i);
+  });
+
+  it("explique l'absence boutique pour le pack Tilouki", () => {
+    const blockers = getStorefrontListingBlockers(
+      listItem({
+        primaryImageUrl:
+          "/images/tilouki/01-categories/categorie-bebe-combinaison-grise.jpg",
+        primaryImageAlt: descriptiveAlt,
+      }),
+    );
+    expect(blockers[0]?.id).toBe("editorial-pack-image");
+  });
+
+  it("n'a pas de bloqueur quand la photo principale est commerciale", () => {
+    expect(getStorefrontListingBlockers(listItem())).toEqual([]);
+  });
+
+  it("signale un alt manquant ou trop court", () => {
+    const blockers = getStorefrontListingBlockers(
+      listItem({ primaryImageAlt: "Robe" }),
+    );
+    expect(blockers[0]?.id).toBe("missing-descriptive-alt");
+  });
+});
+
+describe("getStorefrontPhotoStatus", () => {
+  it("passe à listed avec 1 photo et ready-to-sell avec 3", () => {
+    const one = [{ url: commercialUrl, alt: descriptiveAlt }];
+    const three = [
+      { url: commercialUrl, alt: descriptiveAlt },
+      { url: `${commercialUrl}?v=2`, alt: "Détail matière coton" },
+      { url: `${commercialUrl}?v=3`, alt: "Pyjama plié sur cintre" },
+    ];
+    expect(getStorefrontPhotoStatus([]).status).toBe("hidden");
+    expect(getStorefrontPhotoStatus(one).status).toBe("listed");
+    expect(getStorefrontPhotoStatus(three).status).toBe("ready-to-sell");
   });
 });
 

@@ -1,6 +1,5 @@
 /**
- * Surfaces boutique — fonds clairs, accents logo (menthe + pêche).
- * Pas de textures photo : vitrine e-commerce, pas magazine.
+ * Cocon marchand 2026 — surfaces retail tactiles, signature Tilouki sans blobs.
  */
 
 @layer utilities {
@@ -14,12 +13,41 @@
     z-index: 1;
   }
 
-  /** Bandeau accent logo — menthe → pêche */
+  /** Signature section retail réutilisable */
+  .retail-section {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .retail-section__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    max-width: 42rem;
+  }
+
+  .retail-section__title {
+    color: var(--tilouki-navy);
+    text-wrap: balance;
+  }
+
+  .surface-tactile {
+    background-color: var(--tilouki-milk);
+    border: 1px solid var(--tilouki-border-subtle);
+    box-shadow: var(--shadow-soft), var(--shadow-inset-surface);
+  }
+
+  /** Bandeau accent logo — menthe → pêche → bleu */
   .brand-accent-bar {
     height: 3px;
     width: 2.75rem;
     border-radius: 999px;
-    background: linear-gradient(90deg, var(--tilouki-mint), var(--tilouki-peach));
+    background: linear-gradient(
+      90deg,
+      var(--tilouki-mint) 0%,
+      var(--tilouki-peach) 55%,
+      var(--tilouki-brand-blue) 100%
+    );
   }
 
   .maison-surface-milk {
@@ -30,22 +58,22 @@
     background-color: var(--tilouki-milk);
   }
 
-  /* Nouveautés mercredi — pêche douce */
+  /* Nouveautés — chaleur pêche, fond neutre */
   .maison-surface-butter {
     background: linear-gradient(
-      165deg,
-      var(--tilouki-peach-soft) 0%,
-      var(--tilouki-milk) 55%,
-      var(--tilouki-mint-soft) 100%
+      168deg,
+      color-mix(in srgb, var(--tilouki-peach-soft) 88%, var(--tilouki-milk)) 0%,
+      var(--tilouki-milk) 48%,
+      color-mix(in srgb, var(--tilouki-mint-soft) 55%, var(--tilouki-cloud)) 100%
     );
   }
 
-  /* Sections produit — menthe très légère */
+  /* Sections produit — menthe légère */
   .maison-surface-jade {
     background: linear-gradient(
       180deg,
-      var(--tilouki-mint-soft) 0%,
-      var(--tilouki-milk) 70%
+      color-mix(in srgb, var(--tilouki-mint-soft) 70%, var(--tilouki-milk)) 0%,
+      var(--tilouki-milk) 72%
     );
   }
 
@@ -53,11 +81,11 @@
     background-color: var(--tilouki-cloud);
   }
 
-  /* Carnet / blog — bleu logo, pas bordeaux */
+  /* Guides — bleu grisé discret */
   .maison-surface-plum {
     background: linear-gradient(
-      148deg,
-      var(--tilouki-brand-blue-soft) 0%,
+      152deg,
+      color-mix(in srgb, var(--tilouki-brand-blue-soft) 85%, var(--tilouki-milk)) 0%,
       var(--tilouki-milk) 100%
     );
   }
@@ -65,8 +93,8 @@
   .maison-surface-icy {
     background: linear-gradient(
       180deg,
-      var(--tilouki-brand-blue-soft) 0%,
-      var(--tilouki-milk) 100%
+      color-mix(in srgb, var(--tilouki-brand-blue-soft) 75%, var(--tilouki-milk)) 0%,
+      var(--tilouki-cloud) 100%
     );
   }
 
@@ -81,7 +109,7 @@
     line-height: 1.35;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--tilouki-peach);
+    color: var(--tilouki-brand-blue);
   }
 
   .text-carnet-label {
@@ -89,9 +117,9 @@
     font-size: var(--type-retail-label);
     font-weight: 700;
     line-height: 1.35;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--tilouki-brand-blue);
+    color: var(--tilouki-navy);
   }
 
   .text-section-title-plum {
@@ -102,7 +130,12 @@
     height: 3px;
     width: 2.75rem;
     border-radius: 999px;
-    background: linear-gradient(90deg, var(--tilouki-mint), var(--tilouki-peach));
+    background: linear-gradient(
+      90deg,
+      var(--tilouki-mint) 0%,
+      var(--tilouki-peach) 55%,
+      var(--tilouki-brand-blue) 100%
+    );
   }
 
   /** Bandeau header — rappel des couleurs logo */
@@ -111,8 +144,8 @@
     background: linear-gradient(
       90deg,
       var(--tilouki-mint) 0%,
-      var(--tilouki-mint) 38%,
-      var(--tilouki-peach) 62%,
+      var(--tilouki-mint) 36%,
+      var(--tilouki-peach) 58%,
       var(--tilouki-brand-blue) 100%
     );
   }

@@ -1,68 +1,102 @@
 # Guide photos produits Tilouki
 
-Ce document décrit comment photographier les vêtements enfants vendus sur Tilouki. Les photos éditoriales (`/editorial/`) et les banques d’images (Pexels, Unsplash, Pixabay) sont réservées au blog et à l’accueil — **jamais** en fiche produit.
+Ce guide décrit **concrètement** comment photographier et publier les vêtements enfants vendus sur Tilouki. Les photos éditoriales (`/editorial/`, `/images/tilouki/`) et les banques d’images (Pexels, Unsplash, Pixabay) sont réservées au blog et à l’accueil — **jamais** en fiche produit.
 
-## Règles vitrine
+## En résumé
 
-| Règle | Détail |
-|--------|--------|
-| Minimum catalogue | **1** photo réelle avec description (alt) pour apparaître en catalogue |
-| Recommandé pour vendre | **3** photos : face, détail, mise en scène ou couleur |
-| Formats acceptés | JPEG, PNG, WebP uploadés dans l’espace admin |
-| Interdits | SVG catalogue démo, placeholders, « Photo à venir », URLs stock, images `/editorial/` |
-| Alt | Descriptif, ≥ 8 caractères (ex. « Pyjama garçon face avant, coton gris ») |
+| État admin | Ce qu’il faut | Ce que voit le parent |
+| ---------- | ------------- | --------------------- |
+| **Invisible en boutique** | Pas de vraie photo, SVG démo, pack Tilouki ou description manquante | Rien dans le catalogue ni sur l’accueil |
+| **Visible catalogue** | **1** photo réelle + description (≥ 8 caractères) | Carte produit + fiche achetable |
+| **Prêt à vendre** | **3** photos commerciales | Fiche complète qui rassure avant achat |
+
+## Workflow admin (étape par étape)
+
+1. Ouvrir **Admin → Produits → [votre fiche] → section Photos**.
+2. Lire le bandeau **« Pourquoi ce produit n’apparaît pas en boutique »** s’il s’affiche — chaque ligne indique une action précise.
+3. Cliquer **Ajouter des photos produit** et sélectionner vos fichiers (JPEG, PNG ou WebP).
+4. Pour chaque photo, remplir **Description photo** avec une phrase claire (voir exemples ci-dessous).
+5. Glisser-déposer pour ordonner : **la 1ʳᵉ photo = image principale** catalogue.
+6. Vérifier la checklist **Photos prêtes à vendre** :
+   - vert = critère rempli ;
+   - orange = à compléter.
+7. Objectif : badge **Prêt à vendre** (3 photos) avant de mettre en avant le produit.
+
+> **Interdit** : copier-coller une URL du pack Tilouki, un SVG `/products/*.svg`, une image Pexels/Unsplash ou un placeholder « Photo à venir ».
+
+## Setup photo rapide (smartphone)
+
+- **Lieu** : près d’une fenêtre, lumière du jour, pas de flash direct.
+- **Fond** : drap blanc cassé, lin beige ou plancher clair — éviter le fond encombré.
+- **Cadrage** : vêtement entier visible, marges régulières, téléphone en **portrait**.
+- **Netteté** : stabiliser le téléphone (ou trépied léger), toucher l’écran sur le tissu pour la mise au point.
+- **Couleur** : pas de filtre Instagram ; photographier la couleur réelle du vêtement.
+
+### Dimensions recommandées
+
+- **1200 × 1500 px** (ratio 4:5) — homogène sur catalogue et fiche produit.
+- Poids max géré par l’admin : voir le message sous le bouton d’upload.
 
 ## Les 3 photos recommandées
 
-### 1. Face / produit entier (obligatoire)
+### 1. Face / produit entier _(obligatoire)_
 
-- Vêtement **entier** visible : à plat sur fond clair chaud ou sur cintre neutre.
-- **Lumière naturelle** — éviter le flash direct qui déforme les couleurs.
-- C’est la **première photo** de la fiche (image principale catalogue).
+- Vêtement **entier** : à plat ou sur cintre neutre.
+- C’est la **première photo** de la fiche.
 
-### 2. Détail matière ou finition
+**Exemples de description :**
 
-- Gros plan sur le tissu, la maille, une couture ou une fermeture.
-- Indiquez « détail matière » dans la description photo.
+- `Body bébé face avant, coton écru, col rond`
+- `Robe fille 4 ans, imprimé liberty, vue de face`
 
-### 3. Mise en scène ou pliage
+### 2. Détail matière ou finition _(recommandé)_
 
-- Vêtement plié proprement, sur cintre dans un dressing lumineux, ou contexte doux **sans enfant reconnaissable**.
-- Aide le parent à visualiser le volume et la douceur du vêtement.
+- Gros plan tissu, maille, couture ou fermeture.
 
-## Couleur fidèle
+**Exemples :**
 
-- Photographiez près d’une fenêtre, sans filtre orange/bleu fort.
-- Mentionnez la **couleur réelle** dans l’alt (ex. « vert jade », « écru »).
+- `Détail matière — maille coton bio douce`
+- `Couture renforcée au niveau de l'épaule`
+
+### 3. Vue portée, cintre ou pliage _(recommandé)_
+
+- Mannequin enfant, cintre dans un dressing lumineux, ou pliage soigné.
+- Pas d’enfant reconnaissable si vous n’avez pas l’autorisation parentale.
+
+**Exemples :**
+
+- `Pyjama plié sur cintre, motif étoiles`
+- `Combinaison portée sur mannequin 12 mois`
 
 ## Seconde main
 
 Si l’article est d’occasion ou présente un défaut :
 
-- Photographiez **chaque défaut visible** (tache, usure, fil tiré).
-- Décrivez-le dans l’alt avec les mots « défaut », « trace », « usure », etc.
-- La checklist admin le marquera comme obligatoire.
+1. Indiquez « seconde main » dans la description courte du produit.
+2. Photographiez **chaque défaut visible** (tache, usure, fil tiré).
+3. Décrivez-le dans l’alt avec les mots **défaut**, **trace**, **usure**, etc.
 
-## Checklist admin
+**Exemple :** `Petite tache sur la manche gauche — défaut visible seconde main`
 
-Dans **Admin → Produit → Photos**, la checklist « Photos prêtes à vendre » reprend :
+La checklist admin marque alors **Défaut documenté** comme obligatoire.
 
-1. Face / produit entier *(obligatoire)*
-2. Description photo alt *(obligatoire)*
-3. Détail matière *(recommandé)*
-4. Mise en scène ou pliage *(recommandé)*
-5. Couleur fidèle *(recommandé)*
-6. Défaut documenté *(obligatoire si seconde main)*
-7. Ratio portrait cohérent (ex. 4:5)
+## Ce qui bloque la boutique (messages admin)
 
-Tant que la photo principale n’est pas commerciale, la **publication** (`statut actif`) est bloquée.
+| Situation | Message typique | Action |
+| --------- | --------------- | ------ |
+| SVG catalogue `/products/*.svg` | Visuel démo — pas vendable | Uploader un JPEG/PNG/WebP réel |
+| Pack Tilouki `/images/tilouki/...` | Réservé éditorial | Uploader votre propre photo |
+| Placeholder / « Photo à venir » | Pas une vraie photo | Remplacer + décrire la vue |
+| Alt trop court (< 8 car.) | Description manquante | Compléter la description photo |
+| Produit test (`produit-test-csp`, etc.) | Réservé démo | Utiliser un autre slug en prod |
 
 ## Ce que le parent voit
 
-- **Catalogue / home** : uniquement les produits avec au moins une photo commerciale valide.
-- **Fiche produit** : galerie ordonnée ; pas d’achat si aucune photo réelle.
+- **Catalogue / accueil** : uniquement les produits avec au moins une photo commerciale valide.
+- **Fiche produit** : galerie des photos réelles ; pas d’achat si aucune photo valide.
+- **Carte produit** : masquée tant qu’il n’y a pas de photo commerciale.
 
-## Rappel légal & confiance
+## Rappel confiance
 
 - Ne pas retoucher la couleur de façon trompeuse.
 - Ne pas utiliser une photo d’un autre article.
@@ -70,4 +104,4 @@ Tant que la photo principale n’est pas commerciale, la **publication** (`statu
 
 ---
 
-*Document aligné sur `src/lib/catalog/product-sellability.ts` et la checklist `buildProductPhotoChecklist`.*
+_Aligné sur `src/lib/catalog/product-sellability.ts`, la checklist `buildProductPhotoChecklist` et l’admin **Photos prêtes à vendre**._

@@ -1,10 +1,24 @@
 import manifest from "@/data/manifest-photos-tilouki.json";
+import {
+  BLOG_HERO_IMAGE_REGISTRY,
+  CATALOGUE_SURFACE_IMAGE_REGISTRY,
+  CATEGORY_IMAGE_REGISTRY,
+  HOME_EDITORIAL_MODULE_REGISTRY,
+  QUICK_ACCESS_IMAGE_REGISTRY,
+  REASSURANCE_SURFACE_IMAGE_REGISTRY,
+  RITUAL_IMAGE_REGISTRY,
+  TILOUKI_FAMILY_FALLBACK_KEYS,
+  isRegisteredTiloukiImageKey,
+  resolveCategoryFallbackKey,
+  resolveEditorialModuleFallbackKey,
+  resolveRitualFallbackKey,
+  type TiloukiImageKey,
+} from "@/lib/tilouki-image-registry";
 
 /** Racine publique du pack photos Tilouki 2026. */
 export const TILOUKI_IMAGE_BASE = "/images/tilouki" as const;
 
-/** Clé fichier sans extension — correspond au champ `file` du manifeste. */
-export type TiloukiImageKey = (typeof manifest)[number]["file"];
+export type { TiloukiImageKey };
 
 export type TiloukiImageFamily =
   | "category"
@@ -61,80 +75,40 @@ export const tiloukiImages: Record<TiloukiImageKey, TiloukiImage> = Object.fromE
   manifest.map((entry) => [entry.file, buildImage(entry)]),
 ) as Record<TiloukiImageKey, TiloukiImage>;
 
+/** @deprecated Utiliser CATEGORY_IMAGE_REGISTRY — alias de compatibilité. */
+export const CATEGORY_TILOUKI_IMAGE: Record<string, TiloukiImageKey> =
+  CATEGORY_IMAGE_REGISTRY;
+
+/** @deprecated Utiliser RITUAL_IMAGE_REGISTRY. */
+export const RITUAL_TILOUKI_IMAGE: Record<string, TiloukiImageKey> = RITUAL_IMAGE_REGISTRY;
+
+/** @deprecated Utiliser BLOG_HERO_IMAGE_REGISTRY. */
+export const BLOG_HERO_TILOUKI_IMAGE: Record<string, TiloukiImageKey> =
+  BLOG_HERO_IMAGE_REGISTRY;
+
+/** @deprecated Utiliser HOME_EDITORIAL_MODULE_REGISTRY. */
+export const EDITORIAL_MODULE_TILOUKI_IMAGE: Record<string, TiloukiImageKey> =
+  HOME_EDITORIAL_MODULE_REGISTRY;
+
 /** Fallback déterministe par famille — jamais aléatoire. */
 export const TILOUKI_FAMILY_FALLBACK: Record<TiloukiImageFamily, TiloukiImageKey> = {
-  category: "categorie-vetements-enfant-rack",
-  ritual: "rituel-bebe-panier-cocon",
-  home: "home-hero-dressing-couleurs",
-  blog: "blog-organisation-dressing",
-  detail: "detail-body-rose-ourson",
-  guide: "guide-tailles-tenues-enfants",
+  category: TILOUKI_FAMILY_FALLBACK_KEYS.category,
+  ritual: TILOUKI_FAMILY_FALLBACK_KEYS.ritual,
+  home: TILOUKI_FAMILY_FALLBACK_KEYS.home,
+  blog: TILOUKI_FAMILY_FALLBACK_KEYS.blog,
+  detail: TILOUKI_FAMILY_FALLBACK_KEYS.detail,
+  guide: TILOUKI_FAMILY_FALLBACK_KEYS.guide,
 };
 
-/** Catégories catalogue → visuel enfant cohérent. */
-export const CATEGORY_TILOUKI_IMAGE: Record<string, TiloukiImageKey> = {
-  garcon: "categorie-garcon-look-moderne",
-  fille: "categorie-fille-look-doux",
-  bebe: "categorie-bebe-combinaison-grise",
-  pyjamas: "categorie-pyjama-fille-doudou",
-  pluie: "categorie-pluie-garcon-bottes",
-  accessoires: "categorie-accessoires-bebe-chaussettes",
-  robes: "categorie-robes-fille-couleurs",
-  bodies: "categorie-bebe-body-neutre",
-  ceremonie: "categorie-ceremonie-fille-robe",
-  nouveautes: "categorie-boutique-enfants-mannequins",
-  ensembles: "categorie-tenues-fratrie-ete",
-};
-
-/** Rituels éditoriaux (slug) → moment visuel. */
-export const RITUAL_TILOUKI_IMAGE: Record<string, TiloukiImageKey> = {
-  "matin-presse": "rituel-matin-dressing-bebe",
-  "nuit-calme": "rituel-nuit-calme-enfant-dort",
-  "sortie-famille": "rituel-promenade-bulles",
-  "jour-de-pluie": "rituel-jour-de-pluie-flaque",
-  "petit-budget": "categorie-vetements-enfant-rack",
-};
-
-/** Articles blog (heroImageId) → visuel sujet. */
-export const BLOG_HERO_TILOUKI_IMAGE: Record<string, TiloukiImageKey> = {
-  "parent-mesure-body-table": "guide-tailles-tenues-enfants",
-  "gros-plan-matieres-naturelles": "blog-matieres-douces-pull-jean",
-  "body-bonnet-pyjama-lit": "categorie-bebe-body-neutre",
-  "pyjama-plie-lit-soir": "blog-bien-choisir-pyjama",
-  "trois-pieces-tenue-enfant": "blog-look-garcon-quotidien",
-  "linge-enfant-etiquette-lavage": "guide-linge-bebe-propre",
-  "detail-couture-tissu": "detail-body-rose-ourson",
-  "valise-week-end-enfant": "blog-preparer-valise-enfant",
-  "palette-couleurs-douces": "categorie-robes-fille-couleurs",
-  "pile-vetements-petits-prix": "categorie-vetements-enfant-rack",
-};
-
-/** Blocs home / éditoriaux (id logique) → visuel pack. */
-export const EDITORIAL_MODULE_TILOUKI_IMAGE: Record<string, TiloukiImageKey> = {
-  "hero-home": "home-hero-dressing-couleurs",
-  "baby-clothes-flatlay": "categorie-bebe-body-neutre",
-  "nursery-wardrobe": "home-boutique-cocooning",
-  "cotton-texture": "blog-matieres-douces-pull-jean",
-  "pajamas-evening": "blog-rituel-du-soir",
-  "size-guide": "guide-tailles-tenues-enfants",
-  "laundry-care": "guide-linge-bebe-propre",
-  "weekend-bag": "blog-preparer-valise-enfant",
-  "colors-soft": "home-fratrie-complice",
-  "blog-default": "blog-organisation-dressing",
-  newsletter: "home-bebe-sourire-cocon",
-  "material-closeup": "detail-tee-shirt-bebe-flatlay",
-  "universe-garcon": "categorie-garcon-look-moderne",
-  "universe-fille": "categorie-fille-look-doux",
-  "universe-bebe": "categorie-bebe-combinaison-grise",
-  "universe-pyjamas": "categorie-pyjama-fille-doudou",
-  "universe-accessoires": "categorie-accessoires-bebe-chaussettes",
-  "ritual-morning": "rituel-matin-dressing-bebe",
-  "ritual-night-calm": "rituel-nuit-calme-enfant-dort",
-  "ritual-family-outing": "rituel-promenade-bulles",
-  "ritual-rainy-day": "rituel-jour-de-pluie-flaque",
-  "lecture-soir": "rituel-lecture-au-lit-pyjama",
-  "cocooning-bebe": "rituel-bebe-panier-cocon",
-};
+export {
+  BLOG_HERO_IMAGE_REGISTRY,
+  CATALOGUE_SURFACE_IMAGE_REGISTRY,
+  CATEGORY_IMAGE_REGISTRY,
+  HOME_EDITORIAL_MODULE_REGISTRY,
+  QUICK_ACCESS_IMAGE_REGISTRY,
+  REASSURANCE_SURFACE_IMAGE_REGISTRY,
+  RITUAL_IMAGE_REGISTRY,
+} from "@/lib/tilouki-image-registry";
 
 export function getTiloukiImage(key: TiloukiImageKey): TiloukiImage {
   const image = tiloukiImages[key];
@@ -144,9 +118,11 @@ export function getTiloukiImage(key: TiloukiImageKey): TiloukiImage {
   return image;
 }
 
-export function getTiloukiImageOrNull(key: string | null | undefined): TiloukiImage | null {
-  if (!key) return null;
-  return tiloukiImages[key as TiloukiImageKey] ?? null;
+export function getTiloukiImageOrNull(
+  key: string | null | undefined,
+): TiloukiImage | null {
+  if (!key || !isRegisteredTiloukiImageKey(key)) return null;
+  return tiloukiImages[key];
 }
 
 export function resolveTiloukiImage(
@@ -159,34 +135,94 @@ export function resolveTiloukiImage(
 }
 
 export function resolveCategoryTiloukiImage(categorySlug: string): TiloukiImage {
-  const key = CATEGORY_TILOUKI_IMAGE[categorySlug];
-  return resolveTiloukiImage(key, "category");
+  const key =
+    CATEGORY_IMAGE_REGISTRY[categorySlug as keyof typeof CATEGORY_IMAGE_REGISTRY] ??
+    resolveCategoryFallbackKey(categorySlug);
+  return getTiloukiImage(key);
 }
 
 export function resolveRitualTiloukiImage(ritualSlug: string): TiloukiImage {
-  const key = RITUAL_TILOUKI_IMAGE[ritualSlug];
-  return resolveTiloukiImage(key, "ritual");
+  const key =
+    RITUAL_IMAGE_REGISTRY[ritualSlug as keyof typeof RITUAL_IMAGE_REGISTRY] ??
+    resolveRitualFallbackKey(ritualSlug);
+  return getTiloukiImage(key);
 }
 
 export function resolveBlogHeroTiloukiImage(heroImageId: string): TiloukiImage {
-  const key = BLOG_HERO_TILOUKI_IMAGE[heroImageId];
-  return resolveTiloukiImage(key, "blog");
+  const key =
+    BLOG_HERO_IMAGE_REGISTRY[heroImageId as keyof typeof BLOG_HERO_IMAGE_REGISTRY] ??
+    TILOUKI_FAMILY_FALLBACK.blog;
+  return getTiloukiImage(key);
 }
 
 export function resolveEditorialModuleTiloukiImage(moduleId: string): TiloukiImage {
-  const key = EDITORIAL_MODULE_TILOUKI_IMAGE[moduleId];
-  return resolveTiloukiImage(key, "home");
+  const key =
+    HOME_EDITORIAL_MODULE_REGISTRY[
+      moduleId as keyof typeof HOME_EDITORIAL_MODULE_REGISTRY
+    ] ?? resolveEditorialModuleFallbackKey(moduleId);
+  return getTiloukiImage(key);
+}
+
+export function resolveQuickAccessTiloukiImage(moduleId: string): TiloukiImage {
+  const key =
+    QUICK_ACCESS_IMAGE_REGISTRY[moduleId as keyof typeof QUICK_ACCESS_IMAGE_REGISTRY] ??
+    resolveCategoryFallbackKey(moduleId);
+  return getTiloukiImage(key);
+}
+
+export function resolveCatalogueSurfaceTiloukiImage(surfaceId: string): TiloukiImage {
+  const key =
+    CATALOGUE_SURFACE_IMAGE_REGISTRY[
+      surfaceId as keyof typeof CATALOGUE_SURFACE_IMAGE_REGISTRY
+    ] ?? TILOUKI_FAMILY_FALLBACK.category;
+  return getTiloukiImage(key);
+}
+
+export function resolveReassuranceTiloukiImage(surfaceId: string): TiloukiImage {
+  const key =
+    REASSURANCE_SURFACE_IMAGE_REGISTRY[
+      surfaceId as keyof typeof REASSURANCE_SURFACE_IMAGE_REGISTRY
+    ] ?? TILOUKI_FAMILY_FALLBACK.guide;
+  return getTiloukiImage(key);
 }
 
 export function resolveTiloukiAltFromSrc(src: string, fallback: string): string {
   if (!src.startsWith(TILOUKI_IMAGE_BASE)) return fallback;
   const relative = src.slice(TILOUKI_IMAGE_BASE.length + 1);
-  const fileKey = relative.replace(/\.jpg$/i, "").split("/").pop();
+  const fileKey = relative
+    .replace(/\.jpg$/i, "")
+    .split("/")
+    .pop();
   return getTiloukiImageOrNull(fileKey)?.alt ?? fallback;
 }
 
 export function isTiloukiPackImageUrl(url: string | null | undefined): boolean {
   if (!url?.trim()) return false;
-  const pathname = url.startsWith("http") ? new URL(url).pathname : url;
-  return pathname.startsWith(TILOUKI_IMAGE_BASE);
+  try {
+    const pathname = url.startsWith("/")
+      ? (url.split("?")[0] ?? url)
+      : new URL(url).pathname;
+    return pathname.startsWith(TILOUKI_IMAGE_BASE);
+  } catch {
+    return url.includes("/images/tilouki/");
+  }
+}
+
+/**
+ * Message admin : le pack Tilouki est réservé aux surfaces éditoriales (home, catégories, guides).
+ * Ne jamais l'utiliser comme photo produit vendable.
+ */
+export const TILOUKI_PACK_PRODUCT_PHOTO_NOTICE =
+  "Les photos du pack Tilouki servent aux catégories, à la home et aux guides. Les fiches produit nécessitent de vraies photos de l'article vendu.";
+
+/** Interdit explicitement le pack Tilouki comme image produit (validation admin / import). */
+export function assertNotTiloukiPackProductImage(
+  url: string | null | undefined,
+  context = "fiche produit",
+): void {
+  if (isTiloukiPackImageUrl(url)) {
+    throw new Error(
+      `Le pack Tilouki est interdit comme photo produit vendable (${context}). ${TILOUKI_PACK_PRODUCT_PHOTO_NOTICE}`,
+    );
+  }
 }

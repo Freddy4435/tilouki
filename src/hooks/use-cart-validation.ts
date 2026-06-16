@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { validateCartOnClient } from "@/lib/cart/validate-client";
+import { CHECKOUT_CLIENT_MESSAGES } from "@/lib/checkout/client-messages";
 import { useCartStore } from "@/lib/cart/store";
 
 interface UseCartValidationOptions {
@@ -33,7 +34,7 @@ export function useCartValidation({ enabled = true }: UseCartValidationOptions =
     setIsValidating(false);
 
     if (!result) {
-      setError("Impossible de vérifier le stock. Vérifiez votre connexion.");
+      setError(CHECKOUT_CLIENT_MESSAGES.stockCheckFailed);
       return false;
     }
 

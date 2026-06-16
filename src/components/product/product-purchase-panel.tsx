@@ -6,12 +6,10 @@ import { Check, PackageCheck, Ruler, ShoppingBag } from "lucide-react";
 
 import { ProductBadgeList } from "@/components/product/product-badges";
 import { ProductCardPrice } from "@/components/product/product-card-price";
-import { ProductCuratorPick } from "@/components/product/product-curator-pick";
 import {
   ProductDefectNotice,
   ProductSellabilityNotice,
 } from "@/components/product/product-sellability-notice";
-import { ProductFacts } from "@/components/product/product-facts";
 import { ProductRatingStars } from "@/components/product/product-rating-stars";
 import { ProductShippingRecap } from "@/components/product/product-shipping-recap";
 import {
@@ -24,8 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCartStore } from "@/lib/cart/store";
 import {
   isProductCuratedSelection,
-  resolveContextualSizeAdvice,
-  resolveProductCuratorContent,
+  resolveBriefSizeTip,
   resolveProductConditionSummary,
 } from "@/lib/catalog/product-page-content";
 import {
@@ -55,17 +52,13 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     description: product.description,
     shortDescription: product.shortDescription,
   });
-  const curatorContent = useMemo(
-    () => resolveProductCuratorContent(product.description, product.shortDescription),
-    [product.description, product.shortDescription],
-  );
   const conditionSummary = resolveProductConditionSummary({
     secondHand,
     curatedSelection,
     defects,
     material: product.material,
   });
-  const sizeAdvice = resolveContextualSizeAdvice({
+  const sizeTip = resolveBriefSizeTip({
     sizes: product.sizes,
     ageLabels: product.ageLabels,
     gender: product.gender,
@@ -138,58 +131,40 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     openDrawer();
   };
 
-  const showShortDescription =
-    product.shortDescription?.trim() &&
-    product.shortDescription.trim() !== curatorContent?.note;
-
   return (
-    <div className="flex flex-col gap-5 lg:sticky lg:top-24 lg:gap-6 lg:self-start">
+    <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:gap-5 lg:self-start">
       {product.badges.length > 0 ? (
         <ProductBadgeList badges={product.badges} max={2} storefrontCard />
       ) : null}
 
-      <header>
+      <header className="space-y-2">
         {product.categoryName && product.categorySlug ? (
           <Link
             href={`/categorie/${product.categorySlug}`}
-            className="text-retail-label text-tilouki-teal-dark bg-tilouki-jade-soft/60 mb-2 inline-flex rounded-full px-2.5 py-0.5"
+            className="text-retail-label text-tilouki-teal-dark bg-tilouki-jade-soft/60 inline-flex rounded-full px-2.5 py-0.5"
           >
             {product.categoryName}
           </Link>
         ) : product.categoryName ? (
-          <p className="text-retail-label text-tilouki-teal-dark mb-2">
-            {product.categoryName}
-          </p>
-        ) : (
-          <p className="text-muted-foreground text-sm font-medium">
-            {product.brandLabel}
-          </p>
-        )}
-        <h1 className="text-product-title mt-1">{product.name}</h1>
-        <ProductRatingStars
-          average={product.ratingAverage}
-          count={product.ratingCount}
-          size="md"
-          className="mt-2"
-        />
-        {showShortDescription ? (
-          <p className="text-muted-foreground mt-3 text-sm leading-relaxed sm:text-base">
-            {product.shortDescription}
-          </p>
+          <p className="text-retail-label text-tilouki-teal-dark">{product.categoryName}</p>
+        ) : null}
+        <h1 className="text-product-title">{product.name}</h1>
+        {(product.ratingCount ?? 0) > 0 ? (
+          <ProductRatingStars
+            average={product.ratingAverage}
+            count={product.ratingCount}
+            size="md"
+          />
         ) : null}
       </header>
-
-      {curatorContent ? <ProductCuratorPick note={curatorContent.note} /> : null}
 
       <ProductCardPrice
         priceCents={displayPrice}
         compareAtPriceCents={comparePrice}
-        className="[&>span:first-child]:text-2xl [&>span:first-child]:sm:text-3xl"
+        className="[&_span:first-child]:text-2xl [&_span:first-child]:sm:text-[1.75rem]"
       />
 
       <ProductSellabilityNotice sellable={sellable} />
-
-      <ProductFacts product={product} />
 
       <ProductDefectNotice
         defects={defects}
@@ -199,17 +174,17 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         conditionIntro={conditionSummary?.intro}
       />
 
-      <div>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <p id="variant-size-label" className="text-sm font-semibold">
-            Taille / âge
+            Choisir la taille
           </p>
           <Link
             href="#size-guide"
             className="text-tilouki-teal-dark inline-flex items-center gap-1 text-xs font-semibold hover:underline"
           >
             <Ruler className="size-3.5" aria-hidden />
-            Guide des tailles
+            Conseil taille
           </Link>
         </div>
 
@@ -220,12 +195,10 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           disabled={!sellable}
         />
 
-        <p className="text-muted-foreground mt-3 text-xs leading-relaxed sm:text-sm">
-          {sizeAdvice}
-        </p>
+        <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">{sizeTip}</p>
 
         {selectedVariant ? (
-          <div className="mt-3 flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm">
             <PackageCheck
               className={cn(
                 "size-4 shrink-0",
@@ -236,20 +209,19 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
               aria-hidden
             />
             {selectedVariant.stockQuantity <= 3 && selectedVariant.stockQuantity > 0 ? (
-              <span className="font-medium text-amber-900">
-                Plus que {selectedVariant.stockQuantity} exemplaire
-                {selectedVariant.stockQuantity > 1 ? "s" : ""} en stock
+              <span className="rounded-full bg-amber-100/90 px-2 py-0.5 text-xs font-semibold text-amber-950">
+                Plus que {selectedVariant.stockQuantity} en stock
               </span>
             ) : selectedVariant.stockQuantity > 0 ? (
               <span className="text-tilouki-teal-dark font-medium">
-                En stock — expédition sous 48 h
+                En stock — expédié sous 48 h
               </span>
             ) : (
-              <span className="text-destructive font-medium">Rupture de stock</span>
+              <span className="text-destructive font-medium">Rupture sur cette taille</span>
             )}
           </div>
         ) : sellable && product.variants.length > 0 ? (
-          <p className="text-muted-foreground mt-3 text-sm">
+          <p className="text-muted-foreground text-sm">
             Sélectionnez une taille pour voir la disponibilité.
           </p>
         ) : null}
@@ -257,7 +229,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
 
       <ProductShippingRecap variant="cta" />
 
-      <div className="hidden flex-col gap-3 lg:flex">
+      <div className="hidden flex-col gap-2.5 lg:flex">
         <Button
           size="lg"
           className={cn(
@@ -286,41 +258,42 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       {sellable ? (
-        <div
-          className="bg-card/95 border-border/80 fixed inset-x-0 bottom-[calc(var(--cookie-banner-height,0px)+var(--mobile-bottom-nav-height,0px))] z-40 border-t p-3 shadow-[0_-8px_32px_oklch(0.28_0.02_50_/_0.1)] backdrop-blur-md lg:hidden"
-          aria-label="Ajouter au panier"
-        >
-          <ProductShippingRecap
-            variant="cta"
-            className="mb-2.5 border-0 bg-transparent p-0"
-          />
-          <div className="mx-auto flex max-w-lg items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-foreground truncate text-sm font-semibold">
-                {product.name}
-              </p>
-              <p className="text-foreground text-lg font-bold tabular-nums">
-                {formatPrice(displayPrice)}
-              </p>
+        <>
+          <div
+            className="bg-card/95 border-border/80 fixed inset-x-0 bottom-[calc(var(--cookie-banner-height,0px)+var(--mobile-bottom-nav-height,0px))] z-40 border-t px-3 py-2 shadow-[0_-4px_24px_oklch(0.28_0.02_50_/_0.08)] backdrop-blur-md lg:hidden"
+            aria-label="Ajouter au panier"
+          >
+            <div className="mx-auto flex max-w-lg items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-foreground text-lg font-bold leading-none tabular-nums">
+                  {formatPrice(displayPrice)}
+                </p>
+                <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                  {selectedVariant
+                    ? variantDisplayLabel(selectedVariant)
+                    : "Choisissez une taille"}
+                </p>
+              </div>
+              <Button
+                size="lg"
+                className={cn(
+                  "min-h-11 min-w-[7.5rem] shrink-0 px-4 font-semibold",
+                  added && "bg-tilouki-sage-dark hover:bg-tilouki-sage-dark/90",
+                )}
+                onClick={handleAddToCart}
+                disabled={!canPurchase}
+              >
+                {added ? (
+                  <Check className="size-4" aria-hidden />
+                ) : (
+                  <ShoppingBag className="size-4" aria-hidden />
+                )}
+                {added ? "Ajouté" : "Ajouter"}
+              </Button>
             </div>
-            <Button
-              size="lg"
-              className={cn(
-                "min-h-11 shrink-0 px-5 font-semibold",
-                added && "bg-tilouki-sage-dark hover:bg-tilouki-sage-dark/90",
-              )}
-              onClick={handleAddToCart}
-              disabled={!canPurchase}
-            >
-              {added ? (
-                <Check className="size-4" aria-hidden />
-              ) : (
-                <ShoppingBag className="size-4" aria-hidden />
-              )}
-              {added ? "Ajouté" : "Ajouter"}
-            </Button>
           </div>
-        </div>
+          <div className="h-[4.5rem] shrink-0 lg:hidden" aria-hidden />
+        </>
       ) : null}
     </div>
   );

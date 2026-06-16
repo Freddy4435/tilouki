@@ -3,18 +3,20 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Clock } from "lucide-react";
 
-import { BlogArticleBody } from "@/components/blog/blog-article-body";
+import {
+  BlogArticleBody,
+  getBlogProductInsertIndex,
+} from "@/components/blog/blog-article-body";
 import { BlogArticleContinuity } from "@/components/blog/blog-article-continuity";
+import { BlogArticleProductBridge } from "@/components/blog/blog-article-product-bridge";
 import { BlogArticleToc } from "@/components/blog/blog-article-toc";
 import { BlogKeyTakeaways } from "@/components/blog/blog-key-takeaways";
 import { EditorialImage } from "@/components/media/editorial-image";
 import { JsonLdScript } from "@/components/seo/json-ld-script";
 import { Badge } from "@/components/ui/badge";
-import {
-  getAllBlogSlugs,
-  getBlogArticleBySlug,
-} from "@/content/blog/articles";
+import { getAllBlogSlugs, getBlogArticleBySlug } from "@/content/blog/articles";
 import { getBlogCategoryLabel } from "@/lib/blog/categories";
+import { buyingGuidesNav } from "@/lib/constants/site";
 import { resolveBlogHeroImage } from "@/lib/media/editorial-images";
 import { buildBreadcrumbJsonLd, buildArticleJsonLd } from "@/lib/seo/json-ld";
 import { absoluteUrl, buildPageMetadata } from "@/lib/seo/metadata";
@@ -65,9 +67,10 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   }
 
   const heroImage = resolveBlogHeroImage(article.heroImageId);
+  const productInsertIndex = getBlogProductInsertIndex(article.content);
   const breadcrumbs = [
     { name: "Accueil", path: "/" },
-    { name: "Le Carnet", path: "/blog" },
+    { name: buyingGuidesNav.label, path: "/blog" },
     { name: article.title, path: `/blog/${article.slug}` },
   ];
 
@@ -87,18 +90,21 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
         ]}
       />
 
-      <div className="maison-surface maison-surface-plum border-b border-tilouki-plum/12">
+      <div className="maison-surface maison-surface-plum border-tilouki-plum/12 border-b">
         <div className="container-tilouki section-tilouki max-w-3xl">
           <Link
             href="/blog"
             className="text-muted-foreground hover:text-tilouki-plum mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
           >
             <ArrowLeft className="size-4" aria-hidden />
-            Le Carnet Tilouki
+            {buyingGuidesNav.label} Tilouki
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="bg-tilouki-plum-soft text-tilouki-plum">
+            <Badge
+              variant="secondary"
+              className="bg-tilouki-plum-soft text-tilouki-plum"
+            >
               {getBlogCategoryLabel(article.category)}
             </Badge>
             <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
@@ -132,12 +138,17 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
         <div className="mx-auto grid max-w-3xl gap-10 lg:max-w-5xl lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
           <div className="min-w-0 space-y-10">
             <BlogArticleToc content={article.content} className="lg:hidden" />
-            <BlogArticleBody content={article.content} />
+            <BlogArticleBody content={article.content} limit={productInsertIndex} />
+            <BlogArticleProductBridge category={article.category} />
+            <BlogArticleBody
+              content={article.content}
+              startIndex={productInsertIndex}
+            />
             <BlogKeyTakeaways items={article.keyTakeaways} />
             <BlogArticleContinuity article={article} />
           </div>
 
-          <aside className="hidden lg:block lg:sticky lg:top-28">
+          <aside className="hidden lg:sticky lg:top-28 lg:block">
             <BlogArticleToc content={article.content} />
           </aside>
         </div>

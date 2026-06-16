@@ -1,21 +1,25 @@
 "use client";
 
 import Image from "next/image";
+import type { UseFormReturn } from "react-hook-form";
 
 import { CheckoutShippingRecap } from "@/components/checkout/checkout-shipping-recap";
+import { OrderTotalsBreakdown } from "@/components/commerce/order-totals-breakdown";
 import { Separator } from "@/components/ui/separator";
 import { useCartShipping } from "@/hooks/use-cart-shipping";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils";
 import type { CheckoutFormValues } from "@/lib/validations/checkout";
-import type { UseFormReturn } from "react-hook-form";
 
 interface CheckoutSummaryProps {
   form: UseFormReturn<CheckoutFormValues>;
 }
 
 function variantLabel(sizeLabel: string | null, ageLabel: string | null): string {
-  return [sizeLabel, ageLabel].filter(Boolean).join(" · ");
+  const parts: string[] = [];
+  if (sizeLabel) parts.push(`Taille ${sizeLabel}`);
+  if (ageLabel && ageLabel !== sizeLabel) parts.push(`Âge ${ageLabel}`);
+  return parts.join(" · ");
 }
 
 export function CheckoutSummary({ form }: CheckoutSummaryProps) {
@@ -26,7 +30,6 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
   const carrierLabel =
     carriers.find((info) => info.id === carrier)?.label ??
     (carrier === "chronopost" ? "Chronopost relais" : "Mondial Relay");
-  const totalCents = subtotalCents + shippingCents;
   const relayPoint = form.watch("relayPoint");
 
   return (
@@ -37,7 +40,7 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
       <div>
         <h2 className="text-lg font-semibold">Résumé de commande</h2>
         <p className="text-muted-foreground mt-1 text-xs">
-          Tous les montants sont en euros TTC.
+          Articles, livraison et total TTC avant paiement Stripe.
         </p>
       </div>
 
@@ -58,7 +61,9 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 font-medium">{item.productName}</p>
               <p className="text-muted-foreground text-xs">
-                {variantLabel(item.sizeLabel, item.ageLabel)} · Qté {item.quantity}
+                {variantLabel(item.sizeLabel, item.ageLabel)}
+                {variantLabel(item.sizeLabel, item.ageLabel) ? " · " : ""}
+                Qté {item.quantity}
               </p>
             </div>
             <p className="shrink-0 text-right font-medium tabular-nums">
@@ -79,24 +84,16 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
         shippingCents={shippingCents}
         rateLabel={rateLabel}
         relayPoint={relayPoint}
+        showReturnInfo
       />
 
       <Separator />
 
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between gap-3">
-          <span className="text-muted-foreground">Sous-total TTC</span>
-          <span className="tabular-nums">{formatPrice(subtotalCents)}</span>
-        </div>
-        <div className="flex justify-between gap-3">
-          <span className="text-muted-foreground">Livraison point relais TTC</span>
-          <span className="tabular-nums">{formatPrice(shippingCents)}</span>
-        </div>
-        <div className="border-border/70 flex justify-between gap-3 border-t pt-2 text-base font-semibold">
-          <span>Total TTC</span>
-          <span className="tabular-nums">{formatPrice(totalCents)}</span>
-        </div>
-      </div>
+      <OrderTotalsBreakdown
+        subtotalCents={subtotalCents}
+        shippingCents={shippingCents}
+        totalLabel="Total TTC"
+      />
     </aside>
   );
 }

@@ -3,18 +3,16 @@ import type { Metadata } from "next";
 import { CategoryGrid } from "@/components/home/category-grid";
 import { HeroSection } from "@/components/home/hero-section";
 import { HomeCarnetSection } from "@/components/home/home-carnet-section";
-import { HomeReassuranceSection } from "@/components/home/home-reassurance-section";
 import { HomeRitualsSection } from "@/components/home/home-rituals-section";
-import { HomeSizeGuideSection } from "@/components/home/home-size-guide-section";
 import { HomeVestiaireSection } from "@/components/home/home-vestiaire-section";
-import { ProductRowSection } from "@/components/home/product-row-section";
-import { getPublishedBlogArticles } from "@/content/blog/articles";
 import {
-  pickLowPriceHomeProducts,
+  hasMinimumHomeProducts,
   pickWednesdayNewProducts,
+  resolveWeeklyNewProducts,
 } from "@/lib/catalog/home-sections";
+import { pickProductsForRitual } from "@/lib/rituals/pick-ritual-products";
+import { getHomeRituals } from "@/lib/rituals/rituals";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { getCategories } from "@/lib/supabase/queries/categories";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
 import { getActiveProductsForHome } from "@/lib/supabase/queries/products";
 
@@ -31,45 +29,35 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [settings, allProducts, categories, latestArticles] = await Promise.all([
+  const [settings, allProducts] = await Promise.all([
     getShopSettings(),
     getActiveProductsForHome(),
-    getCategories(),
-    Promise.resolve(getPublishedBlogArticles().slice(0, 3)),
   ]);
 
   const wednesdayNewProducts = pickWednesdayNewProducts(allProducts);
-  const lowPriceProducts = pickLowPriceHomeProducts(allProducts);
+  const newProducts = hasMinimumHomeProducts(wednesdayNewProducts)
+    ? wednesdayNewProducts
+    : resolveWeeklyNewProducts(allProducts);
+
+  const ritualModules = getHomeRituals().map((ritual) => ({
+    ritual,
+    products: pickProductsForRitual(allProducts, ritual),
+  }));
 
   return (
     <>
       <HeroSection shopName={settings.name} heroImageUrl={settings.heroImageUrl} />
 
       <HomeVestiaireSection
-        products={wednesdayNewProducts}
+        products={newProducts}
         viewAllHref="/catalogue?tri=newest"
       />
 
-      <CategoryGrid categories={categories} />
+      <CategoryGrid />
 
-      <ProductRowSection
-        id="home-petits-prix"
-        title="Petits prix du quotidien"
-        description="Les essentiels à prix doux — tee-shirts, bodies et leggings pour compléter la garde-robe."
-        products={lowPriceProducts}
-        viewAllHref="/catalogue?promo=petit-prix"
-        variant="tinted"
-        priorityLimit={0}
-        deferRender
-      />
+      <HomeRitualsSection modules={ritualModules} />
 
-      <HomeRitualsSection />
-
-      <HomeReassuranceSection shopName={settings.name} />
-
-      <HomeSizeGuideSection />
-
-      <HomeCarnetSection articles={latestArticles} />
+      <HomeCarnetSection />
     </>
   );
 }

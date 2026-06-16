@@ -5,7 +5,9 @@ export function pickRelatedBlogArticles(
   article: BlogArticle,
   limit = 2,
 ): BlogArticle[] {
-  const published = getPublishedBlogArticles().filter((item) => item.slug !== article.slug);
+  const published = getPublishedBlogArticles().filter(
+    (item) => item.slug !== article.slug,
+  );
 
   const sameCategory = published.filter((item) => item.category === article.category);
   const others = published.filter((item) => item.category !== article.category);

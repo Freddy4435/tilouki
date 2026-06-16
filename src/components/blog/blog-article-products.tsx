@@ -23,7 +23,10 @@ export function BlogArticleProducts({
     <section aria-labelledby="blog-related-products-title" className="space-y-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h2 id="blog-related-products-title" className="font-heading text-lg font-semibold">
+          <h2
+            id="blog-related-products-title"
+            className="font-heading text-lg font-semibold"
+          >
             {title}
           </h2>
           <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
@@ -39,7 +42,11 @@ export function BlogArticleProducts({
         ) : null}
       </div>
 
-      <CatalogueProductList products={products} layout="scroll-mobile" priorityLimit={2} />
+      <CatalogueProductList
+        products={products}
+        layout="scroll-mobile"
+        priorityLimit={2}
+      />
     </section>
   );
 }

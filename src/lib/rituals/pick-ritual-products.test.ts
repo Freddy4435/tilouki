@@ -66,4 +66,48 @@ describe("pickProductsForRitual", () => {
     );
     expect(picked).toHaveLength(0);
   });
+
+  it("priorise le rayon pluie pour jour de pluie", () => {
+    const ritual = getRitualBySlug("jour-de-pluie")!;
+    const picked = pickProductsForRitual(
+      [
+        product({ slug: "robe-fille", categorySlug: "fille", name: "Robe fille" }),
+        product({
+          slug: "veste-pluie",
+          categorySlug: "pluie",
+          name: "Veste imperméable pluie",
+        }),
+      ],
+      ritual,
+    );
+    expect(picked[0]?.categorySlug).toBe("pluie");
+  });
+
+  it("sélectionne bébé et bodies pour bébé cocon", () => {
+    const ritual = getRitualBySlug("bebe-cocon")!;
+    const picked = pickProductsForRitual(
+      [
+        product({ slug: "robe-fille", categorySlug: "fille", name: "Robe" }),
+        product({ slug: "body-bebe", categorySlug: "bodies", name: "Body coton bébé" }),
+        product({ slug: "pyjama-bebe", categorySlug: "pyjamas", name: "Pyjama bébé" }),
+      ],
+      ritual,
+    );
+    expect(picked.map((p) => p.categorySlug)).toEqual(
+      expect.arrayContaining(["bodies", "pyjamas"]),
+    );
+    expect(picked.some((p) => p.categorySlug === "fille")).toBe(false);
+  });
+
+  it("classe les pyjamas pour nuit douce", () => {
+    const ritual = getRitualBySlug("nuit-calme")!;
+    const picked = pickProductsForRitual(
+      [
+        product({ slug: "jogger", categorySlug: "garcon", name: "Jogger garçon" }),
+        product({ slug: "pyjama-nuit-doux", categorySlug: "pyjamas", name: "Pyjama étoiles" }),
+      ],
+      ritual,
+    );
+    expect(picked[0]?.slug).toBe("pyjama-nuit-doux");
+  });
 });

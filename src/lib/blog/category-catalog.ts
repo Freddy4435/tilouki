@@ -62,7 +62,9 @@ export const BLOG_CATEGORY_CATALOG: Record<BlogCategory, BlogCategoryCatalogMeta
   },
 };
 
-export function getBlogCategoryCatalogMeta(category: BlogCategory): BlogCategoryCatalogMeta {
+export function getBlogCategoryCatalogMeta(
+  category: BlogCategory,
+): BlogCategoryCatalogMeta {
   return BLOG_CATEGORY_CATALOG[category];
 }
 

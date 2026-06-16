@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHIVE_FORBIDDEN_FRAGMENTS,
+  ARCHIVE_MANDATORY_EXCLUSION_KEYS,
   findArchivePathViolations,
   findDeliverableViolations,
+  findMandatoryExclusionViolations,
   findZipEntryViolations,
   isAllowedEnvExamplePath,
   isForbiddenEnvPath,
@@ -11,10 +13,13 @@ import {
 } from "../../../scripts/lib/archive-guard.mjs";
 
 describe("archive-guard — chemins git", () => {
-  it("autorise .env.example seul", () => {
+  it("autorise .env.example et modèles .example", () => {
     expect(isAllowedEnvExamplePath(".env.example")).toBe(true);
+    expect(isAllowedEnvExamplePath(".env.production.local.example")).toBe(true);
     expect(isForbiddenEnvPath(".env.example")).toBe(false);
-    expect(findArchivePathViolations([".env.example"])).toEqual([]);
+    expect(
+      findArchivePathViolations([".env.example", ".env.production.local.example"]),
+    ).toEqual([]);
   });
 
   it("refuse les fichiers .env locaux versionnés", () => {
@@ -57,6 +62,24 @@ describe("archive-guard — chemins git", () => {
         "tsconfig.tsbuildinfo",
       ]),
     );
+  });
+
+  it("couvre les exclusions obligatoires de livraison", () => {
+    expect(ARCHIVE_MANDATORY_EXCLUSION_KEYS).toEqual([
+      ".env.local",
+      ".env.vercel",
+      ".vercel/",
+      ".next/",
+      "node_modules/",
+      "test-results/",
+      "playwright-report/",
+      "archives/",
+    ]);
+
+    for (const key of ARCHIVE_MANDATORY_EXCLUSION_KEYS) {
+      const sample = key.endsWith("/") ? `tilouki/${key}sample` : `tilouki/${key}`;
+      expect(findMandatoryExclusionViolations([sample]).length, key).toBeGreaterThan(0);
+    }
   });
 });
 

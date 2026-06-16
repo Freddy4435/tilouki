@@ -48,9 +48,7 @@ function parseEnvFile(filePath) {
 const env = {
   ...parseEnvFile(resolve(root, ".env.example")),
   ...parseEnvFile(resolve(root, ".env.local")),
-  ...(isProduction
-    ? parseEnvFile(resolve(root, ".env.production.local"))
-    : {}),
+  ...(isProduction ? parseEnvFile(resolve(root, ".env.production.local")) : {}),
   ...process.env,
 };
 

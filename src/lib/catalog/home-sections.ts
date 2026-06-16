@@ -1,8 +1,54 @@
 import { filterLowPriceProducts, sortProducts } from "@/lib/catalog/sort-products";
+import { buildCatalogueHref, buildCategoryHref } from "@/lib/navigation/catalog-href";
 import type { ProductListItem } from "@/types/catalog";
 
 export const HOME_PRODUCT_LIMIT = 8;
+export const HOME_RITUAL_PRODUCT_LIMIT = 3;
 export const MIN_HOME_SECTION_PRODUCTS = 3;
+
+/** Rayons mis en avant sur l'accueil — visuels pack Tilouki par slug. */
+export const HOME_RAYONS = [
+  {
+    id: "bebe",
+    label: "Bébé",
+    description: "Bodies, pyjamas et essentiels premiers mois",
+    href: buildCategoryHref("bebe"),
+    imageSlug: "bebe",
+    layout: "featured" as const,
+  },
+  {
+    id: "fille",
+    label: "Fille",
+    description: "Robes, tee-shirts et leggings",
+    href: buildCategoryHref("fille"),
+    imageSlug: "fille",
+    layout: "tile" as const,
+  },
+  {
+    id: "garcon",
+    label: "Garçon",
+    description: "Basiques et joggers du quotidien",
+    href: buildCategoryHref("garcon"),
+    imageSlug: "garcon",
+    layout: "tile" as const,
+  },
+  {
+    id: "pyjamas",
+    label: "Pyjamas",
+    description: "Nuits douces pour toute la fratrie",
+    href: buildCategoryHref("pyjamas"),
+    imageSlug: "pyjamas",
+    layout: "tile" as const,
+  },
+  {
+    id: "petits-prix",
+    label: "Petits prix",
+    description: "Essentiels remisés du catalogue",
+    href: buildCatalogueHref({ promo: "petit-prix" }),
+    imageModuleId: "home-petits-prix",
+    layout: "promo" as const,
+  },
+] as const;
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const LOW_STOCK_THRESHOLD = 3;
@@ -171,6 +217,53 @@ export function pickCategoryProducts(
   const pool = withPhoto.length >= MIN_HOME_SECTION_PRODUCTS ? withPhoto : inCategory;
 
   return sortProducts(pool, "newest").slice(0, limit);
+}
+
+export interface HomeCategorySpotlight {
+  title: string;
+  description: string;
+  viewAllHref: string;
+  products: ProductListItem[];
+}
+
+/** Bébé ou pyjamas — la catégorie la mieux fournie en stock. */
+export function pickBebeOrPyjamasHomeSpotlight(
+  products: ProductListItem[],
+): HomeCategorySpotlight | null {
+  const bebe = pickCategoryProducts(products, "bebe");
+  const pyjamas = pickCategoryProducts(products, "pyjamas");
+
+  if (bebe.length >= pyjamas.length && bebe.length >= MIN_HOME_SECTION_PRODUCTS) {
+    return {
+      title: "Sélection bébé",
+      description:
+        "Bodies, pyjamas et essentiels pour les tout-petits — en stock maintenant.",
+      viewAllHref: "/categorie/bebe",
+      products: bebe,
+    };
+  }
+
+  if (pyjamas.length >= MIN_HOME_SECTION_PRODUCTS) {
+    return {
+      title: "Sélection pyjamas",
+      description:
+        "Ensembles nuit et pyjamas doux — tailles affichées sur chaque fiche.",
+      viewAllHref: "/categorie/pyjamas",
+      products: pyjamas,
+    };
+  }
+
+  if (bebe.length >= MIN_HOME_SECTION_PRODUCTS) {
+    return {
+      title: "Sélection bébé",
+      description:
+        "Bodies, pyjamas et essentiels pour les tout-petits — en stock maintenant.",
+      viewAllHref: "/categorie/bebe",
+      products: bebe,
+    };
+  }
+
+  return null;
 }
 
 /** Looks prêts : 2–3 produits par thème, ou conseils éditoriaux. */

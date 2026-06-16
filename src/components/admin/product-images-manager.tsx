@@ -1,13 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { GripVertical, Loader2, Trash2, Upload } from "lucide-react";
+import { GripVertical, Info, Loader2, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 
 import {
   classifyProductImage,
+  getNonCommercialMainImageMessage,
   getProductImageKindLabel,
+  getStorefrontListingBlockersFromImages,
 } from "@/lib/admin/product-image-readiness";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +25,7 @@ import {
   getProductImageStoragePath,
   PRODUCT_IMAGES_BUCKET,
 } from "@/lib/supabase/storage";
+import { TILOUKI_PACK_PRODUCT_PHOTO_NOTICE } from "@/lib/tilouki-images";
 import {
   deleteProductImageAction,
   reorderProductImagesAction,
@@ -33,12 +36,14 @@ import { cn } from "@/lib/utils";
 
 interface ProductImagesManagerProps {
   productId: string;
+  productSlug?: string;
   productName: string;
   images: AdminProductDetail["images"];
 }
 
 export function ProductImagesManager({
   productId,
+  productSlug = "",
   productName,
   images: initialImages,
 }: ProductImagesManagerProps) {
@@ -174,8 +179,49 @@ export function ProductImagesManager({
     });
   };
 
+  const storefrontBlockers = productSlug.trim()
+    ? getStorefrontListingBlockersFromImages(
+        productSlug,
+        images.map((img) => ({
+          url: img.url,
+          alt: img.alt,
+          sortOrder: img.sortOrder,
+        })),
+      )
+    : [];
+
   return (
     <div className="space-y-4">
+      {storefrontBlockers.length > 0 ? (
+        <div
+          className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100"
+          role="alert"
+        >
+          <p className="font-medium">Pourquoi ce produit n&apos;apparaît pas en boutique</p>
+          <ul className="mt-1.5 list-inside list-disc space-y-1 text-xs leading-relaxed">
+            {storefrontBlockers.map((blocker) => (
+              <li key={blocker.id}>{blocker.message}</li>
+            ))}
+          </ul>
+        </div>
+      ) : images.length > 0 ? (
+        <div
+          className="rounded-lg border border-emerald-200/80 bg-emerald-50/80 px-3 py-2.5 text-sm text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-100"
+          role="status"
+        >
+          Ce produit peut apparaître dans le catalogue — complétez jusqu&apos;à 3 photos
+          pour une fiche « prête à vendre ».
+        </div>
+      ) : null}
+
+      <div
+        className="flex items-start gap-2 rounded-lg border border-sky-200/80 bg-sky-50/80 px-3 py-2.5 text-sm text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-100"
+        role="note"
+      >
+        <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <p className="leading-relaxed">{TILOUKI_PACK_PRODUCT_PHOTO_NOTICE}</p>
+      </div>
+
       <div className="flex flex-wrap items-center gap-3">
         <input
           ref={fileRef}
@@ -196,12 +242,12 @@ export function ProductImagesManager({
           ) : (
             <Upload className="size-4" />
           )}
-          Ajouter des photos
+          Ajouter des photos produit
         </Button>
         <p className="text-muted-foreground max-w-prose text-xs leading-relaxed">
-          {PRODUCT_IMAGE_PROFILE.guidance} Les visuels SVG du catalogue démo ne sont pas
-          publiables — remplacez-les par vos photos. Glissez pour réordonner (la
-          première photo est l&apos;image principale).
+          {PRODUCT_IMAGE_PROFILE.guidance} Uploadez vos propres photos (JPEG, PNG ou
+          WebP) — jamais les visuels du pack Tilouki ni les SVG du catalogue démo.
+          Glissez pour réordonner (la première photo est l&apos;image principale).
         </p>
       </div>
 
@@ -209,13 +255,18 @@ export function ProductImagesManager({
 
       {images.length === 0 ? (
         <p className="text-muted-foreground rounded-lg border border-dashed py-8 text-center text-sm">
-          Aucune photo — ajoutez une photo commerciale (face avant) pour publier.
+          Aucune photo produit — ajoutez une photo face avant réelle pour publier et
+          vendre.
         </p>
       ) : (
         <div className="space-y-2">
           {images.map((image, index) => {
             const kind = classifyProductImage(image.url, image.alt);
-            const kindLabel = getProductImageKindLabel(kind);
+            const kindLabel = getProductImageKindLabel(kind, image.url);
+            const nonCommercialHint =
+              kind !== "commercial"
+                ? getNonCommercialMainImageMessage(kind, image.url)
+                : null;
             return (
               <div
                 key={image.id}
@@ -275,6 +326,11 @@ export function ProductImagesManager({
                     placeholder={productName}
                     onBlur={(e) => updateAlt(image.id, e.target.value)}
                   />
+                  {nonCommercialHint ? (
+                    <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                      {nonCommercialHint}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex shrink-0 gap-1 sm:pt-6">
                   <Button

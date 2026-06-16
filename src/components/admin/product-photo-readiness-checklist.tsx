@@ -1,12 +1,14 @@
 "use client";
 
-import { Camera, CheckCircle2, Circle, Info } from "lucide-react";
+import { AlertTriangle, Camera, CheckCircle2, Circle, Info, Store } from "lucide-react";
 
 import {
   buildProductPhotoChecklist,
   classifyProductImage,
   getPhotoReadinessSummary,
   getProductImageKindLabel,
+  getStorefrontListingBlockersFromImages,
+  getStorefrontPhotoStatus,
   type ProductReadinessImage,
 } from "@/lib/admin/product-image-readiness";
 import { cn } from "@/lib/utils";
@@ -17,19 +19,48 @@ const TIER_LABELS = {
   optional: "si applicable",
 } as const;
 
+const STOREFRONT_STATUS_LABELS = {
+  hidden: {
+    label: "Invisible en boutique",
+    className:
+      "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100",
+    icon: AlertTriangle,
+  },
+  listed: {
+    label: "Visible catalogue",
+    className:
+      "border-sky-200 bg-sky-50 text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-100",
+    icon: Store,
+  },
+  "ready-to-sell": {
+    label: "Prêt à vendre",
+    className:
+      "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-100",
+    icon: CheckCircle2,
+  },
+} as const;
+
 interface ProductPhotoReadinessChecklistProps {
   images: ProductReadinessImage[];
+  slug?: string;
   secondHand?: boolean;
   className?: string;
 }
 
 export function ProductPhotoReadinessChecklist({
   images,
+  slug = "",
   secondHand = false,
   className,
 }: ProductPhotoReadinessChecklistProps) {
   const items = buildProductPhotoChecklist(images, { secondHand });
   const summary = getPhotoReadinessSummary(images);
+  const photoStatus = getStorefrontPhotoStatus(images);
+  const blockers = slug.trim()
+    ? getStorefrontListingBlockersFromImages(slug, images)
+    : [];
+  const statusMeta = STOREFRONT_STATUS_LABELS[photoStatus.status];
+  const StatusIcon = statusMeta.icon;
   const pendingRequired = items.filter(
     (item) => item.tier === "required" && !item.filled,
   );
@@ -41,16 +72,46 @@ export function ProductPhotoReadinessChecklist({
         <div>
           <h3 className="text-sm font-semibold">Photos prêtes à vendre</h3>
           <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
-            Minimum 1 photo réelle avec description pour le catalogue.{" "}
-            {summary.targetCount} photos recommandées (face, matière, mise en scène).
-            Les SVG catalogue, placeholders et « Photo à venir » sont interdits en
-            vitrine.
+            Objectif : 3 photos produit réelles — face, détail matière, vue portée ou
+            cintre. Minimum 1 photo avec description pour le catalogue. Les visuels du
+            pack Tilouki, SVG catalogue, placeholders et « Photo à venir » ne sont pas
+            vendables.
           </p>
         </div>
         <p className="text-sm tabular-nums">
           <span className="font-semibold">{summary.commercialCount}</span>
           <span className="text-muted-foreground"> / {summary.targetCount} photos</span>
         </p>
+      </div>
+
+      <div
+        className={cn(
+          "mt-4 flex flex-wrap items-start gap-2 rounded-lg border px-3 py-2.5",
+          statusMeta.className,
+        )}
+      >
+        <StatusIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="text-sm font-medium">{statusMeta.label}</p>
+          {photoStatus.status === "hidden" && blockers.length > 0 ? (
+            <ul className="space-y-1 text-xs leading-relaxed">
+              {blockers.map((blocker) => (
+                <li key={blocker.id}>{blocker.message}</li>
+              ))}
+            </ul>
+          ) : photoStatus.status === "listed" ? (
+            <p className="text-xs leading-relaxed">
+              Le produit apparaît dans le catalogue et sur l&apos;accueil. Ajoutez{" "}
+              {photoStatus.targetCount - photoStatus.commercialCount} photo(s) pour
+              atteindre l&apos;état « Prêt à vendre ».
+            </p>
+          ) : photoStatus.status === "ready-to-sell" ? (
+            <p className="text-xs leading-relaxed">
+              {photoStatus.commercialCount} photos commerciales — fiche complète pour
+              rassurer les parents avant achat.
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {pendingRequired.length > 0 ? (
@@ -62,16 +123,15 @@ export function ProductPhotoReadinessChecklist({
       ) : summary.readyToSell ? (
         <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
           <CheckCircle2 className="size-4" />
-          Fiche prête à vendre — {summary.commercialCount} photos commerciales.
+          Tous les critères obligatoires sont remplis — fiche prête à vendre.
         </p>
-      ) : (
+      ) : photoStatus.status === "listed" ? (
         <p className="mt-3 flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
           <Info className="mt-0.5 size-4 shrink-0" />
-          Photo principale OK. Ajoutez encore{" "}
-          {summary.targetCount - summary.commercialCount} photo(s) (détail matière,
-          couleur fidèle) pour une fiche complète.
+          Photo principale OK. Complétez avec une 2ᵉ photo (détail matière) et une 3ᵉ
+          (vue portée, cintre ou pliage) pour une fiche complète.
         </p>
-      )}
+      ) : null}
 
       <ul className="mt-4 space-y-2">
         {items.map((item) => (
@@ -128,7 +188,7 @@ export function ProductPhotoReadinessChecklist({
                         : "text-amber-800 dark:text-amber-300",
                     )}
                   >
-                    {getProductImageKindLabel(kind)}
+                    {getProductImageKindLabel(kind, image.url)}
                     {kind === "commercial" && !altOk ? " (alt manquant)" : ""}
                   </span>
                 </p>

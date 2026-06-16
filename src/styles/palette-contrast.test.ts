@@ -19,20 +19,20 @@ function contrastRatio(foreground: string, background: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-describe("palette Maison Tilouki — contrastes AA", () => {
-  it("butter-ink sur butter-soft ≥ 4.5:1", () => {
-    expect(contrastRatio("#5c4510", "#faf3dc")).toBeGreaterThanOrEqual(4.5);
+describe("palette Cocon marchand 2026 — contrastes AA", () => {
+  it("encre marine sur milk ≥ 4.5:1", () => {
+    expect(contrastRatio("#1e2a3d", "#fffcf9")).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("plum sur plum-soft ≥ 4.5:1 pour les titres", () => {
-    expect(contrastRatio("#5b2a3e", "#f5ebf0")).toBeGreaterThanOrEqual(4.5);
+  it("navy sur brand-blue-soft ≥ 4.5:1 pour les titres", () => {
+    expect(contrastRatio("#2a3a52", "#e4eaf2")).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("encre sur milk ≥ 4.5:1", () => {
-    expect(contrastRatio("#2e2a25", "#fffcf7")).toBeGreaterThanOrEqual(4.5);
+  it("persimmon-dark sur persimmon-soft ≥ 4.5:1 (badges promo)", () => {
+    expect(contrastRatio("#9e3d24", "#fbe8e3")).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("teal-dark sur milk ≥ 4.5:1 (CTA secondaires)", () => {
-    expect(contrastRatio("#185b55", "#fffcf7")).toBeGreaterThanOrEqual(4.5);
+  it("navy-dark sur milk ≥ 4.5:1 (CTA)", () => {
+    expect(contrastRatio("#1e2a3d", "#fffcf9")).toBeGreaterThanOrEqual(4.5);
   });
 });

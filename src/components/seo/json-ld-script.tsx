@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { getRequestCspNonce } from "@/lib/security/request-nonce";
 
 interface JsonLdScriptProps {
   data: Record<string, unknown> | Record<string, unknown>[];
@@ -10,7 +10,7 @@ interface JsonLdScriptProps {
  * couvre explicitement sous script-src à nonce (et évite tout signalement).
  */
 export async function JsonLdScript({ data }: JsonLdScriptProps) {
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const nonce = await getRequestCspNonce();
   const payload = Array.isArray(data) ? data : [data];
 
   return (

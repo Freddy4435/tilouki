@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 
 import { brandAssets, siteConfig } from "@/lib/constants/site";
 import { fontVariables } from "@/lib/fonts";
@@ -40,9 +39,7 @@ export const metadata: Metadata = {
       { url: brandAssets.favicon.png32, sizes: "32x32", type: "image/png" },
       { url: brandAssets.favicon.png64, sizes: "64x64", type: "image/png" },
     ],
-    apple: [
-      { url: brandAssets.favicon.png180, sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: brandAssets.favicon.png180, sizes: "180x180", type: "image/png" }],
     other: [
       {
         rel: "icon",
@@ -54,16 +51,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // CSP à nonce : un nonce est unique par requête, le HTML ne peut donc pas
-  // être pré-rendu (doc Next.js CSP). Lire headers() force le rendu dynamique
-  // de toutes les pages pour que Next.js applique le nonce à ses scripts.
-  await headers();
-
+  // CSP à nonce : générée par requête dans src/proxy.ts (voir docs/performance-cache-tilouki.md).
+  // Pas de headers() ici — évite un second opt-in dynamique inutile ; les scripts Next.js
+  // lisent Content-Security-Policy depuis les en-têtes de la requête (middleware).
   return (
     <html lang="fr" className={`${fontVariables} h-full`}>
       <body className="min-h-full antialiased">{children}</body>

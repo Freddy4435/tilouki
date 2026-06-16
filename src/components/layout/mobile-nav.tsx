@@ -3,11 +3,13 @@
 import Link from "next/link";
 import {
   Baby,
+  BookOpen,
   Flower2,
   Heart,
   Mail,
   Menu,
   Moon,
+  Package,
   RotateCcw,
   Ruler,
   Shirt,
@@ -39,12 +41,14 @@ const MOBILE_LINK_ICONS = {
   "flower-2": Flower2,
   shirt: Shirt,
   moon: Moon,
+  package: Package,
   tag: Tag,
   ruler: Ruler,
   truck: Truck,
   "rotate-ccw": RotateCcw,
   heart: Heart,
   mail: Mail,
+  "book-open": BookOpen,
 } as const;
 
 function resolveMobileHref(href: string, contactEmail: string): string {

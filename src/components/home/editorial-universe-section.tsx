@@ -43,7 +43,10 @@ export function EditorialUniverseSection({ blocks }: EditorialUniverseSectionPro
                 {isRealEditorialImage(block.imageUrl) ? (
                   <Image
                     src={block.imageUrl!}
-                    alt={resolveEditorialAltFromSrc(block.imageUrl!, `Univers ${block.title}`)}
+                    alt={resolveEditorialAltFromSrc(
+                      block.imageUrl!,
+                      `Univers ${block.title}`,
+                    )}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

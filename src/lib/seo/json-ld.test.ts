@@ -70,7 +70,7 @@ describe("buildProductJsonLd", () => {
 describe("buildArticleJsonLd", () => {
   it("expose les champs Article essentiels", () => {
     const json = buildArticleJsonLd({
-      title: "Comment choisir la bonne taille",
+      title: "Guide d'achat tailles enfant",
       description: "Conseils tailles enfants",
       slug: "choisir-bonne-taille-vetement-enfant",
       publishedAt: "2026-03-19",
@@ -79,7 +79,7 @@ describe("buildArticleJsonLd", () => {
     });
 
     expect(json["@type"]).toBe("Article");
-    expect(json.headline).toBe("Comment choisir la bonne taille");
+    expect(json.headline).toBe("Guide d'achat tailles enfant");
     expect(json.articleSection).toBe("Tailles");
     expect(json.datePublished).toBe("2026-03-19");
     expect(json.mainEntityOfPage).toMatchObject({

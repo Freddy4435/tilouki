@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { Ruler } from "lucide-react";
 
-import { resolveContextualSizeAdvice } from "@/lib/catalog/product-page-content";
+import { resolveBriefSizeTip } from "@/lib/catalog/product-page-content";
 import type { ProductGender } from "@/types/database";
 
 interface SizeGuideProps {
@@ -18,7 +19,7 @@ export function SizeGuide({
   material = null,
   secondHand = false,
 }: SizeGuideProps) {
-  const advice = resolveContextualSizeAdvice({
+  const tip = resolveBriefSizeTip({
     sizes,
     ageLabels,
     gender,
@@ -26,27 +27,25 @@ export function SizeGuide({
     secondHand,
   });
 
-  const genderLabel =
-    gender === "fille" ? "fille" : gender === "garcon" ? "garçon" : "enfant";
-
   return (
-    <div
+    <aside
       id="size-guide"
-      className="bg-muted/40 scroll-mt-24 rounded-xl border p-4 text-sm lg:scroll-mt-8"
+      className="border-tilouki-jade/25 bg-card scroll-mt-24 rounded-[var(--radius-card)] border p-4 lg:scroll-mt-8"
     >
-      <p className="inline-flex items-center gap-2 font-semibold">
+      <p className="inline-flex items-center gap-2 text-sm font-semibold">
         <Ruler className="text-tilouki-teal-dark size-4" aria-hidden />
         Conseil taille
       </p>
-      <p className="text-foreground mt-2 leading-relaxed font-medium">{advice}</p>
+      <p className="text-foreground mt-2 text-sm leading-relaxed font-medium">{tip}</p>
       <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
-        Référence {genderLabel} — tailles affichées selon l&apos;étiquette du vêtement.
+        Entre deux tailles ? Prenez la plus grande — votre enfant grandit vite.
       </p>
-      <ul className="text-muted-foreground mt-3 list-inside list-disc space-y-1 text-xs">
-        <li>3M / 6M / 9M : tout-petit</li>
-        <li>12M à 24M : bébé marcheur</li>
-        <li>2A à 8A : enfant</li>
-      </ul>
-    </div>
+      <Link
+        href="/guide-tailles"
+        className="text-tilouki-teal-dark mt-3 inline-flex text-xs font-semibold hover:underline"
+      >
+        Ouvrir l&apos;atelier des tailles →
+      </Link>
+    </aside>
   );
 }

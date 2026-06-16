@@ -34,11 +34,34 @@ export function redactSecrets(value: string): string {
   return result;
 }
 
+export function serializeAppErrorMeta(
+  error: Error & { digest?: string },
+): Record<string, string> {
+  const digest =
+    typeof error.digest === "string" && error.digest.trim().length > 0
+      ? error.digest.trim()
+      : "unknown";
+  const name =
+    typeof error.name === "string" && error.name.trim().length > 0
+      ? error.name.trim()
+      : "Error";
+  const message =
+    typeof error.message === "string" && error.message.trim().length > 0
+      ? error.message.trim()
+      : "(sans message)";
+
+  return { digest, name, message };
+}
+
 function redactStringValue(key: string, value: string): string {
   const lowerKey = key.toLowerCase();
 
   if (SENSITIVE_META_KEYS.has(lowerKey)) {
     return "[redacted]";
+  }
+
+  if (lowerKey === "digest" || lowerKey === "name") {
+    return value;
   }
 
   if (
@@ -50,7 +73,7 @@ function redactStringValue(key: string, value: string): string {
     return redactSecrets(value);
   }
 
-  if (lowerKey === "error" || lowerKey.includes("message")) {
+  if (lowerKey === "error" || lowerKey === "message") {
     return redactSecrets(value);
   }
 

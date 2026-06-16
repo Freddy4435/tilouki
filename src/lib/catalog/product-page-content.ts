@@ -112,6 +112,19 @@ export function resolveContextualSizeAdvice(product: {
   return "Tailles alignées sur les étiquettes fabricant. Entre deux tailles, prenez la plus grande pour garder de la marge.";
 }
 
+/** Conseil taille court pour la fiche produit (une phrase). */
+export function resolveBriefSizeTip(product: {
+  sizes: string[];
+  ageLabels: string[];
+  gender: ProductGender;
+  material: string | null;
+  secondHand?: boolean;
+}): string {
+  const advice = resolveContextualSizeAdvice(product);
+  const firstSentence = advice.split(/(?<=[.!?])\s+/)[0]?.trim();
+  return firstSentence && firstSentence.length >= 16 ? firstSentence : advice;
+}
+
 export function isProductCuratedSelection(input: {
   badges: ProductBadgeType[];
   description: string | null;

@@ -17,12 +17,14 @@ export function CatalogueToolbar({
   showSort = true,
 }: CatalogueToolbarProps) {
   return (
-    <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-3 hidden flex-col gap-2 sm:mb-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
       <p className="text-foreground text-sm font-medium tabular-nums">
         {formatCatalogueResultsSummary(total, page, totalPages)}
       </p>
 
-      {showSort ? <CatalogueSortSelect className="hidden sm:flex" /> : null}
+      {showSort ? (
+        <CatalogueSortSelect className="hidden sm:flex lg:hidden" triggerClassName="min-h-9" />
+      ) : null}
     </div>
   );
 }

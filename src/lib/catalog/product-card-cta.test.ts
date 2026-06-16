@@ -17,9 +17,9 @@ function variant(id: string, stock = 3): ProductQuickAddVariant {
 }
 
 describe("getProductCardCtaLabel", () => {
-  it("propose de choisir la taille quand plusieurs tailles sont disponibles", () => {
+  it("propose de voir les tailles quand plusieurs tailles sont disponibles", () => {
     expect(getProductCardCtaLabel(["2 ans", "4 ans"], [variant("a")], true)).toBe(
-      "Choisir la taille",
+      "Voir les tailles",
     );
   });
 

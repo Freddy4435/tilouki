@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { IMAGE_SIZES } from "@/lib/media/image-sizes";
 import { cn } from "@/lib/utils";
 
 interface ProductGalleryMainImageProps {
@@ -17,7 +18,7 @@ export function ProductGalleryMainImage({
   return (
     <div
       className={cn(
-        "product-image-frame relative min-h-[min(78vw,30rem)] flex-1 shadow-[var(--shadow-card)] lg:min-h-[34rem]",
+        "product-gallery-frame product-image-frame relative min-h-[min(78vw,30rem)] flex-1 ring-1 ring-black/[0.04] lg:min-h-[32rem]",
         className,
       )}
     >
@@ -27,7 +28,7 @@ export function ProductGalleryMainImage({
         fill
         priority
         fetchPriority="high"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+        sizes={IMAGE_SIZES.productMain}
         className="object-cover"
       />
     </div>

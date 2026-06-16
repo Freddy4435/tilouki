@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, ShoppingBag } from "lucide-react";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { formatQuickAddVariantLabel } from "@/lib/catalog/product-card-data";
 import { useCartStore } from "@/lib/cart/store";
@@ -16,6 +16,10 @@ interface ProductCardQuickAddProps {
   productName: string;
   imageUrl?: string | null;
   directVariant: ProductQuickAddVariant;
+  layout?: "icon" | "bar";
+  compact?: boolean;
+  premium?: boolean;
+  className?: string;
 }
 
 export function ProductCardQuickAdd({
@@ -24,12 +28,18 @@ export function ProductCardQuickAdd({
   productName,
   imageUrl,
   directVariant,
+  layout = "bar",
+  compact = false,
+  premium = false,
+  className,
 }: ProductCardQuickAddProps) {
   const toast = useToast();
   const addItem = useCartStore((state) => state.addItem);
   const openDrawer = useCartStore((state) => state.openDrawer);
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const variantLabel = formatQuickAddVariantLabel(directVariant);
 
   const addVariant = () => {
     addItem(
@@ -53,10 +63,7 @@ export function ProductCardQuickAdd({
     if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
     addedTimerRef.current = setTimeout(() => setAdded(false), 1800);
 
-    toast.success(
-      "Ajouté au panier",
-      `${productName} — ${formatQuickAddVariantLabel(directVariant)}`,
-    );
+    toast.success("Ajouté au panier", `${productName} — ${variantLabel}`);
     openDrawer();
   };
 
@@ -66,33 +73,64 @@ export function ProductCardQuickAdd({
     addVariant();
   };
 
-  return (
-    <div
-      className="pointer-events-none absolute right-2 bottom-2 z-20 hidden md:block"
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-      }}
-    >
-      <Button
-        type="button"
-        size="icon"
-        className={cn(
-          buttonVariants({ size: "icon" }),
-          "pointer-events-auto size-10 rounded-full shadow-[var(--shadow-card)] ring-1 ring-black/[0.06] transition-[transform,opacity,box-shadow] duration-200 md:translate-y-1 md:opacity-0 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-hover:translate-y-0 md:group-hover:opacity-100",
-          added
-            ? "bg-tilouki-sage hover:bg-tilouki-sage text-white"
-            : "bg-card text-foreground hover:bg-card",
-        )}
-        aria-label={added ? "Ajouté au panier" : `Ajout rapide — ${productName}`}
-        onClick={handleClick}
+  if (layout === "icon") {
+    return (
+      <div
+        className={cn("pointer-events-none absolute right-2 bottom-2 z-20", className)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
       >
-        {added ? (
-          <Check className="size-4" aria-hidden />
-        ) : (
-          <Plus className="size-4" aria-hidden />
-        )}
-      </Button>
-    </div>
+        <Button
+          type="button"
+          size="icon"
+          className={cn(
+            "pointer-events-auto size-10 rounded-full shadow-[var(--shadow-card)] ring-1 ring-black/[0.06]",
+            added
+              ? "bg-tilouki-sage hover:bg-tilouki-sage text-white"
+              : "bg-card/95 text-foreground hover:bg-card backdrop-blur-sm",
+          )}
+          aria-label={added ? "Ajouté au panier" : `Ajout rapide — ${productName}`}
+          onClick={handleClick}
+        >
+          {added ? (
+            <Check className="size-4" aria-hidden />
+          ) : (
+            <Plus className="size-4" aria-hidden />
+          )}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Button
+      type="button"
+      className={cn(
+        "w-full gap-1.5 font-semibold shadow-[var(--shadow-soft)]",
+        compact ? "min-h-10 text-xs" : premium ? "min-h-11 text-sm" : "min-h-10 text-sm",
+        added && "bg-tilouki-sage hover:bg-tilouki-sage text-white",
+        className,
+      )}
+      aria-label={
+        added
+          ? "Ajouté au panier"
+          : `Ajouter au panier — ${productName}, ${variantLabel}`
+      }
+      onClick={handleClick}
+    >
+      {added ? (
+        <>
+          Ajouté
+          <Check className="size-3.5" aria-hidden />
+        </>
+      ) : (
+        <>
+          <ShoppingBag className="size-3.5 shrink-0" aria-hidden />
+          <span className="truncate">Ajouter — {variantLabel}</span>
+        </>
+      )}
+    </Button>
   );
 }

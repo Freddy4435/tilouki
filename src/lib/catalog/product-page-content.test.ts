@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   deriveComfortNote,
   isProductCuratedSelection,
+  resolveBriefSizeTip,
   resolveContextualSizeAdvice,
   resolveProductCuratorContent,
   resolveProductConditionSummary,
@@ -45,6 +46,19 @@ describe("resolveContextualSizeAdvice", () => {
         secondHand: true,
       }),
     ).toMatch(/seconde main/i);
+  });
+});
+
+describe("resolveBriefSizeTip", () => {
+  it("retourne une phrase courte", () => {
+    const tip = resolveBriefSizeTip({
+      sizes: ["4 ans", "6 ans"],
+      ageLabels: ["4 ans"],
+      gender: "fille",
+      material: "coton",
+    });
+    expect(tip.length).toBeLessThan(120);
+    expect(tip).not.toMatch(/\n/);
   });
 });
 

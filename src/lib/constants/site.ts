@@ -33,10 +33,15 @@ export const siteConfig = {
   currency: "EUR",
 } as const;
 
+/** Libellé client pour les articles conseil (/blog). */
+export const buyingGuidesNav = {
+  label: "Guides d'achat",
+  href: "/blog",
+} as const;
+
 export const mainNavItems = [
   { label: "Accueil", href: "/" },
   { label: "Catalogue", href: "/catalogue" },
-  { label: "Le Carnet", href: "/blog" },
   { label: "Suivi commande", href: "/suivi-commande" },
   { label: "Livraison & retours", href: "/livraison-retours" },
 ] as const;
@@ -44,7 +49,7 @@ export const mainNavItems = [
 export const footerNavItems = {
   boutique: [
     { label: "Catalogue", href: "/catalogue" },
-    { label: "Le Carnet", href: "/blog" },
+    { label: buyingGuidesNav.label, href: buyingGuidesNav.href },
     { label: "Panier", href: "/panier" },
     { label: "Commande", href: "/commande" },
   ],

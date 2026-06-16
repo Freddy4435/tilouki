@@ -7,6 +7,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getLineStockIssue } from "@/lib/cart/calculations";
 import type { CartLineItem as CartLineItemType } from "@/lib/cart/types";
+import { IMAGE_SIZES } from "@/lib/media/image-sizes";
 import { cn, formatPrice } from "@/lib/utils";
 
 interface CartLineItemProps {
@@ -16,8 +17,13 @@ interface CartLineItemProps {
   onRemove: (variantId: string) => void;
 }
 
-function variantSubtitle(item: CartLineItemType): string {
-  return [item.sizeLabel, item.ageLabel].filter(Boolean).join(" · ");
+function variantDetails(item: CartLineItemType): string[] {
+  const lines: string[] = [];
+  if (item.sizeLabel) lines.push(`Taille : ${item.sizeLabel}`);
+  if (item.ageLabel && item.ageLabel !== item.sizeLabel) {
+    lines.push(`Âge : ${item.ageLabel}`);
+  }
+  return lines;
 }
 
 export function CartLineItem({
@@ -27,7 +33,7 @@ export function CartLineItem({
   onRemove,
 }: CartLineItemProps) {
   const hasIssue = getLineStockIssue(item) !== null;
-  const subtitle = variantSubtitle(item);
+  const variantLines = variantDetails(item);
 
   return (
     <article
@@ -39,6 +45,7 @@ export function CartLineItem({
     >
       <Link
         href={`/produit/${item.slug}`}
+        aria-label={`Voir ${item.productName}`}
         className={cn(
           "bg-muted relative shrink-0 overflow-hidden rounded-xl",
           compact ? "size-16" : "size-24",
@@ -51,7 +58,7 @@ export function CartLineItem({
             alt={item.productName}
             fill
             className="object-cover"
-            sizes={compact ? "64px" : "96px"}
+            sizes={compact ? IMAGE_SIZES.cartLineCompact : IMAGE_SIZES.cartLine}
           />
         ) : null}
       </Link>
@@ -68,8 +75,12 @@ export function CartLineItem({
             >
               {item.productName}
             </Link>
-            {subtitle ? (
-              <p className="text-muted-foreground mt-0.5 text-xs">{subtitle}</p>
+            {variantLines.length > 0 ? (
+              <ul className="text-muted-foreground mt-0.5 space-y-0.5 text-xs">
+                {variantLines.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
             ) : null}
             {!compact ? (
               <p className="text-muted-foreground mt-1 text-xs">Réf. {item.sku}</p>
@@ -81,10 +92,14 @@ export function CartLineItem({
         </div>
 
         {hasIssue ? (
-          <p className="text-destructive text-xs font-medium">
+          <p className="text-destructive text-xs font-medium" role="alert">
             {item.stockQuantity <= 0
-              ? "Rupture de stock"
-              : `Plus que ${item.stockQuantity} en stock`}
+              ? "Rupture de stock — retirez cet article pour continuer."
+              : `Stock limité : ${item.stockQuantity} disponible(s) — ajustez la quantité.`}
+          </p>
+        ) : !compact ? (
+          <p className="text-muted-foreground text-xs">
+            En stock ({item.stockQuantity})
           </p>
         ) : null}
 

@@ -1,7 +1,13 @@
+import { buyingGuidesNav } from "@/lib/constants/site";
 import { filterLowPriceProducts } from "@/lib/catalog/sort-products";
 import {
-  buildAgePanel,
-  buildNeedPanel,
+  buildAccessoiresMegaPanels,
+  buildMegaMenuFeatured,
+  buildPyjamasMegaPanels,
+  buildUniverseMegaPanels,
+  categoryHasLastPieceProducts,
+  categoryHasLowPriceProducts,
+  MAIN_NAV_CATEGORY_MEGA_SLUGS,
   MAIN_NAV_LABELS,
   MAIN_NAV_UNIVERSE_SLUGS,
   NAV_HREF,
@@ -12,6 +18,7 @@ import type {
   NavTopItem,
   StorefrontNavigation,
 } from "@/lib/navigation/types";
+import type { NavDealsAvailability } from "@/lib/navigation/nav-config";
 import type { ShopCategory } from "@/lib/shop/types";
 import type { ProductListItem } from "@/types/catalog";
 
@@ -28,9 +35,23 @@ function categoryExists(categories: ShopCategory[], slug: string): boolean {
   return categories.some((category) => category.slug === slug);
 }
 
+function buildDealsAvailability(
+  products: ProductListItem[],
+  categorySlug: string,
+  hasGlobalLowPrice: boolean,
+): NavDealsAvailability {
+  return {
+    hasLowPrice:
+      hasGlobalLowPrice && categoryHasLowPriceProducts(products, categorySlug),
+    hasLastPiece: categoryHasLastPieceProducts(products, categorySlug),
+  };
+}
+
 function buildTopItems(
   categories: ShopCategory[],
+  products: ProductListItem[],
   categoryCounts: Record<string, number>,
+  hasLowPriceProducts: boolean,
 ): NavTopItem[] {
   const items: NavTopItem[] = [
     {
@@ -50,6 +71,7 @@ function buildTopItems(
 
     const category = categoryBySlug.get(slug);
     const label = MAIN_NAV_LABELS[slug] ?? category?.label ?? slug;
+    const availability = buildDealsAvailability(products, slug, hasLowPriceProducts);
 
     items.push({
       id: slug,
@@ -58,25 +80,42 @@ function buildTopItems(
       slug,
       href: `/categorie/${slug}`,
       productCount: categoryCounts[slug] ?? 0,
-      panels: [buildAgePanel(slug), buildNeedPanel(slug)],
+      panels: buildUniverseMegaPanels(slug, availability),
+      featured: buildMegaMenuFeatured(slug, label),
     });
   }
 
-  if (categoryExists(categories, "pyjamas")) {
+  for (const slug of MAIN_NAV_CATEGORY_MEGA_SLUGS) {
+    if (!categoryExists(categories, slug)) continue;
+
+    const category = categoryBySlug.get(slug);
+    const label = MAIN_NAV_LABELS[slug] ?? category?.label ?? slug;
+    const availability = buildDealsAvailability(products, slug, hasLowPriceProducts);
+    const panels =
+      slug === "pyjamas"
+        ? buildPyjamasMegaPanels(availability)
+        : buildAccessoiresMegaPanels(availability);
+
     items.push({
-      id: "pyjamas",
-      kind: "link",
-      label: MAIN_NAV_LABELS.pyjamas ?? "Pyjamas",
-      href: NAV_HREF.pyjamas,
+      id: slug,
+      kind: "category",
+      label,
+      slug,
+      href: `/categorie/${slug}`,
+      productCount: categoryCounts[slug] ?? 0,
+      panels,
+      featured: buildMegaMenuFeatured(slug, label),
     });
   }
 
-  items.push({
-    id: "petits-prix",
-    kind: "link",
-    label: "Petits prix",
-    href: NAV_HREF.petitsPrix,
-  });
+  if (hasLowPriceProducts) {
+    items.push({
+      id: "petits-prix",
+      kind: "link",
+      label: "Petits prix",
+      href: NAV_HREF.petitsPrix,
+    });
+  }
 
   items.push({
     id: "guide-tailles",
@@ -105,19 +144,22 @@ function buildMobileSections(
     });
   }
 
-  if (categoryExists(categories, "pyjamas")) {
+  for (const slug of MAIN_NAV_CATEGORY_MEGA_SLUGS) {
+    if (!categoryExists(categories, slug)) continue;
     parcourir.push({
-      label: "Pyjamas",
-      href: NAV_HREF.pyjamas,
-      icon: "moon",
+      label: MAIN_NAV_LABELS[slug] ?? slug,
+      href: `/categorie/${slug}`,
+      icon: slug === "pyjamas" ? "moon" : "package",
     });
   }
 
-  parcourir.push({
-    label: hasLowPriceProducts ? "Petits prix" : "Bonnes affaires",
-    href: NAV_HREF.petitsPrix,
-    icon: "tag",
-  });
+  if (hasLowPriceProducts) {
+    parcourir.push({
+      label: "Petits prix",
+      href: NAV_HREF.petitsPrix,
+      icon: "tag",
+    });
+  }
 
   parcourir.push({
     label: "Guide tailles",
@@ -125,8 +167,14 @@ function buildMobileSections(
     icon: "ruler",
   });
 
+  const selections: NavMobileLink[] = [
+    { label: "Nuit douce", href: "/rituels/nuit-calme", icon: "moon" },
+    { label: "Matin école", href: "/rituels/matin-presse", icon: "shirt" },
+    { label: "Bébé cocon", href: "/rituels/bebe-cocon", icon: "baby" },
+  ];
+
   const reassurance: NavMobileLink[] = [
-    { label: "Le Carnet", href: NAV_HREF.blog, icon: "sparkles" },
+    { label: buyingGuidesNav.label, href: buyingGuidesNav.href, icon: "book-open" },
     { label: "Livraison point relais", href: NAV_HREF.livraison, icon: "truck" },
     { label: "Retours 14 jours", href: NAV_HREF.livraison, icon: "rotate-ccw" },
     { label: "Mes favoris", href: NAV_HREF.favoris, icon: "heart" },
@@ -135,6 +183,7 @@ function buildMobileSections(
 
   return [
     { id: "parcourir", title: "Parcourir", links: parcourir },
+    { id: "selections", title: "Sélections", links: selections },
     { id: "reassurance", title: "Aide & confiance", links: reassurance },
   ];
 }
@@ -145,7 +194,12 @@ export function buildStorefrontNavigation(
 ): StorefrontNavigation {
   const categoryProductCounts = countProductsByCategory(products);
   const hasLowPriceProducts = filterLowPriceProducts(products).length > 0;
-  const topItems = buildTopItems(categories, categoryProductCounts);
+  const topItems = buildTopItems(
+    categories,
+    products,
+    categoryProductCounts,
+    hasLowPriceProducts,
+  );
 
   return {
     topItems,

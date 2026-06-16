@@ -8,10 +8,13 @@ import {
   ProductBadgeList,
   type ProductBadgeType,
 } from "@/components/product/product-badges";
+import { IMAGE_SIZES } from "@/lib/media/image-sizes";
 import { shouldShowSecondaryImage } from "@/lib/catalog/product-card-data";
 import { isCommercialProductImage } from "@/lib/catalog/product-sellability";
 import type { ProductCardColorOption } from "@/types/catalog";
 import { cn } from "@/lib/utils";
+
+export type ProductCardMediaVariant = "default" | "compact" | "premium-rail";
 
 interface ProductCardMediaProps {
   href: string;
@@ -25,6 +28,7 @@ interface ProductCardMediaProps {
   priority?: boolean;
   inStock: boolean;
   selectedColor: string | null;
+  variant?: ProductCardMediaVariant;
 }
 
 export function ProductCardMedia({
@@ -39,6 +43,7 @@ export function ProductCardMedia({
   priority = false,
   inStock,
   selectedColor,
+  variant = "default",
 }: ProductCardMediaProps) {
   const activePrimaryUrl = useMemo(() => {
     if (!selectedColor) return primaryImageUrl ?? null;
@@ -48,8 +53,11 @@ export function ProductCardMedia({
 
   const activeSecondaryUrl = useMemo(() => {
     if (selectedColor) return null;
-    return secondaryImageUrl ?? null;
-  }, [secondaryImageUrl, selectedColor]);
+    const url = secondaryImageUrl ?? null;
+    if (!url) return null;
+    if (!isCommercialProductImage(url, secondaryImageAlt ?? null)) return null;
+    return url;
+  }, [secondaryImageUrl, secondaryImageAlt, selectedColor]);
 
   const showSecondary = shouldShowSecondaryImage(activeSecondaryUrl, activePrimaryUrl);
 
@@ -58,10 +66,17 @@ export function ProductCardMedia({
     isCommercialProductImage(activePrimaryUrl, primaryImageAlt ?? null),
   );
 
+  const isPremiumRail = variant === "premium-rail";
+  const imageSizes = isPremiumRail ? IMAGE_SIZES.productCardRail : IMAGE_SIZES.productCard;
+
   if (!hasCommercialMedia) {
     return (
       <div
-        className="product-image-frame product-card-media rounded-b-none ring-0"
+        className={cn(
+          "product-image-frame product-card-media rounded-b-none ring-0",
+          variant === "compact" && "product-card-media--compact",
+          isPremiumRail && "product-card-media--premium-rail",
+        )}
         aria-hidden
         data-storefront-hidden="no-commercial-photo"
       >
@@ -72,13 +87,19 @@ export function ProductCardMedia({
 
   return (
     <Link href={href} className="block" aria-label={`Voir ${name}`}>
-      <div className="product-image-frame product-card-media rounded-b-none ring-0">
+      <div
+        className={cn(
+          "product-image-frame product-card-media rounded-b-none ring-0",
+          variant === "compact" && "product-card-media--compact",
+          isPremiumRail && "product-card-media--premium-rail",
+        )}
+      >
         <div className="absolute inset-0">
           <Image
             src={activePrimaryUrl!}
             alt={primaryImageAlt ?? name}
             fill
-            sizes="(max-width: 640px) 44vw, (max-width: 1024px) 33vw, 25vw"
+            sizes={imageSizes}
             className={cn(
               "object-cover transition-opacity duration-500 ease-out",
               showSecondary && "md:group-hover:opacity-0",
@@ -93,7 +114,7 @@ export function ProductCardMedia({
               src={activeSecondaryUrl}
               alt={secondaryImageAlt ?? `${name} — autre vue`}
               fill
-              sizes="(max-width: 1024px) 33vw, 25vw"
+              sizes={imageSizes}
               className="object-cover opacity-0 transition-opacity duration-500 ease-out md:group-hover:opacity-100"
               loading="lazy"
             />
@@ -101,14 +122,20 @@ export function ProductCardMedia({
         ) : null}
 
         {badges.length > 0 ? (
-          <div className="pointer-events-none absolute top-1.5 left-1.5 z-10 max-w-[72%]">
-            <ProductBadgeList badges={badges} max={2} storefrontCard size="card" />
+          <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10">
+            <ProductBadgeList
+              badges={badges}
+              max={isPremiumRail ? 2 : 1}
+              storefrontCard
+              size="card"
+              layout="stack"
+            />
           </div>
         ) : null}
 
         {!inStock ? (
-          <div className="bg-tilouki-ink/50 absolute inset-0 z-10 flex items-center justify-center">
-            <span className="bg-card text-foreground rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
+          <div className="bg-tilouki-ink/45 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px]">
+            <span className="bg-card/95 text-foreground rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase shadow-sm">
               Rupture
             </span>
           </div>

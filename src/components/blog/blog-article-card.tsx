@@ -19,7 +19,7 @@ export function BlogArticleCard({ article }: { article: BlogArticle }) {
   const heroImage = resolveBlogHeroImage(article.heroImageId);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-tilouki-plum/15 bg-card shadow-[var(--shadow-soft)] transition-shadow hover:border-tilouki-plum/25 hover:shadow-[var(--shadow-card)]">
+    <article className="group border-tilouki-plum/15 bg-card hover:border-tilouki-plum/25 flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-card)]">
       <EditorialImage
         imageId={heroImage.id}
         src={heroImage.src}
@@ -40,7 +40,7 @@ export function BlogArticleCard({ article }: { article: BlogArticle }) {
           </span>
         </div>
 
-        <h2 className="font-heading text-lg font-semibold leading-snug tracking-tight">
+        <h2 className="font-heading text-lg leading-snug font-semibold tracking-tight">
           <Link
             href={`/blog/${article.slug}`}
             className="text-foreground group-hover:text-tilouki-plum transition-colors"

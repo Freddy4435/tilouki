@@ -10,7 +10,6 @@ import { shouldDisplayFacetGroup } from "@/lib/catalog/catalogue-facets";
 import {
   CATALOGUE_FILTER_ALL,
   getCategoryFilterLabel,
-  getGenderLabel,
   isCatalogueFilterAll,
 } from "@/lib/catalog/catalogue-labels";
 import { CatalogueFacetSection } from "@/components/catalogue/catalogue-facet-section";
@@ -24,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { CatalogueFacets, Category } from "@/types/catalog";
+import type { CatalogueFacets, CatalogueFacetValue, Category } from "@/types/catalog";
 
 interface CatalogueFiltersProps {
   categories: Category[];
@@ -35,6 +34,30 @@ interface CatalogueFiltersProps {
   basePath?: string;
 }
 
+const GENDER_OPTIONS = [
+  { value: null, label: "Tous" },
+  { value: "fille", label: "Fille" },
+  { value: "garcon", label: "Garçon" },
+  { value: "mixte", label: "Mixte" },
+] as const;
+
+function FilterChipGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-tilouki-navy text-xs font-semibold tracking-wide uppercase">
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
 function CatalogueAgeBandFilters({
   selected,
   onSelect,
@@ -43,34 +66,93 @@ function CatalogueAgeBandFilters({
   onSelect: (band: string | null) => void;
 }) {
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-semibold tracking-wide uppercase">
-        Âge de l&apos;enfant
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {CATALOGUE_AGE_BANDS.map((band) => {
-          const active = selected === band.value;
-          return (
-            <Button
-              key={band.value}
-              type="button"
-              size="sm"
-              variant={active ? "default" : "outline"}
-              className={cn(
-                "h-9 rounded-full px-3 text-xs font-semibold",
-                active && "bg-tilouki-teal-dark hover:bg-tilouki-teal-dark/90",
-              )}
-              aria-pressed={active}
-              onClick={() => onSelect(active ? null : band.value)}
-            >
-              {band.label}
-              <span className="text-muted-foreground ml-1 hidden font-normal sm:inline">
-                ({band.hint})
-              </span>
-            </Button>
-          );
-        })}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {CATALOGUE_AGE_BANDS.map((band) => {
+        const active = selected === band.value;
+        return (
+          <Button
+            key={band.value}
+            type="button"
+            size="sm"
+            variant={active ? "default" : "outline"}
+            className={cn(
+              "h-9 rounded-full px-3 text-xs font-semibold",
+              active && "bg-tilouki-teal-dark hover:bg-tilouki-teal-dark/90",
+            )}
+            aria-pressed={active}
+            onClick={() => onSelect(active ? null : band.value)}
+          >
+            {band.label}
+          </Button>
+        );
+      })}
+    </div>
+  );
+}
+
+function CatalogueGenderFilters({
+  selected,
+  onSelect,
+}: {
+  selected: string | null;
+  onSelect: (gender: string | null) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {GENDER_OPTIONS.map((option) => {
+        const active = (selected ?? null) === option.value;
+        return (
+          <Button
+            key={option.label}
+            type="button"
+            size="sm"
+            variant={active ? "default" : "outline"}
+            className={cn(
+              "h-9 rounded-full px-3 text-xs font-semibold",
+              active && "bg-tilouki-teal-dark hover:bg-tilouki-teal-dark/90",
+            )}
+            aria-pressed={active}
+            onClick={() => onSelect(option.value)}
+          >
+            {option.label}
+          </Button>
+        );
+      })}
+    </div>
+  );
+}
+
+function CatalogueSizeChips({
+  values,
+  selectedValues,
+  onToggle,
+}: {
+  values: CatalogueFacetValue[];
+  selectedValues: string[];
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {values.map((facet) => {
+        const active = selectedValues.includes(facet.value);
+        return (
+          <Button
+            key={facet.value}
+            type="button"
+            size="sm"
+            variant={active ? "default" : "outline"}
+            className={cn(
+              "h-9 min-w-9 rounded-full px-3 text-xs font-semibold tabular-nums",
+              active && "bg-tilouki-teal-dark hover:bg-tilouki-teal-dark/90",
+            )}
+            aria-pressed={active}
+            onClick={() => onToggle(facet.value)}
+          >
+            {facet.value}
+            <span className="sr-only"> — {facet.count} article(s)</span>
+          </Button>
+        );
+      })}
     </div>
   );
 }
@@ -109,10 +191,6 @@ export function CatalogueFilters({
   const categoryDisplayLabel = getCategoryFilterLabel(categorySlug, categories);
 
   const gender = searchParams.get(CATALOGUE_PARAM_KEYS.gender);
-  const genderSelectValue = isCatalogueFilterAll(gender)
-    ? CATALOGUE_FILTER_ALL
-    : (gender ?? CATALOGUE_FILTER_ALL);
-  const genderDisplayLabel = getGenderLabel(gender);
 
   const Wrapper = embedded ? "div" : "aside";
 
@@ -133,147 +211,145 @@ export function CatalogueFilters({
           onClick={reset}
           className="text-tilouki-teal-dark h-8 px-2 text-xs font-semibold"
         >
-          Effacer les filtres
+          Effacer
         </Button>
       </div>
 
-      <CatalogueAgeBandFilters
-        selected={searchParams.get(CATALOGUE_PARAM_KEYS.ageBand)}
-        onSelect={(band) =>
-          updateSingle({
-            [CATALOGUE_PARAM_KEYS.ageBand]: band,
-          })
-        }
-      />
-
-      <div className="space-y-2">
-        <label htmlFor="filter-q" className="text-xs font-medium">
-          Recherche
-        </label>
-        <Input
-          id="filter-q"
-          defaultValue={searchParams.get(CATALOGUE_PARAM_KEYS.query) ?? ""}
-          placeholder="Nom, matière…"
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
+      <div className="border-tilouki-jade/20 bg-tilouki-cloud/60 space-y-4 rounded-xl border p-3.5">
+        <FilterChipGroup title="Âge">
+          <CatalogueAgeBandFilters
+            selected={searchParams.get(CATALOGUE_PARAM_KEYS.ageBand)}
+            onSelect={(band) =>
               updateSingle({
-                [CATALOGUE_PARAM_KEYS.query]: event.currentTarget.value || null,
-              });
-            }
-          }}
-        />
-      </div>
-
-      {!lockedCategorySlug ? (
-        <div className="space-y-2">
-          <label id="catalogue-filter-category" className="text-xs font-medium">
-            Catégorie
-          </label>
-          <Select
-            value={categorySelectValue}
-            onValueChange={(value) =>
-              updateSingle({
-                [CATALOGUE_PARAM_KEYS.category]: isCatalogueFilterAll(value)
-                  ? null
-                  : value,
-              })
-            }
-          >
-            <SelectTrigger
-              className="w-full"
-              aria-labelledby="catalogue-filter-category"
-            >
-              <SelectValue placeholder="Toutes les catégories">
-                {categoryDisplayLabel}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={CATALOGUE_FILTER_ALL}>
-                Toutes les catégories
-              </SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.slug}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
-
-      <div className="space-y-2">
-        <label id="catalogue-filter-gender" className="text-xs font-medium">
-          Genre
-        </label>
-        <Select
-          value={genderSelectValue}
-          onValueChange={(value) =>
-            updateSingle({
-              [CATALOGUE_PARAM_KEYS.gender]: isCatalogueFilterAll(value) ? null : value,
-            })
-          }
-        >
-          <SelectTrigger className="w-full" aria-labelledby="catalogue-filter-gender">
-            <SelectValue placeholder="Tous les genres">
-              {genderDisplayLabel}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={CATALOGUE_FILTER_ALL}>Tous les genres</SelectItem>
-            <SelectItem value="fille">Fille</SelectItem>
-            <SelectItem value="garcon">Garçon</SelectItem>
-            <SelectItem value="mixte">Mixte</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <label htmlFor="prix-min" className="text-xs font-medium">
-            Prix min (€)
-          </label>
-          <Input
-            id="prix-min"
-            type="number"
-            min={0}
-            step={1}
-            defaultValue={searchParams.get(CATALOGUE_PARAM_KEYS.minPrice) ?? ""}
-            onBlur={(event) =>
-              updateSingle({
-                [CATALOGUE_PARAM_KEYS.minPrice]: event.target.value || null,
+                [CATALOGUE_PARAM_KEYS.ageBand]: band,
               })
             }
           />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="prix-max" className="text-xs font-medium">
-            Prix max (€)
-          </label>
-          <Input
-            id="prix-max"
-            type="number"
-            min={0}
-            step={1}
-            defaultValue={searchParams.get(CATALOGUE_PARAM_KEYS.maxPrice) ?? ""}
-            onBlur={(event) =>
+        </FilterChipGroup>
+
+        <FilterChipGroup title="Genre">
+          <CatalogueGenderFilters
+            selected={gender}
+            onSelect={(value) =>
               updateSingle({
-                [CATALOGUE_PARAM_KEYS.maxPrice]: event.target.value || null,
+                [CATALOGUE_PARAM_KEYS.gender]: value,
               })
             }
           />
-        </div>
+        </FilterChipGroup>
+
+        <FilterChipGroup title="Prix (€)">
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              id="prix-min"
+              type="number"
+              min={0}
+              step={1}
+              aria-label="Prix minimum en euros"
+              placeholder="Min"
+              className="bg-background h-9"
+              defaultValue={searchParams.get(CATALOGUE_PARAM_KEYS.minPrice) ?? ""}
+              onBlur={(event) =>
+                updateSingle({
+                  [CATALOGUE_PARAM_KEYS.minPrice]: event.target.value || null,
+                })
+              }
+            />
+            <Input
+              id="prix-max"
+              type="number"
+              min={0}
+              step={1}
+              aria-label="Prix maximum en euros"
+              placeholder="Max"
+              className="bg-background h-9"
+              defaultValue={searchParams.get(CATALOGUE_PARAM_KEYS.maxPrice) ?? ""}
+              onBlur={(event) =>
+                updateSingle({
+                  [CATALOGUE_PARAM_KEYS.maxPrice]: event.target.value || null,
+                })
+              }
+            />
+          </div>
+        </FilterChipGroup>
+
+        {shouldDisplayFacetGroup(facets.sizes) ? (
+          <FilterChipGroup title="Taille">
+            <CatalogueSizeChips
+              values={facets.sizes}
+              selectedValues={selectedSizes}
+              onToggle={(value) => toggleFacetValue(CATALOGUE_PARAM_KEYS.sizes, value)}
+            />
+          </FilterChipGroup>
+        ) : null}
       </div>
+
+      <details className="group border-border/70 border-b pb-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between py-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+          <span>Recherche et catégorie</span>
+          <span className="text-muted-foreground text-xs font-medium group-open:rotate-180">
+            ▾
+          </span>
+        </summary>
+        <div className="mt-2 space-y-3">
+          <div className="space-y-2">
+            <label htmlFor="filter-q" className="text-xs font-medium">
+              Recherche
+            </label>
+            <Input
+              id="filter-q"
+              defaultValue={searchParams.get(CATALOGUE_PARAM_KEYS.query) ?? ""}
+              placeholder="Nom, matière…"
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  updateSingle({
+                    [CATALOGUE_PARAM_KEYS.query]: event.currentTarget.value || null,
+                  });
+                }
+              }}
+            />
+          </div>
+
+          {!lockedCategorySlug ? (
+            <div className="space-y-2">
+              <label id="catalogue-filter-category" className="text-xs font-medium">
+                Catégorie
+              </label>
+              <Select
+                value={categorySelectValue}
+                onValueChange={(value) =>
+                  updateSingle({
+                    [CATALOGUE_PARAM_KEYS.category]: isCatalogueFilterAll(value)
+                      ? null
+                      : value,
+                  })
+                }
+              >
+                <SelectTrigger
+                  className="w-full"
+                  aria-labelledby="catalogue-filter-category"
+                >
+                  <SelectValue placeholder="Toutes les catégories">
+                    {categoryDisplayLabel}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={CATALOGUE_FILTER_ALL}>
+                    Toutes les catégories
+                  </SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.slug}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+        </div>
+      </details>
 
       <div className="space-y-1">
-        {shouldDisplayFacetGroup(facets.sizes) ? (
-          <CatalogueFacetSection
-            title="Tailles"
-            paramKey={CATALOGUE_PARAM_KEYS.sizes}
-            values={facets.sizes}
-            selectedValues={selectedSizes}
-            onToggle={(value) => toggleFacetValue(CATALOGUE_PARAM_KEYS.sizes, value)}
-          />
-        ) : null}
         {shouldDisplayFacetGroup(facets.colors) ? (
           <CatalogueFacetSection
             title="Couleurs"
@@ -281,6 +357,7 @@ export function CatalogueFilters({
             values={facets.colors}
             selectedValues={selectedColors}
             onToggle={(value) => toggleFacetValue(CATALOGUE_PARAM_KEYS.colors, value)}
+            defaultOpen={false}
           />
         ) : null}
         {shouldDisplayFacetGroup(facets.ages) ? (

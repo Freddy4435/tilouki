@@ -24,7 +24,7 @@ export type BlogArticle = {
 export const blogArticles: BlogArticle[] = [
   {
     slug: "choisir-bonne-taille-vetement-enfant",
-    title: "Comment choisir la bonne taille sans se tromper",
+    title: "Guide d'achat tailles enfant",
     excerpt:
       "Choisir une taille enfant peut vite devenir un petit casse-tête. Entre les tailles en mois, les tailles en années, les marques qui taillent petit et les enfants qui…",
     metaDescription:
@@ -51,7 +51,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "matieres-douces-vetements-enfants",
-    title: "Les matières douces à privilégier pour le quotidien",
+    title: "Guide d'achat matières enfant",
     excerpt:
       "Un vêtement enfant doit d'abord accompagner le mouvement. Courir, s'asseoir, dormir, jouer, se relever : les enfants vivent leurs vêtements beaucoup plus…",
     metaDescription:
@@ -72,14 +72,14 @@ export const blogArticles: BlogArticle[] = [
     ].join("\n\n"),
     keyTakeaways: [
       "Le coton est une base fiable.",
-      "Le molleton rassure pour le confort.",
+      "Le molleton apporte de la chaleur sans volume excessif.",
       "La maille doit être douce, pas irritante.",
       "La matière doit correspondre au moment de vie.",
     ],
   },
   {
     slug: "indispensables-bebe-premiers-mois",
-    title: "Les indispensables bébé pour les premiers mois",
+    title: "Guide d'achat garde-robe bébé",
     excerpt:
       "Les premiers mois, la garde-robe bébé doit rester simple. On a souvent envie de tout prévoir, mais les pièces les plus utilisées sont rarement les plus compliquées.",
     metaDescription:
@@ -92,7 +92,7 @@ export const blogArticles: BlogArticle[] = [
     content: [
       "Les premiers mois, la garde-robe bébé doit rester simple. On a souvent envie de tout prévoir, mais les pièces les plus utilisées sont rarement les plus compliquées.",
       "Le body est la base. Il se porte sous presque tout, maintient bien le ventre couvert et accompagne les changes répétés. Les ouvertures pratiques font vraiment la différence : pressions bien placées, encolure facile, matière souple.",
-      "Le pyjama est l'autre essentiel. Un bébé passe beaucoup de temps à dormir ou à se reposer. Un pyjama confortable, facile à ouvrir et adapté à la saison est souvent plus utile qu'une tenue habillée.",
+      "Le pyjama est l'autre essentiel. Les tout-petits le portent longtemps dans la journée. Un pyjama en coton doux, facile à ouvrir et adapté à la saison est souvent plus utile qu'une tenue habillée.",
       "Une petite maille ou un gilet peut compléter la garde-robe. L'avantage du gilet est qu'il s'enfile et se retire facilement, sans devoir trop manipuler l'enfant. C'est pratique quand la température change dans la journée.",
       "Les chaussettes et bonnets peuvent être utiles selon la saison, surtout pour les sorties. L'objectif n'est pas de multiplier les accessoires, mais d'avoir quelques pièces simples sous la main.",
       "Pour ne pas acheter trop, pensez en rotation : quelques bodies, quelques pyjamas, une ou deux pièces chaudes, et des vêtements faciles à laver. Les premiers mois, le confort et la praticité comptent plus que la quantité.",
@@ -107,34 +107,34 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "choisir-pyjama-enfant-nuit-confortable",
-    title: "Pyjama enfant : comment choisir pour une nuit plus confortable",
+    title: "Bien choisir un pyjama enfant",
     excerpt:
-      "Le pyjama est plus qu'un vêtement de nuit. C'est souvent le début du rituel du soir : bain, histoire, lumière douce, moment calme. Un bon pyjama doit donc être…",
+      "Choisir un pyjama enfant : matière selon la saison, coupe ample, fermetures pratiques et entretien simple — les critères qui comptent avant d'acheter.",
     metaDescription:
-      "Conseils pour choisir un pyjama enfant confortable selon la saison, la matière et les habitudes du soir.",
+      "Comment choisir un pyjama enfant : matière, coupe, facilité d'enfilage et lavage — guide d'achat vêtements nuit.",
     category: "quotidien",
     readingTime: "4 min",
     publishedAt: "2026-02-26",
     heroImageId: "pyjama-plie-lit-soir",
-    tags: ["pyjama", "nuit", "rituel", "confort"],
+    tags: ["pyjama", "nuit", "matières", "confort"],
     content: [
-      "Le pyjama est plus qu'un vêtement de nuit. C'est souvent le début du rituel du soir : bain, histoire, lumière douce, moment calme. Un bon pyjama doit donc être agréable, simple et rassurant.",
-      "La première question est la saison. Quand il fait frais, une matière un peu plus chaude peut être bienvenue. Quand la chambre est tempérée, un coton léger peut suffire. L'important est d'éviter les extrêmes : trop chaud, l'enfant se découvre ; trop léger, il peut se réveiller.",
-      "La coupe compte beaucoup. Un pyjama doit permettre de bouger, de se retourner, de s'asseoir dans le lit pour lire une histoire. Les poignets et chevilles peuvent aider à garder le vêtement en place, mais ils ne doivent pas serrer.",
-      "La facilité d'enfilage est aussi un point important. Pour les plus petits, les pressions ou fermetures pratiques aident les parents. Pour les enfants qui commencent à s'habiller seuls, une coupe simple les encourage à participer.",
-      "Les couleurs peuvent aussi participer au rituel. Les tons doux, les motifs calmes et les matières naturelles créent une sensation plus paisible qu'un pyjama très chargé visuellement.",
-      "Sur Tilouki, une sélection pyjama doit pouvoir raconter tout cela : confort, saison, douceur, mouvement. Une fiche produit peut indiquer si le pyjama est plutôt léger, chaud, facile à enfiler ou adapté aux nuits fraîches.",
+      "Un pyjama enfant se choisit comme les autres pièces du dressing : matière, coupe, facilité d'enfilage et entretien. Voici ce qu'il faut vérifier sur la fiche produit avant d'ajouter au panier.",
+      "La matière suit la saison. Coton léger ou molleton fin selon la température ; évitez les tissus qui grattent ou qui retiennent trop la chaleur. Sur Tilouki, la composition est indiquée sur chaque fiche.",
+      "La coupe doit laisser bouger : épaules libres, entrejambe confortable, jambes assez longues sans tirer à la cheville. Une taille légèrement ample simplifie l'enfilage.",
+      "Les fermetures pratiques font gagner du temps : pressions, zip ou élastique souple. Plus l'enfant grandit, plus une coupe simple aide à s'habiller seul.",
+      "Privilégiez les couleurs et motifs qui passent au lavage fréquent — le pyjama tourne souvent dans la machine. Un entretien à 30 ou 40 °C suffit en général pour le coton.",
+      "Avant de commander, vérifiez la taille en stock et les photos réelles du vêtement. Un bon pyjama, c'est une matière douce, une coupe confortable et une pièce qui se lave sans complication.",
     ].join("\n\n"),
     keyTakeaways: [
-      "Le pyjama accompagne le rituel du soir.",
-      "La matière doit suivre la saison.",
-      "Une coupe confortable aide l'enfant à bouger librement.",
-      "Les couleurs douces renforcent l'ambiance calme.",
+      "Matière adaptée à la saison.",
+      "Coupe ample pour bouger et s'habiller facilement.",
+      "Fermetures pratiques et lavage simple.",
+      "Taille et stock visibles sur la fiche produit.",
     ],
   },
   {
     slug: "composer-tenue-enfant-simple-trois-pieces",
-    title: "Composer une tenue enfant simple en trois pièces",
+    title: "Guide d'achat tenue enfant",
     excerpt:
       "Composer une tenue enfant ne devrait pas prendre trop de temps. Une bonne tenue est celle qui fonctionne dans la vraie vie : elle tient la journée, elle se lave…",
     metaDescription:
@@ -162,7 +162,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "entretenir-vetements-enfants-garder-plus-longtemps",
-    title: "Entretenir les vêtements enfants pour les garder plus longtemps",
+    title: "Guide d'achat entretien vêtements enfant",
     excerpt:
       "Les vêtements enfants vivent beaucoup : repas, jeux, cour de récréation, siestes, sorties. Un bon entretien permet de les garder plus longtemps et de conserver leur…",
     metaDescription:
@@ -190,7 +190,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "reconnaitre-vetement-enfant-qui-dure",
-    title: "Reconnaître un vêtement enfant qui va durer",
+    title: "Guide d'achat qualité vêtements enfant",
     excerpt:
       "Un vêtement qui dure ne se reconnaît pas seulement à son prix. Certains détails donnent rapidement des indices : la matière, les coutures, les finitions, la tenue du tissu.",
     metaDescription:
@@ -207,7 +207,7 @@ export const blogArticles: BlogArticle[] = [
       "Les boutons, pressions et fermetures doivent être bien fixés. Pour les enfants, ces éléments sont manipulés souvent, parfois vite. Une pression fragile ou un bouton mal cousu devient vite un problème.",
       "La coupe est aussi un facteur de durée. Un vêtement trop ajusté sera porté moins longtemps. Une coupe confortable, avec un peu d'aisance, accompagne mieux la croissance et les mouvements.",
       "Enfin, pensez à l'entretien. Une pièce très délicate peut être magnifique, mais si elle ne supporte pas le quotidien, elle restera au placard. Pour une garde-robe enfant, la beauté doit rester compatible avec la vraie vie.",
-      "Sur Tilouki, chaque fiche produit devrait aider à comprendre ces points : composition, détails, état, conseil d'entretien, coupe. Plus l'information est claire, plus l'achat est rassurant.",
+      "Sur Tilouki, chaque fiche produit devrait aider à comprendre ces points : composition, détails, état, conseil d'entretien, coupe. Plus l'information est claire, plus l'achat est simple.",
     ].join("\n\n"),
     keyTakeaways: [
       "Les coutures et finitions disent beaucoup.",
@@ -218,7 +218,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "valise-week-end-enfant-vetements",
-    title: "Préparer une petite valise week-end pour enfant",
+    title: "Guide d'achat valise enfant",
     excerpt:
       "Préparer une valise enfant peut vite devenir excessif. On ajoute « au cas où », puis encore une tenue, puis un pyjama de plus. Pourtant, une petite organisation suffit…",
     metaDescription:
@@ -246,9 +246,9 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "couleurs-douces-garde-robe-enfant",
-    title: "Les couleurs douces dans la garde-robe enfant",
+    title: "Guide d'achat couleurs garde-robe enfant",
     excerpt:
-      "Les couleurs douces sont rassurantes, mais elles peuvent devenir monotones si elles sont toutes trop proches. Le secret est de créer une palette simple avec quelques contrastes.",
+      "Les couleurs douces sont faciles à assortir, mais elles peuvent devenir monotones si elles sont toutes trop proches. Le secret est de créer une palette simple avec quelques contrastes.",
     metaDescription:
       "Comment utiliser les couleurs douces dans une garde-robe enfant sans tomber dans un style monotone.",
     category: "quotidien",
@@ -257,12 +257,12 @@ export const blogArticles: BlogArticle[] = [
     heroImageId: "palette-couleurs-douces",
     tags: ["couleurs", "palette", "style", "garde-robe"],
     content: [
-      "Les couleurs douces sont rassurantes, mais elles peuvent devenir monotones si elles sont toutes trop proches. Le secret est de créer une palette simple avec quelques contrastes.",
+      "Les couleurs douces sont faciles à assortir, mais elles peuvent devenir monotones si elles sont toutes trop proches. Le secret est de créer une palette simple avec quelques contrastes.",
       "Une bonne base commence souvent par des tons clairs : blanc chaud, écru, gris doux, beige léger. Ces couleurs se marient facilement et laissent respirer la tenue.",
       "Ajoutez ensuite une couleur calme : jade, bleu doux, vert sauge, rose poudré. Elle donne une identité sans prendre toute la place. Pour un enfant, ces tons fonctionnent bien sur un sweat, un gilet, une blouse ou un pyjama.",
       "Enfin, une petite touche plus vive peut réveiller l'ensemble : jaune beurre, rouge tomate doux, terracotta, prune. L'idée n'est pas de faire une tenue très colorée, mais d'ajouter un point de joie.",
       "Pour éviter l'effet uniforme, jouez aussi avec les matières. Un coton lisse, une maille, un molleton ou un lin ne renvoient pas la lumière de la même façon. Deux vêtements de même couleur peuvent paraître très différents selon leur texture.",
-      "Chez Tilouki, les couleurs peuvent devenir une signature : douce, chaude, rassurante, mais jamais fade. Une palette enfant n'a pas besoin d'être criarde pour être joyeuse.",
+      "Chez Tilouki, les couleurs peuvent devenir une signature : douce, chaude, cohérente, mais jamais fade. Une palette enfant n'a pas besoin d'être criarde pour être joyeuse.",
     ].join("\n\n"),
     keyTakeaways: [
       "Une palette douce a besoin de contraste.",
@@ -273,7 +273,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "acheter-vetements-enfants-malin-petits-prix",
-    title: "Acheter malin sans perdre en douceur",
+    title: "Guide d'achat petits prix enfant",
     excerpt:
       "Acheter à petit prix ne veut pas dire acheter au hasard. Pour les vêtements enfants, un bon achat est celui qui sera vraiment porté, lavé, reporté, puis peut-être transmis.",
     metaDescription:

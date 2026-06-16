@@ -7,7 +7,10 @@ export function splitBlogParagraphs(content: string): string[] {
 }
 
 /** Sommaire court dérivé des premiers paragraphes. */
-export function buildArticleToc(content: string, maxItems = 4): Array<{ id: string; label: string }> {
+export function buildArticleToc(
+  content: string,
+  maxItems = 4,
+): Array<{ id: string; label: string }> {
   const paragraphs = splitBlogParagraphs(content).slice(0, maxItems);
 
   return paragraphs.map((paragraph, index) => {

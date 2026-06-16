@@ -45,6 +45,8 @@ export async function expectNoBottomNavOverlap(page: Page) {
   ).toBe(true);
 }
 
+export const QA_SCREENSHOT_DIR = "outputs/qa";
+
 export async function captureFullPage(
   page: Page,
   path: string,

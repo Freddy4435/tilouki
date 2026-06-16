@@ -63,7 +63,13 @@ async function fetchAllSitemapEntries(): Promise<SitemapEntry[]> {
     lastModified: new Date(row.created_at),
   }));
 
-  return [...staticPages, ...blogPages, ...ritualPages, ...categoryPages, ...productPages];
+  return [
+    ...staticPages,
+    ...blogPages,
+    ...ritualPages,
+    ...categoryPages,
+    ...productPages,
+  ];
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {

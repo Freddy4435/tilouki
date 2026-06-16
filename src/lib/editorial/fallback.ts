@@ -9,7 +9,7 @@ const FALLBACK_HOOKS: Record<string, string> = {
   garcon:
     "Tee-shirts solides et joggers confortables pour suivre le rythme des aventures.",
   pyjamas:
-    "Des nuits plus douces avec des pyjamas faciles à enfiler, même quand on a sommeil.",
+    "Pyjamas en coton doux, coupe ample et faciles à enfiler — pour les pièces nuit du catalogue.",
   accessoires:
     "Bonnet, chaussettes et petits indispensables pour compléter la garde-robe.",
 };

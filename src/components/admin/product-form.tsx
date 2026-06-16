@@ -477,10 +477,12 @@ function ProductEditForm({
           <h2 className="text-base font-semibold">Photos</h2>
           <ProductImagesManager
             productId={product.id}
+            productSlug={watchedSlug}
             productName={watchedName}
             images={product.images}
           />
           <ProductPhotoReadinessChecklist
+            slug={watchedSlug}
             images={mapImagesToReadiness(product.images)}
             secondHand={
               isLikelySecondHandProduct(watched.description) ||

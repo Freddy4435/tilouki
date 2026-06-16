@@ -31,7 +31,9 @@ function StepRow({ step }: { step: StepItem }) {
       />
       <div className="min-w-0 flex-1 space-y-1">
         <p className="font-medium">{step.title}</p>
-        <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          {step.description}
+        </p>
         {step.href && step.hrefLabel ? (
           <Link
             href={step.href}
@@ -86,12 +88,14 @@ export function GoLiveFinalizationPanel({ summary }: GoLiveFinalizationPanelProp
     },
   ];
 
-  const automatedDone = steps.filter((step) => step.id !== "delivery" && step.done).length;
+  const automatedDone = steps.filter(
+    (step) => step.id !== "delivery" && step.done,
+  ).length;
   const automatedTotal = steps.length - 1;
 
   return (
     <section
-      className="mb-8 rounded-xl border bg-card p-5 shadow-[var(--shadow-soft)] sm:p-6"
+      className="bg-card mb-8 rounded-xl border p-5 shadow-[var(--shadow-soft)] sm:p-6"
       aria-labelledby="go-live-finalization-title"
     >
       <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
@@ -100,11 +104,13 @@ export function GoLiveFinalizationPanel({ summary }: GoLiveFinalizationPanelProp
             Finalisation production
           </h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            {automatedDone}/{automatedTotal} contrôles automatisés OK — recette live à valider
-            manuellement.
+            {automatedDone}/{automatedTotal} contrôles automatisés OK — recette live à
+            valider manuellement.
           </p>
         </div>
-        <p className="text-muted-foreground font-mono text-xs">npm run go-live:preflight</p>
+        <p className="text-muted-foreground font-mono text-xs">
+          npm run go-live:preflight
+        </p>
       </div>
       <ul className="space-y-3">
         {steps.map((step) => (

@@ -10,7 +10,7 @@ export {
   type ProductBadgeType,
 } from "@/components/product/product-badges";
 export { SizeAgeBadge, SizeAgeBadgeList } from "@/components/product/size-age-badge";
-export { ProductCard, type ProductCardProps } from "@/components/product/product-card";
+export { ProductCard, type ProductCardProps, type ProductCardVariant } from "@/components/product/product-card";
 export {
   ProductCardSkeleton,
   ProductGridSkeleton,

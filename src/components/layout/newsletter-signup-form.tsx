@@ -42,7 +42,7 @@ function NewsletterSuccessMessage({ message }: { message: string }) {
           <Check className="size-4" aria-hidden />
         </span>
         <div className="space-y-1">
-          <p className="font-display text-sm font-semibold">C&apos;est noté — merci !</p>
+          <p className="font-sans text-sm font-semibold">C&apos;est noté — merci !</p>
           <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
         </div>
       </div>
@@ -79,31 +79,36 @@ export function NewsletterSignupForm({
     event.preventDefault();
     if (!consentReady) return;
 
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     if (marketingConsent) formData.set("consent", "on");
 
     startTransition(async () => {
       setError(null);
-      setMessage(null);
-      const result = await subscribeNewsletterAction(formData);
-      if (result.error) {
-        setError(result.error);
-        return;
+      try {
+        const result = await subscribeNewsletterAction(formData);
+        if (result.error) {
+          setError(result.error);
+          return;
+        }
+        setMessage(
+          result.message ??
+            "Merci ! Vérifiez votre boîte mail pour confirmer votre inscription.",
+        );
+        setMarketingConsent(false);
+      } catch {
+        setError("Une erreur est survenue. Réessayez dans quelques instants.");
       }
-      setMessage(
-        result.message ??
-          "Merci ! Vérifiez votre boîte mail pour confirmer votre inscription.",
-      );
-      event.currentTarget.reset();
-      setMarketingConsent(false);
     });
   };
 
   return (
     <div id={id} className={cn("space-y-3", className)}>
       <div>
-        <p className="font-display text-lg font-semibold">{heading}</p>
-        <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{description}</p>
+        <p className="font-sans text-lg font-semibold">{heading}</p>
+        <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+          {description}
+        </p>
       </div>
 
       {!consentReady ? (

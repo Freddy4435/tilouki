@@ -13,7 +13,7 @@ export function BlogArticleNewsletter({ articleSlug }: BlogArticleNewsletterProp
       <NewsletterSignupForm
         id="blog-newsletter"
         source={`blog:${articleSlug}`}
-        heading="La newsletter du Carnet"
+        heading="Newsletter guides d'achat"
         description="Les nouveautés du mercredi, les petits prix et les conseils tailles — une lecture utile, une fois par mois."
       />
     </section>

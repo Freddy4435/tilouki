@@ -1,6 +1,8 @@
 import { ProductCard } from "@/components/product/product-card";
 import { ProductGrid } from "@/components/product/product-grid";
 import { isProductNew } from "@/lib/catalog/product-new";
+import { applyStorefrontListItemGuards } from "@/lib/catalog/product-card-data";
+import { isProductStorefrontListed } from "@/lib/catalog/product-sellability";
 import type { ProductBadgeType } from "@/components/product/product-badges";
 import type { ProductListItem } from "@/types/catalog";
 
@@ -10,6 +12,7 @@ interface CatalogueProductListProps {
   emptyDescription?: string;
   emptyAction?: { label: string; href: string };
   layout?: "grid" | "scroll-mobile";
+  density?: "default" | "catalog";
   /** Nombre de cartes avec `priority` (LCP) — défaut 2 en carrousel, 4 en grille. */
   priorityLimit?: number;
   className?: string;
@@ -31,24 +34,36 @@ export function CatalogueProductList({
   emptyDescription,
   emptyAction,
   layout = "grid",
+  density = "catalog",
   priorityLimit,
   className,
 }: CatalogueProductListProps) {
   const resolvedPriorityLimit = priorityLimit ?? (layout === "scroll-mobile" ? 2 : 4);
-  if (products.length === 0) {
+  const cardVariant =
+    layout === "scroll-mobile"
+      ? "premium-rail"
+      : density === "catalog"
+        ? "compact"
+        : "default";
+  const listedProducts = products
+    .map(applyStorefrontListItemGuards)
+    .filter(isProductStorefrontListed);
+
+  if (listedProducts.length === 0) {
     return (
       <ProductGrid
         emptyTitle={emptyTitle}
         emptyDescription={emptyDescription}
         emptyAction={emptyAction}
+        density={density}
         className={className}
       />
     );
   }
 
   return (
-    <ProductGrid layout={layout} className={className}>
-      {products.map((product, index) => (
+    <ProductGrid layout={layout} density={density} className={className}>
+      {listedProducts.map((product, index) => (
         <ProductCard
           key={product.id}
           productId={product.id}
@@ -71,7 +86,7 @@ export function CatalogueProductList({
           ratingAverage={product.ratingAverage}
           ratingCount={product.ratingCount}
           priority={index < resolvedPriorityLimit}
-          variant={layout === "scroll-mobile" ? "compact" : "default"}
+          variant={cardVariant}
         />
       ))}
     </ProductGrid>

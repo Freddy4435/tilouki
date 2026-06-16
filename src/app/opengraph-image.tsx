@@ -10,7 +10,11 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
-  const logoPath = join(process.cwd(), "public", brandAssets.header.png.replace(/^\//, ""));
+  const logoPath = join(
+    process.cwd(),
+    "public",
+    brandAssets.header.png.replace(/^\//, ""),
+  );
   const logoBuffer = await readFile(logoPath);
   const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
 

@@ -36,6 +36,7 @@ export type EditorialImageId =
   | "ritual-morning"
   | "ritual-night-calm"
   | "ritual-family-outing"
+  | "ritual-baby-cocoon"
   | "ritual-rainy-day";
 
 export interface EditorialImage {
@@ -73,6 +74,7 @@ const EDITORIAL_USAGE: Record<EditorialImageId, EditorialImageUsage[]> = {
   "ritual-morning": ["universe", "ambiance"],
   "ritual-night-calm": ["universe", "ambiance"],
   "ritual-family-outing": ["universe", "ambiance"],
+  "ritual-baby-cocoon": ["universe", "ambiance"],
   "ritual-rainy-day": ["universe", "ambiance"],
 };
 
@@ -90,12 +92,13 @@ function toEditorialImage(id: EditorialImageId, tilouki: TiloukiImage): Editoria
   };
 }
 
-export const editorialImages: Record<EditorialImageId, EditorialImage> = Object.fromEntries(
-  (Object.keys(EDITORIAL_USAGE) as EditorialImageId[]).map((id) => [
-    id,
-    toEditorialImage(id, resolveEditorialModuleTiloukiImage(id)),
-  ]),
-) as Record<EditorialImageId, EditorialImage>;
+export const editorialImages: Record<EditorialImageId, EditorialImage> =
+  Object.fromEntries(
+    (Object.keys(EDITORIAL_USAGE) as EditorialImageId[]).map((id) => [
+      id,
+      toEditorialImage(id, resolveEditorialModuleTiloukiImage(id)),
+    ]),
+  ) as Record<EditorialImageId, EditorialImage>;
 
 const BLOG_HERO_TO_EDITORIAL: Partial<Record<string, EditorialImageId>> = {
   "parent-mesure-body-table": "size-guide",
@@ -116,6 +119,9 @@ const CATEGORY_UNIVERSE_IMAGE: Partial<Record<string, EditorialImageId>> = {
   garcon: "universe-garcon",
   pyjamas: "universe-pyjamas",
   accessoires: "universe-accessoires",
+  pluie: "ritual-rainy-day",
+  robes: "colors-soft",
+  bodies: "baby-clothes-flatlay",
 };
 
 export function getEditorialImage(id: EditorialImageId): EditorialImage {
@@ -145,7 +151,7 @@ export function resolveBlogHeroImage(heroImageId: string): EditorialImage {
 
 export function resolveUniverseEditorialImage(categorySlug: string): EditorialImage {
   const tilouki = resolveCategoryTiloukiImage(categorySlug);
-  const editorialId = CATEGORY_UNIVERSE_IMAGE[categorySlug] ?? "colors-soft";
+  const editorialId = CATEGORY_UNIVERSE_IMAGE[categorySlug] ?? "blog-default";
   const image = getEditorialImage(editorialId);
   return {
     ...image,

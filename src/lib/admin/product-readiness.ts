@@ -94,7 +94,7 @@ function appendMainImageIssues(
   if (issueId) {
     issues.push({
       id: issueId,
-      message: getNonCommercialMainImageMessage(kind),
+      message: getNonCommercialMainImageMessage(kind, main.url),
     });
     return;
   }

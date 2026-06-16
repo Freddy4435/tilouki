@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  CATEGORY_TILOUKI_IMAGE,
-  RITUAL_TILOUKI_IMAGE,
+  CATEGORY_IMAGE_REGISTRY,
+  RITUAL_IMAGE_REGISTRY,
   getTiloukiImage,
   resolveBlogHeroTiloukiImage,
   resolveCategoryTiloukiImage,
@@ -24,26 +24,24 @@ describe("tilouki-images", () => {
 
   it("associe chaque catégorie principale à un visuel enfant cohérent", () => {
     expect(resolveCategoryTiloukiImage("garcon").key).toBe(
-      CATEGORY_TILOUKI_IMAGE.garcon,
+      CATEGORY_IMAGE_REGISTRY.garcon,
     );
-    expect(resolveCategoryTiloukiImage("fille").key).toBe(
-      CATEGORY_TILOUKI_IMAGE.fille,
-    );
-    expect(resolveCategoryTiloukiImage("bebe").key).toBe(CATEGORY_TILOUKI_IMAGE.bebe);
+    expect(resolveCategoryTiloukiImage("fille").key).toBe(CATEGORY_IMAGE_REGISTRY.fille);
+    expect(resolveCategoryTiloukiImage("bebe").key).toBe(CATEGORY_IMAGE_REGISTRY.bebe);
     expect(resolveCategoryTiloukiImage("pyjamas").key).toBe(
-      CATEGORY_TILOUKI_IMAGE.pyjamas,
+      CATEGORY_IMAGE_REGISTRY.pyjamas,
     );
     expect(resolveCategoryTiloukiImage("inconnue").key).toBe(
-      "categorie-vetements-enfant-rack",
+      "categorie-boutique-enfants-mannequins",
     );
   });
 
   it("associe chaque rituel à un moment visuel déterministe", () => {
     expect(resolveRitualTiloukiImage("nuit-calme").key).toBe(
-      RITUAL_TILOUKI_IMAGE["nuit-calme"],
+      RITUAL_IMAGE_REGISTRY["nuit-calme"],
     );
     expect(resolveRitualTiloukiImage("jour-de-pluie").key).toBe(
-      RITUAL_TILOUKI_IMAGE["jour-de-pluie"],
+      RITUAL_IMAGE_REGISTRY["jour-de-pluie"],
     );
     expect(getTiloukiImage("rituel-nuit-calme-enfant-dort").alt).toMatch(/dort|nuit/i);
     expect(getTiloukiImage("rituel-jour-de-pluie-flaque").alt).toMatch(/flaque|pluie/i);

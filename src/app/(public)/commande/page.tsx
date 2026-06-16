@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 
 import { CheckoutFlow } from "@/components/checkout/checkout-flow";
 import { CheckoutShell } from "@/components/checkout/checkout-shell";
+import { getRequestCspNonce } from "@/lib/security/request-nonce";
 
 export const metadata: Metadata = {
   title: "Commande",
   robots: { index: false, follow: false },
 };
 
+/** Nonce CSP requis pour le widget Mondial Relay (scripts tiers). */
+export const dynamic = "force-dynamic";
+
 export default async function CommandePage() {
-  // Nonce CSP transmis aux <Script> du widget Mondial Relay (jQuery + carte).
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const nonce = await getRequestCspNonce();
 
   return (
     <CheckoutShell>

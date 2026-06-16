@@ -4,6 +4,8 @@ import {
   buildReadyLooks,
   getCurrentWednesdayStart,
   hasMinimumHomeProducts,
+  HOME_RAYONS,
+  pickBebeOrPyjamasHomeSpotlight,
   pickCategoryProducts,
   pickLastPieceProducts,
   pickWednesdayNewProducts,
@@ -114,6 +116,32 @@ describe("pickLastPieceProducts", () => {
   });
 });
 
+describe("pickBebeOrPyjamasHomeSpotlight", () => {
+  it("choisit bébé quand la catégorie est la mieux fournie", () => {
+    const items = [
+      product({ slug: "b1", categorySlug: "bebe" }),
+      product({ slug: "b2", categorySlug: "bebe" }),
+      product({ slug: "b3", categorySlug: "bebe" }),
+      product({ slug: "p1", categorySlug: "pyjamas" }),
+    ];
+
+    const spotlight = pickBebeOrPyjamasHomeSpotlight(items);
+    expect(spotlight?.title).toBe("Sélection bébé");
+    expect(spotlight?.products).toHaveLength(3);
+  });
+
+  it("retombe sur pyjamas si bébé est insuffisant", () => {
+    const items = [
+      product({ slug: "p1", categorySlug: "pyjamas" }),
+      product({ slug: "p2", categorySlug: "pyjamas" }),
+      product({ slug: "p3", categorySlug: "pyjamas" }),
+    ];
+
+    const spotlight = pickBebeOrPyjamasHomeSpotlight(items);
+    expect(spotlight?.title).toBe("Sélection pyjamas");
+  });
+});
+
 describe("pickCategoryProducts", () => {
   it("filtre par slug de catégorie", () => {
     const items = [
@@ -123,6 +151,18 @@ describe("pickCategoryProducts", () => {
 
     expect(pickCategoryProducts(items, "pyjamas").map((item) => item.slug)).toEqual([
       "pyjama-1",
+    ]);
+  });
+});
+
+describe("HOME_RAYONS", () => {
+  it("expose les cinq rayons vitrine", () => {
+    expect(HOME_RAYONS.map((rayon) => rayon.id)).toEqual([
+      "bebe",
+      "fille",
+      "garcon",
+      "pyjamas",
+      "petits-prix",
     ]);
   });
 });

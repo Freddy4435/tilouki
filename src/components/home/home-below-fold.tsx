@@ -9,7 +9,7 @@ import { HomeValueProps } from "@/components/home/home-value-props";
 import { ProductRowSection } from "@/components/home/product-row-section";
 import type { ReadyLook } from "@/lib/catalog/home-sections";
 import type { EditorialBlock } from "@/lib/editorial/types";
-import type { Category, ProductListItem } from "@/types/catalog";
+import type { ProductListItem } from "@/types/catalog";
 
 interface HomeBelowFoldProps {
   lowPriceProducts: ProductListItem[];
@@ -17,7 +17,6 @@ interface HomeBelowFoldProps {
   babyProducts: ProductListItem[];
   pyjamaProducts: ProductListItem[];
   readyLooks: ReadyLook[];
-  categories: Category[];
   editorialBlocks: EditorialBlock[];
   hasPublishedReviews: boolean;
 }
@@ -29,7 +28,6 @@ export function HomeBelowFold({
   babyProducts,
   pyjamaProducts,
   readyLooks,
-  categories,
   editorialBlocks,
   hasPublishedReviews,
 }: HomeBelowFoldProps) {
@@ -58,7 +56,7 @@ export function HomeBelowFold({
         deferRender
       />
 
-      <CategoryGrid categories={categories} />
+      <CategoryGrid />
 
       <ProductRowSection
         id="home-selection-bebe"

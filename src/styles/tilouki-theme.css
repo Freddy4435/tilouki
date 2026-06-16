@@ -1,38 +1,42 @@
 /**
- * Tilouki — design tokens 2026
- * Palette extraite du logo : marine, bleu cintre, menthe, pêche.
- * Boutique e-commerce enfants — fraîcheur marque, pas ambiance clinique.
- * --shop-primary surchargeable via les paramètres boutique (admin).
+ * Tilouki — Cocon marchand 2026
+ * Palette premium enfant : blanc chaud, marine profond, menthe / pêche / bleu grisé.
+ * Persimmon réservé promo & urgence. --shop-primary surchargeable (admin).
  */
 :root {
-  /* Surfaces — fonds clairs, vitrine produit */
-  --tilouki-cloud: #f7f8fa;
-  --tilouki-milk: #ffffff;
+  /* Surfaces — blanc chaud, tactiles */
+  --tilouki-milk: #fffcf9;
   --tilouki-white: var(--tilouki-milk);
-  --tilouki-cream: #faf9f7;
-  --tilouki-beige: #f3f1ed;
-  --tilouki-sand: #e8e6e1;
+  --tilouki-cloud: #f4f1ec;
+  --tilouki-cream: #faf6f1;
+  --tilouki-beige: #ebe6de;
+  --tilouki-sand: #d9d4cb;
 
-  /* Marque logo Tilouki */
-  --tilouki-navy: #3d4f66;
-  --tilouki-navy-dark: #2f3d52;
-  --tilouki-brand-blue: #7a93b0;
-  --tilouki-brand-blue-soft: #e8eef5;
-  --tilouki-mint: #a0d0c0;
-  --tilouki-mint-soft: #e8f6f1;
-  --tilouki-peach: #f0a080;
-  --tilouki-peach-soft: #fdeee6;
+  /* Marine & texte */
+  --tilouki-navy: #2a3a52;
+  --tilouki-navy-dark: #1e2a3d;
+  --tilouki-ink: #1e2a3d;
+  --tilouki-ink-muted: #4a5568;
+  --tilouki-ink-subtle: #6b7280;
 
-  /* Alias historiques → palette logo (composants existants) */
+  /* Accents marque */
+  --tilouki-brand-blue: #6b849f;
+  --tilouki-brand-blue-soft: #e4eaf2;
+  --tilouki-mint: #7fbda8;
+  --tilouki-mint-soft: #e2f3ed;
+  --tilouki-peach: #e89578;
+  --tilouki-peach-soft: #fbe9e2;
+
+  /* Alias historiques → palette 2026 */
   --tilouki-teal: var(--tilouki-navy);
   --tilouki-teal-dark: var(--tilouki-navy-dark);
   --tilouki-jade: var(--tilouki-mint);
   --tilouki-jade-soft: var(--tilouki-mint-soft);
 
-  /* Accents éditoriaux — réutilisent la marque */
+  /* Éditorial léger */
   --tilouki-powder: var(--tilouki-peach-soft);
-  --tilouki-powder-soft: #fff5f0;
-  --tilouki-butter: #f5c878;
+  --tilouki-powder-soft: #fff6f2;
+  --tilouki-butter: #e8b85c;
   --tilouki-butter-soft: var(--tilouki-peach-soft);
   --tilouki-butter-ink: var(--tilouki-navy-dark);
   --tilouki-icy: var(--tilouki-brand-blue-soft);
@@ -61,12 +65,11 @@
   --tilouki-info: var(--tilouki-brand-blue);
   --tilouki-info-soft: var(--tilouki-brand-blue-soft);
 
-  /* Texte */
-  --tilouki-ink: #2f3d52;
-  --tilouki-ink-muted: #5c6778;
-  --tilouki-ink-subtle: #7a8494;
+  /* Séparations */
+  --tilouki-border: #e0dcd4;
+  --tilouki-border-subtle: #ebe7e0;
 
-  /* CTA principal — marine logo (surchargeable admin) */
+  /* CTA principal — marine (surchargeable admin) */
   --shop-primary: var(--tilouki-navy);
   --shop-primary-light: var(--tilouki-brand-blue);
   --shop-primary-dark: var(--tilouki-navy-dark);
@@ -86,17 +89,23 @@
   --product-image-ratio: 4 / 5;
 
   /* Rayons retail */
-  --radius-product: 0.625rem;
+  --radius-product: 0.75rem;
   --radius-button: 0.5rem;
-  --radius-card: 0.625rem;
+  --radius-card: 0.75rem;
 
-  /* Ombres — marine doux */
-  --shadow-soft: 0 1px 2px rgb(47 61 82 / 0.06), 0 4px 16px rgb(47 61 82 / 0.05);
-  --shadow-card: 0 2px 8px rgb(47 61 82 / 0.07), 0 8px 24px rgb(47 61 82 / 0.06);
-  --shadow-card-hover: 0 4px 12px rgb(47 61 82 / 0.1), 0 12px 32px rgb(47 61 82 / 0.08);
+  /* Ombres — profondeur maîtrisée, marine doux */
+  --shadow-soft: 0 1px 2px rgb(30 42 61 / 0.04), 0 2px 8px rgb(30 42 61 / 0.05);
+  --shadow-card:
+    0 1px 2px rgb(30 42 61 / 0.05), 0 4px 16px rgb(30 42 61 / 0.07),
+    0 0 0 1px rgb(30 42 61 / 0.04);
+  --shadow-card-hover:
+    0 4px 10px rgb(30 42 61 / 0.08), 0 14px 32px rgb(30 42 61 / 0.1),
+    0 0 0 1px rgb(30 42 61 / 0.05);
   --shadow-cta:
-    0 1px 2px rgb(47 61 82 / 0.1),
+    0 1px 2px rgb(30 42 61 / 0.1),
     0 4px 14px color-mix(in srgb, var(--shop-primary), transparent 72%);
+  --shadow-inset-surface: inset 0 1px 0 rgb(255 255 255 / 0.65);
+
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
 

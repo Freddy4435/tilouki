@@ -4,6 +4,9 @@ import { CartView } from "@/components/cart/cart-view";
 import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { getActiveProducts } from "@/lib/supabase/queries/products";
 
+/** Aligné sur PAGE_REVALIDATE.cart (300 s) — voir src/lib/supabase/cache.ts */
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Panier",
   robots: { index: false, follow: false },
@@ -18,7 +21,8 @@ export default async function PanierPage() {
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Votre panier</h1>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-            Vérifiez tailles et quantités — stock contrôlé avant paiement sécurisé.
+            Vérifiez tailles, quantités et stock — total TTC estimé avant paiement
+            sécurisé.
           </p>
         </div>
         <ReassuranceStrip variant="compact" className="justify-start" />

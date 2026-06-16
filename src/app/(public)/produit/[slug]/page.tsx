@@ -5,6 +5,8 @@ import { CatalogueProductList } from "@/components/catalogue/catalogue-product-l
 import { RecentlyViewedSection } from "@/components/recently-viewed/recently-viewed-section";
 import { RecentlyViewedTracker } from "@/components/recently-viewed/recently-viewed-tracker";
 import { ProductAccordions } from "@/components/product/product-accordions";
+import { ProductCuratorPick } from "@/components/product/product-curator-pick";
+import { ProductFacts } from "@/components/product/product-facts";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductGalleryMainImage } from "@/components/product/product-gallery-main-image";
 import { ProductPurchasePanel } from "@/components/product/product-purchase-panel";
@@ -15,6 +17,7 @@ import { JsonLdScript } from "@/components/seo/json-ld-script";
 import { resolveProductCuratorContent } from "@/lib/catalog/product-page-content";
 import {
   isLikelySecondHandProduct,
+  filterCommercialProductImages,
   isProductStorefrontSellable,
 } from "@/lib/catalog/product-sellability";
 import { buildBreadcrumbJsonLd, buildProductJsonLd } from "@/lib/seo/json-ld";
@@ -66,6 +69,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   const reviewPage = Math.max(1, Number(reviewPageValue ?? "1") || 1);
 
   const related = await getRelatedProducts(product.id, product.categoryId);
+  const commercialImages = filterCommercialProductImages(product.images);
   const sellable = isProductStorefrontSellable(product.images);
   const curatorContent = resolveProductCuratorContent(
     product.description,
@@ -85,19 +89,19 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   ];
 
   return (
-    <div className="container-tilouki section-tilouki pb-32 lg:pb-0">
+    <div className="container-tilouki section-tilouki pb-8 lg:pb-12">
       <RecentlyViewedTracker slug={product.slug} />
       <JsonLdScript
         data={[buildProductJsonLd(product), buildBreadcrumbJsonLd(breadcrumbs)]}
       />
 
-      <Breadcrumbs items={breadcrumbs} className="mb-6" />
+      <Breadcrumbs items={breadcrumbs} className="mb-5" />
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-12">
-        {sellable && product.images.length === 1 ? (
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-10">
+        {sellable && commercialImages.length === 1 ? (
           <ProductGalleryMainImage
-            src={product.images[0]!.url}
-            alt={product.images[0]!.alt ?? product.name}
+            src={commercialImages[0]!.url}
+            alt={commercialImages[0]!.alt ?? product.name}
           />
         ) : (
           <ProductGallery
@@ -112,44 +116,54 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         <ProductPurchasePanel product={product} />
       </div>
 
-      <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <ProductAccordions
-          product={product}
-          descriptionOverride={curatorContent?.descriptionBody}
-        />
-        <SizeGuide
-          sizes={product.sizes}
-          ageLabels={product.ageLabels}
-          gender={product.gender}
-          material={product.material}
-          secondHand={secondHand}
-        />
-      </div>
+      <div className="mt-8 space-y-6 lg:mt-10">
+        <ProductFacts product={product} showTitle />
 
-      <RecentlyViewedSection
-        excludeSlugs={[product.slug]}
-        className="mt-16 border-t pt-12"
-      />
+        {curatorContent ? <ProductCuratorPick note={curatorContent.note} /> : null}
+
+        <div className="grid gap-6 lg:grid-cols-[1fr_18rem] lg:gap-8">
+          <ProductAccordions
+            product={product}
+            descriptionOverride={curatorContent?.descriptionBody}
+          />
+          <SizeGuide
+            sizes={product.sizes}
+            ageLabels={product.ageLabels}
+            gender={product.gender}
+            material={product.material}
+            secondHand={secondHand}
+          />
+        </div>
+      </div>
 
       {related.length > 0 ? (
         <section
-          className="mt-16 border-t pt-12"
-          aria-labelledby="related-products-heading"
+          className="mt-12 border-t pt-10"
+          aria-labelledby="complete-the-look-heading"
         >
-          <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <h2 id="related-products-heading" className="text-lg font-semibold">
-              Vous aimerez aussi
-            </h2>
+          <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <header>
+              <h2 id="complete-the-look-heading" className="text-section-title text-lg">
+                Compléter le look
+              </h2>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Pièces assorties pour composer une tenue complète.
+              </p>
+            </header>
             {product.categorySlug ? (
               <a
                 href={`/categorie/${product.categorySlug}`}
                 className="text-tilouki-teal-dark text-sm font-semibold hover:underline"
               >
-                Voir toute la catégorie
+                Tout le rayon
               </a>
             ) : null}
           </div>
-          <CatalogueProductList products={related} />
+          <CatalogueProductList
+            products={related}
+            layout="scroll-mobile"
+            priorityLimit={0}
+          />
         </section>
       ) : null}
 
@@ -157,6 +171,11 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         productId={product.id}
         productSlug={product.slug}
         page={reviewPage}
+      />
+
+      <RecentlyViewedSection
+        excludeSlugs={[product.slug]}
+        className="mt-12 border-t pt-10"
       />
     </div>
   );

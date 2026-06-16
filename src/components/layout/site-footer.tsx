@@ -94,14 +94,8 @@ export function SiteFooter({ className }: SiteFooterProps) {
             </div>
           </div>
 
-          <div className="border-tilouki-sage/15 bg-tilouki-sage-light/30 space-y-6 rounded-2xl border p-5 lg:col-span-3">
+          <div className="border-tilouki-sage/15 bg-tilouki-sage-light/30 rounded-2xl border p-5 lg:col-span-3">
             <NewsletterSignupForm />
-            <div>
-              <p className="text-retail-label text-tilouki-ink-muted mb-3">
-                Acheter en confiance
-              </p>
-              <ReassuranceStrip variant="stack" />
-            </div>
           </div>
         </div>
 

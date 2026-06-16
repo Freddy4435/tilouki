@@ -10,12 +10,13 @@ import {
   getPublishedBlogArticles,
 } from "@/content/blog/articles";
 import { getBlogCategoryLabel } from "@/lib/blog/categories";
+import { buyingGuidesNav } from "@/lib/constants/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const revalidate = 3600;
 
 const BLOG_INDEX_DESCRIPTION =
-  "Le Carnet Tilouki : conseils pratiques sur les tailles, matières, entretien et quotidien des vêtements enfants — sans promesses excessives.";
+  "Guides d'achat Tilouki : tailles, matières, entretien et sélections catalogue pour choisir les bonnes pièces.";
 
 export async function generateMetadata({
   searchParams,
@@ -25,8 +26,8 @@ export async function generateMetadata({
 
   return buildPageMetadata({
     title: category
-      ? `Le Carnet Tilouki — ${getBlogCategoryLabel(category)}`
-      : "Le Carnet Tilouki — Blog vêtements enfants",
+      ? `${buyingGuidesNav.label} Tilouki — ${getBlogCategoryLabel(category)}`
+      : `${buyingGuidesNav.label} Tilouki`,
     description: BLOG_INDEX_DESCRIPTION,
     path: category ? `/blog?category=${category}` : "/blog",
     noIndex: Boolean(category),
@@ -67,14 +68,14 @@ export default async function BlogIndexPage({ searchParams }: BlogIndexPageProps
 
         {category ? (
           <p className="text-muted-foreground mt-6 text-center text-sm">
-            {articles.length} article{articles.length > 1 ? "s" : ""} —{" "}
+            {articles.length} guide{articles.length > 1 ? "s" : ""} —{" "}
             {getBlogCategoryLabel(category)}
           </p>
         ) : null}
 
         {articles.length === 0 ? (
           <p className="text-muted-foreground mt-12 text-center text-sm">
-            Aucun article dans cette catégorie pour le moment.
+            Aucun guide dans cette catégorie pour le moment.
           </p>
         ) : (
           <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

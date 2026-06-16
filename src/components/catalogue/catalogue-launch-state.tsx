@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, Mail, Ruler } from "lucide-react";
 import { RitualCard } from "@/components/rituals/ritual-card";
 import { EditorialImage } from "@/components/media/editorial-image";
 import { ButtonLink } from "@/components/ui/button-link";
+import { buyingGuidesNav } from "@/lib/constants/site";
 import { getRitualsForCatalogueLaunch } from "@/lib/rituals/rituals";
 
 export function CatalogueLaunchState() {
@@ -36,7 +37,7 @@ export function CatalogueLaunchState() {
             </ButtonLink>
             <ButtonLink href="/blog" variant="outline" className="min-h-11">
               <BookOpen className="size-4" aria-hidden />
-              Le Carnet Tilouki
+              {buyingGuidesNav.label}
             </ButtonLink>
           </div>
         </div>
@@ -50,7 +51,9 @@ export function CatalogueLaunchState() {
           className="relative mx-auto h-20 w-[7.5rem] shrink-0 rounded-[var(--radius-button)] sm:mx-0"
         />
         <div className="space-y-3 text-center sm:text-left">
-          <h3 className="font-display text-lg font-semibold">Une fois par mois, sans spam</h3>
+          <h3 className="font-display text-lg font-semibold">
+            Une fois par mois, sans spam
+          </h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Nouveautés du mercredi, conseils tailles et petits prix — inscrivez-vous en
             bas de page pour être informé en premier.
@@ -65,13 +68,15 @@ export function CatalogueLaunchState() {
       <section aria-labelledby="catalogue-launch-rituals-title">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-retail-label text-tilouki-teal-dark mb-1">En attendant</p>
+            <p className="text-retail-label text-tilouki-teal-dark mb-1">
+              En attendant
+            </p>
             <h3 id="catalogue-launch-rituals-title" className="text-section-title">
               Trois rituels doux
             </h3>
             <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-              Des moments du quotidien famille — lectures et idées, même sans produit en
-              ligne.
+              Trois sélections shopping — pyjamas, matin pressé, petits prix — même sans
+              stock en ligne pour l&apos;instant.
             </p>
           </div>
           <Link

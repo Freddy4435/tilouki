@@ -23,6 +23,7 @@ import {
   isDefaultSort,
 } from "@/lib/catalog/catalogue-labels";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { Category } from "@/types/catalog";
 
 interface ActiveFilterPill {
@@ -35,12 +36,16 @@ interface CatalogueActiveFiltersProps {
   categories: Category[];
   basePath?: string;
   lockedCategorySlug?: string;
+  className?: string;
+  compact?: boolean;
 }
 
 export function CatalogueActiveFilters({
   categories,
   basePath = "/catalogue",
   lockedCategorySlug,
+  className,
+  compact = false,
 }: CatalogueActiveFiltersProps) {
   const { searchParams, updateSingle, removeFacetValue, reset } =
     useCatalogueNavigation(basePath, lockedCategorySlug);
@@ -161,33 +166,41 @@ export function CatalogueActiveFilters({
   };
 
   return (
-    <div
-      className="mb-4 flex flex-wrap items-center gap-2"
+    <ul
+      className={cn(
+        "mb-4 flex list-none flex-wrap items-center gap-2 p-0",
+        compact &&
+          "max-w-full flex-nowrap overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+        className,
+      )}
       aria-label="Filtres actifs"
-      role="list"
     >
       {pills.map((pill) => (
-        <button
-          key={`${pill.key}-${pill.value ?? pill.label}`}
-          type="button"
-          role="listitem"
-          onClick={() => removeFilter(pill)}
-          className="bg-tilouki-jade-soft/70 text-tilouki-teal-dark hover:bg-tilouki-jade-soft inline-flex max-w-full items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-[var(--transition-fast)]"
-        >
-          <span className="truncate">{pill.label}</span>
-          <X className="size-3 shrink-0" aria-hidden />
-          <span className="sr-only">Retirer le filtre {pill.label}</span>
-        </button>
+        <li key={`${pill.key}-${pill.value ?? pill.label}`}>
+          <button
+            type="button"
+            onClick={() => removeFilter(pill)}
+            className="bg-tilouki-jade-soft/70 text-tilouki-teal-dark hover:bg-tilouki-jade-soft inline-flex max-w-full shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-[var(--transition-fast)]"
+          >
+            <span className="truncate">{pill.label}</span>
+            <X className="size-3 shrink-0" aria-hidden />
+            <span className="sr-only">Retirer le filtre {pill.label}</span>
+          </button>
+        </li>
       ))}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={reset}
-        className="h-8 rounded-full px-3 text-xs font-semibold"
-      >
-        Effacer les filtres
-      </Button>
-    </div>
+      {!compact ? (
+        <li>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={reset}
+            className="h-8 rounded-full px-3 text-xs font-semibold"
+          >
+            Effacer les filtres
+          </Button>
+        </li>
+      ) : null}
+    </ul>
   );
 }

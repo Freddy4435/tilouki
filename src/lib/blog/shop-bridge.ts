@@ -9,6 +9,9 @@ export interface BlogRelatedProductsResult {
   categoryHref: string | null;
 }
 
+/** Nombre de paragraphes lus avant le bloc produits sur une page guide. */
+export const BLOG_EARLY_PRODUCTS_AFTER_PARAGRAPHS = 2;
+
 export async function getBlogRelatedProducts(
   category: BlogCategory,
   limit = 4,

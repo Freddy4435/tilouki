@@ -5,8 +5,10 @@ import {
   classifyProductImage,
   getNonCommercialMainImageMessage,
   getPhotoReadinessSummary,
+  getStorefrontListingBlockersFromImages,
   isCommercialProductImage,
   pickStorefrontPrimaryImage,
+  type ProductReadinessImage,
 } from "@/lib/admin/product-image-readiness";
 
 const commercialUrl =
@@ -51,6 +53,16 @@ describe("product-image-readiness", () => {
     expect(picked?.url).toBe(commercialUrl);
   });
 
+  it("refuse le pack Tilouki comme photo produit", () => {
+    const tiloukiUrl =
+      "/images/tilouki/02-rituels-et-moments/rituel-nuit-calme-enfant-dort.jpg";
+    expect(classifyProductImage(tiloukiUrl, descriptiveAlt)).toBe("technical");
+    expect(isCommercialProductImage(tiloukiUrl, descriptiveAlt)).toBe(false);
+    expect(getNonCommercialMainImageMessage("technical", tiloukiUrl)).toMatch(
+      /pack Tilouki/i,
+    );
+  });
+
   it("construit la checklist photos avec face avant obligatoire", () => {
     const incomplete = buildProductPhotoChecklist([
       { url: "/products/bonnet-maille-doux.svg", sortOrder: 0 },
@@ -74,8 +86,9 @@ describe("product-image-readiness", () => {
     expect(ready.find((item) => item.id === "face-avant")?.filled).toBe(true);
     expect(ready.find((item) => item.id === "alt-descriptif")?.filled).toBe(true);
     expect(ready.find((item) => item.id === "detail-matiere")?.filled).toBe(true);
-    expect(ready.find((item) => item.id === "mise-en-scene")?.filled).toBe(false);
-    expect(ready.find((item) => item.id === "couleur-fidele")?.filled).toBe(false);
+    expect(ready.find((item) => item.id === "vue-portee-ou-defaut")?.filled).toBe(
+      false,
+    );
     expect(ready.find((item) => item.id === "ratio-portrait")?.filled).toBe(true);
   });
 
@@ -99,5 +112,12 @@ describe("product-image-readiness", () => {
     expect(summary.commercialCount).toBe(1);
     expect(summary.readyToSell).toBe(false);
     expect(summary.targetCount).toBe(3);
+  });
+
+  it("explique l'absence boutique quand la principale est un SVG", () => {
+    const blockers = getStorefrontListingBlockersFromImages("robe-test", [
+      { url: "/products/robe.svg", sortOrder: 0 } as ProductReadinessImage,
+    ]);
+    expect(blockers[0]?.message).toMatch(/SVG|démo/i);
   });
 });

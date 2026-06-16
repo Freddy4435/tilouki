@@ -1,30 +1,47 @@
 import Link from "next/link";
 
-import { RitualCard } from "@/components/rituals/ritual-card";
-import { getAllRituals } from "@/lib/rituals/rituals";
+import {
+  ShoppableRitualModule,
+  type ShoppableRitualLayout,
+} from "@/components/home/shoppable-ritual-module";
+import type { Ritual } from "@/lib/rituals/rituals";
+import type { ProductListItem } from "@/types/catalog";
 
-export function HomeRitualsSection() {
-  const rituals = getAllRituals();
+const RITUAL_LAYOUTS: ShoppableRitualLayout[] = ["stack", "split", "banner"];
 
+export interface HomeRitualModule {
+  ritual: Ritual;
+  products: ProductListItem[];
+}
+
+interface HomeRitualsSectionProps {
+  modules: HomeRitualModule[];
+}
+
+export function HomeRitualsSection({ modules }: HomeRitualsSectionProps) {
   return (
     <section
-      className="home-maison-section maison-surface maison-surface-milk scroll-mt-20 border-y border-border/50"
+      className="retail-section home-maison-section maison-surface maison-surface-milk border-tilouki-border/80 scroll-mt-20 border-y"
       aria-labelledby="home-rituals-title"
     >
       <div className="container-tilouki section-tilouki py-10 md:py-12">
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-retail-label text-tilouki-brand-blue mb-1.5">
-              Idées shopping
+          <header className="retail-section__header max-w-2xl">
+            <div className="brand-accent-bar" aria-hidden />
+            <p className="text-retail-label text-tilouki-brand-blue">
+              Besoins du quotidien
             </p>
-            <h2 id="home-rituals-title" className="text-section-title text-tilouki-navy">
-              Par moment du quotidien
+            <h2
+              id="home-rituals-title"
+              className="text-section-title retail-section__title"
+            >
+              Shopper par moment
             </h2>
-            <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
-              Matin pressé, nuit calme, jour de pluie… Trouvez les pièces adaptées à
-              chaque situation.
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Pyjamas, pluie, bébé, école ou petits prix — pièces en stock avec tailles
+              sur chaque fiche.
             </p>
-          </div>
+          </header>
           <Link
             href="/catalogue"
             className="text-tilouki-navy text-sm font-semibold underline-offset-4 hover:underline"
@@ -33,10 +50,14 @@ export function HomeRitualsSection() {
           </Link>
         </div>
 
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {rituals.map((ritual) => (
+        <ul className="space-y-5 md:space-y-6">
+          {modules.map(({ ritual, products }, index) => (
             <li key={ritual.slug}>
-              <RitualCard ritual={ritual} />
+              <ShoppableRitualModule
+                ritual={ritual}
+                products={products}
+                layout={RITUAL_LAYOUTS[index % RITUAL_LAYOUTS.length]!}
+              />
             </li>
           ))}
         </ul>

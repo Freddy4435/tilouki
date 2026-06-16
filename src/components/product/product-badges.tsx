@@ -23,19 +23,19 @@ export type StorefrontCardBadgeType = (typeof STOREFRONT_CARD_BADGE_TYPES)[numbe
 const badgeConfig: Record<ProductBadgeType, { label: string; className: string }> = {
   new: {
     label: "Nouveau",
-    className: "bg-tilouki-teal-dark text-white border-transparent",
+    className: "bg-tilouki-teal-dark/95 text-white border-transparent shadow-sm",
   },
   "last-piece": {
     label: "Dernière pièce",
-    className: "bg-tilouki-persimmon-dark text-white border-transparent",
+    className: "bg-tilouki-persimmon-dark/95 text-white border-transparent shadow-sm",
   },
   "low-price": {
     label: "Petit prix",
-    className: "bg-tilouki-persimmon-dark text-white border-transparent",
+    className: "bg-tilouki-persimmon-dark/95 text-white border-transparent shadow-sm",
   },
   cotton: {
     label: "Coton",
-    className: "bg-tilouki-teal-dark/90 text-white border-transparent",
+    className: "bg-tilouki-teal-dark/90 text-white border-transparent shadow-sm",
   },
   "spring-summer": {
     label: "Printemps-été",
@@ -80,9 +80,9 @@ export function ProductBadge({ type, className, size = "default" }: ProductBadge
     <Badge
       variant="outline"
       className={cn(
-        "rounded-full font-semibold tracking-wide uppercase",
+        "rounded-full font-semibold tracking-wide uppercase backdrop-blur-[2px]",
         size === "card"
-          ? "h-[1.125rem] px-1.5 text-[0.6rem] leading-none"
+          ? "h-5 max-w-full truncate px-1.5 text-[0.58rem] leading-none"
           : "h-6 px-2.5 text-[0.7rem]",
         config.className,
         className,
@@ -100,6 +100,8 @@ interface ProductBadgeListProps {
   /** Filtre aux 4 badges retail carte + priorité */
   storefrontCard?: boolean;
   size?: "default" | "card";
+  /** Empilement vertical pour coin bas de photo */
+  layout?: "row" | "stack";
 }
 
 export function ProductBadgeList({
@@ -108,6 +110,7 @@ export function ProductBadgeList({
   max = 3,
   storefrontCard = false,
   size = "default",
+  layout = "row",
 }: ProductBadgeListProps) {
   const visible = storefrontCard
     ? filterStorefrontCardBadges(badges, max)
@@ -115,7 +118,12 @@ export function ProductBadgeList({
   if (visible.length === 0) return null;
 
   return (
-    <div className={cn("flex flex-wrap gap-1", className)}>
+    <div
+      className={cn(
+        layout === "stack" ? "flex max-w-full flex-col items-start gap-1" : "flex flex-wrap gap-1",
+        className,
+      )}
+    >
       {visible.map((badge) => (
         <ProductBadge key={badge} type={badge} size={size} />
       ))}

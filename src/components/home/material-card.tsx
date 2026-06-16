@@ -29,7 +29,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
   }, []);
 
   return (
-    <article className="material-card-group group bg-card flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border border-tilouki-jade/12 shadow-[var(--shadow-soft)] transition-[box-shadow,transform] duration-[var(--motion-base)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
+    <article className="material-card-group group bg-card border-tilouki-jade/12 flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] border shadow-[var(--shadow-soft)] transition-[box-shadow,transform] duration-[var(--motion-base)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
       <div className="relative">
         <EditorialImage
           imageId={material.imageId}
@@ -50,19 +50,23 @@ export function MaterialCard({ material }: MaterialCardProps) {
           className="text-tilouki-teal-dark absolute right-2 bottom-2 z-10 rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold shadow-sm backdrop-blur-sm sm:hidden"
           onClick={toggleTip}
           aria-expanded={tipRevealed}
-          aria-label={tipRevealed ? "Masquer le conseil matière" : "Voir un conseil matière"}
+          aria-label={
+            tipRevealed ? "Masquer le conseil matière" : "Voir un conseil matière"
+          }
         >
           {tipRevealed ? "Fermer" : "Conseil"}
         </button>
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
-        <h3 className="font-display text-base font-semibold">{material.name}</h3>
-        <p className="text-muted-foreground flex-1 text-sm leading-relaxed">{material.feel}</p>
+        <h3 className="font-sans text-base font-semibold">{material.name}</h3>
+        <p className="text-muted-foreground flex-1 text-sm leading-relaxed">
+          {material.feel}
+        </p>
         <Link
           href={material.blogHref}
           className="text-tilouki-teal-dark inline-flex items-center gap-1 text-xs font-semibold underline-offset-4 hover:underline"
         >
-          Lire sur le carnet
+          Lire le guide
           <ArrowRight className="size-3" aria-hidden />
         </Link>
       </div>

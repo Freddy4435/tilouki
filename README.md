@@ -75,7 +75,7 @@ Si le catalogue reste vide après le seed, redémarrez `npm run dev` (cache Next
 > **Ne transmettez jamais** une archive créée à la main (Explorateur, 7-Zip, WinRAR, « Envoyer vers »…).  
 > Elle contient presque toujours `.env.local`, `node_modules/`, `.next/`, `.vercel/`, etc.
 >
-> **Seule commande autorisée :** `npm run delivery:clean`  
+> **Seule commande autorisée :** `npm run delivery:release` (ou `npm run delivery:clean` puis `npm run verify:archive`)  
 > **Contrôle d'un export suspect :** `npm run scan:deliverable -- <chemin>`  
 > **Après fuite d'un .rar partagé :** [rotation des secrets](docs/rotation-secrets-apres-fuite-archive.md)
 
@@ -104,22 +104,30 @@ Avant toute livraison (archive zip, e-mail, cloud public, dépôt Git public), *
 
 ### Archive propre (seule méthode de partage autorisée)
 
-Ne zippez **pas** le dossier projet à la main. Utilisez :
+Ne zippez **pas** le dossier projet à la main. Procédure complète :
 
 ```bash
-npm run delivery:clean
+npm run delivery:release
 ```
 
-Le script :
+Ou étape par étape :
+
+```bash
+npm run audit:secrets
+npm run delivery:clean
+npm run verify:archive -- archives/tilouki-AAAA-MM-JJ.zip
+```
+
+`delivery:clean` :
 
 1. audite les secrets dans les fichiers suivis par git (`audit:secrets`) ;
 2. refuse de créer l'archive si un chemin sensible est versionné ;
 3. génère `archives/tilouki-AAAA-MM-JJ.zip` via `git archive` (fichiers versionnés uniquement) ;
-4. vérifie que le zip ne contient ni `.env` (sauf `.env.example`), ni `.vercel/`, ni `.next/`, ni `node_modules/`, ni rapports Playwright.
+4. **échoue** si le zip contient `.env.local`, `.env.vercel`, `.vercel/`, `.next/`, `node_modules/`, `test-results/`, `playwright-report/` ou d'anciennes archives dans `archives/`.
 
 Alias : `npm run archive:clean`, `npm run prepare:archive`. Guide détaillé : [docs/livraison-archive.md](docs/livraison-archive.md).
 
-Vérification rapide sans créer de zip : `npm run verify:archive`.
+Vérification rapide sans créer de zip : `npm run verify:archive`. Dernier zip produit : `npm run verify:archive -- --latest`.
 
 Scanner un zip / .rar / dossier suspect : `npm run scan:deliverable -- <chemin>`.
 
@@ -147,7 +155,8 @@ Guide complet (tous cas de fuite) : [docs/checklist-mise-en-production.md](docs/
 | `npm run fonts:fetch`          | Télécharge les `.woff2` locaux (`src/assets/fonts/`)                       |
 | `npm run check`                | **Pipeline CI** : audit secrets + typecheck + lint + format + test + build |
 | `npm run audit:secrets`        | Détecte des secrets dans les fichiers suivis par git                       |
-| `npm run delivery:clean`       | **Archive zip partageable** (seule livraison autorisée)                    |
+| `npm run delivery:release`     | **Livraison complète** : audit + zip propre + vérification du zip          |
+| `npm run delivery:clean`       | Crée l'archive zip partageable (`archives/tilouki-AAAA-MM-JJ.zip`)         |
 | `npm run archive:clean`        | Alias de `delivery:clean`                                                  |
 | `npm run verify:archive`       | Vérifie git (ou un zip/rar/dossier passé en argument)                      |
 | `npm run scan:deliverable`     | Scan d'un zip / .rar / dossier — échoue si chemin interdit                 |

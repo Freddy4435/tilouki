@@ -23,6 +23,8 @@ import { isCommercialProductImage } from "@/lib/catalog/product-sellability";
 import type { ProductCardColorOption, ProductQuickAddVariant } from "@/types/catalog";
 import { cn } from "@/lib/utils";
 
+export type ProductCardVariant = "default" | "compact" | "premium-rail";
+
 export interface ProductCardProps {
   productId: string;
   slug: string;
@@ -44,10 +46,13 @@ export interface ProductCardProps {
   ratingAverage?: number | null;
   ratingCount?: number;
   priority?: boolean;
-  /** Variante compacte pour carrousels mobile (accueil). */
-  variant?: "default" | "compact";
+  /** compact = catalogue dense ; premium-rail = carrousels home. */
+  variant?: ProductCardVariant;
   className?: string;
 }
+
+const CARD_ACTION_CLASS =
+  "border-border/80 text-foreground hover:border-primary/50 hover:bg-primary/5 inline-flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-button)] border bg-card font-semibold transition-colors";
 
 export function ProductCard({
   productId,
@@ -75,6 +80,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const href = `/produit/${slug}`;
   const compact = variant === "compact";
+  const premiumRail = variant === "premium-rail";
   const inStock = totalStock === undefined || totalStock > 0;
   const isLastPiece = totalStock === 1;
   const lowStock = totalStock !== undefined && totalStock > 1 && totalStock <= 3;
@@ -100,16 +106,35 @@ export function ProductCard({
     ? resolveQuickAddMode(quickAddVariants).directVariant
     : undefined;
 
+  const inStockVariantCount = quickAddVariants.filter(
+    (variantItem) => variantItem.stockQuantity > 0,
+  ).length;
+  const needsSizeChoice = sizes.length > 1 || inStockVariantCount > 1;
+
   const ctaLabel = getProductCardCtaLabel(sizes, quickAddVariants, inStock);
   const hasRating = Boolean(ratingAverage && (ratingCount ?? 0) > 0);
   const showMaterial = Boolean(material?.trim());
   const showColorSwatches = colorOptions.length >= 2;
   const showSizes = sizes.length > 0;
+  const sizeBadgeMax = compact ? 3 : premiumRail ? 4 : 4;
+  const mediaVariant = compact ? "compact" : premiumRail ? "premium-rail" : "default";
+
+  const stockHint =
+    inStock && isLastPiece
+      ? "Dernière pièce"
+      : inStock && lowStock
+        ? `${totalStock} restants`
+        : null;
+
+  const cardBadges =
+    stockHint != null ? badges.filter((badge) => badge !== "last-piece") : badges;
 
   return (
     <article
       className={cn(
-        "tilouki-product-card group bg-card flex h-full flex-col overflow-hidden rounded-[var(--radius-product)] shadow-[var(--shadow-soft)] ring-1 ring-black/[0.04]",
+        "tilouki-product-card group bg-card flex h-full flex-col overflow-hidden rounded-[var(--radius-product)] shadow-[var(--shadow-card)] ring-1 ring-[var(--tilouki-border-subtle)]",
+        compact && "tilouki-product-card--compact",
+        premiumRail && "tilouki-product-card--premium-rail",
         className,
       )}
     >
@@ -122,19 +147,22 @@ export function ProductCard({
           secondaryImageUrl={secondaryImageUrl}
           secondaryImageAlt={secondaryImageAlt}
           colorOptions={colorOptions}
-          badges={badges}
+          badges={cardBadges}
           priority={priority}
           inStock={inStock}
           selectedColor={selectedColor}
+          variant={mediaVariant}
         />
-        <FavoriteButton slug={slug} />
-        {showQuickAdd && directVariant ? (
+        <FavoriteButton slug={slug} className="top-2 right-2" />
+        {showQuickAdd && directVariant && premiumRail ? (
           <ProductCardQuickAdd
             productId={productId}
             slug={slug}
             productName={name}
             imageUrl={activeImageUrl}
             directVariant={directVariant}
+            layout="icon"
+            premium
           />
         ) : null}
       </div>
@@ -142,31 +170,78 @@ export function ProductCard({
       <div
         className={cn(
           "flex min-h-0 flex-1 flex-col",
-          compact ? "gap-1 p-2.5" : "gap-1.5 p-2.5 sm:gap-2 sm:p-3",
+          compact ? "gap-1.5 p-2" : premiumRail ? "gap-2 p-3" : "gap-2 p-2.5 sm:p-3",
         )}
       >
-        {!compact && categoryName ? (
-          <p className="text-retail-label text-tilouki-ink-muted hidden sm:block">
+        {(premiumRail || (!compact && categoryName)) && categoryName ? (
+          <p
+            className={cn(
+              "text-retail-label text-tilouki-ink-muted truncate",
+              compact ? "hidden" : premiumRail ? "block" : "hidden sm:block",
+            )}
+          >
             {categoryName}
           </p>
         ) : null}
 
-        <Link href={href} className="group/title block">
+        <Link href={href} className="group/title block min-w-0">
           <h3
             className={cn(
               "text-foreground group-hover/title:text-primary line-clamp-2 leading-snug font-semibold transition-colors",
-              compact ? "text-[13px]" : "text-sm sm:text-[0.9375rem]",
+              compact
+                ? "min-h-[2.5rem] text-[13px] leading-[1.25rem]"
+                : premiumRail
+                  ? "min-h-[2.75rem] text-sm"
+                  : "min-h-[2.6rem] text-sm sm:text-[0.9375rem]",
             )}
           >
             {name}
           </h3>
         </Link>
 
-        <ProductCardPrice
-          priceCents={priceCents}
-          compareAtPriceCents={compareAtPriceCents}
-          compact={compact}
-        />
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <ProductCardPrice
+            priceCents={priceCents}
+            compareAtPriceCents={compareAtPriceCents}
+            compact={compact}
+            premium={premiumRail}
+            className="min-w-0 flex-1"
+          />
+          {stockHint && inStock ? (
+            <p
+              className={cn(
+                "shrink-0 rounded-full px-2 py-0.5 text-[10px] leading-tight font-semibold tracking-wide",
+                isLastPiece
+                  ? "bg-tilouki-persimmon-dark/10 text-tilouki-persimmon-dark"
+                  : "bg-amber-100/90 text-amber-950",
+              )}
+            >
+              {stockHint}
+            </p>
+          ) : null}
+        </div>
+
+        {showSizes ? (
+          <SizeAgeBadgeList
+            items={sizes}
+            variant="size"
+            max={sizeBadgeMax}
+            density={compact || premiumRail ? "compact" : "default"}
+            layout={compact ? "inline" : "wrap"}
+            className="min-h-6"
+          />
+        ) : ageLabel ? (
+          <SizeAgeBadgeList
+            items={[ageLabel]}
+            variant="age"
+            max={1}
+            density={compact ? "compact" : "default"}
+            layout="inline"
+            className="min-h-6"
+          />
+        ) : (
+          <div className={cn(compact ? "min-h-6" : "min-h-0")} aria-hidden />
+        )}
 
         {!compact && (showMaterial || hasRating) ? (
           <div className="hidden min-h-[1.125rem] sm:block">
@@ -184,7 +259,7 @@ export function ProductCard({
           </div>
         ) : null}
 
-        {showColorSwatches ? (
+        {showColorSwatches && !compact ? (
           <div className="hidden sm:block">
             <ProductCardColorSwatches
               options={colorOptions}
@@ -194,66 +269,31 @@ export function ProductCard({
           </div>
         ) : null}
 
-        {showSizes ? (
-          <div className="hidden space-y-1 sm:block">
-            <SizeAgeBadgeList
-              items={sizes}
-              variant="size"
-              max={compact ? 3 : 4}
-              density={compact ? "compact" : "default"}
+        <div className="product-card-cta mt-auto pt-1">
+          {showQuickAdd && directVariant && !premiumRail ? (
+            <ProductCardQuickAdd
+              productId={productId}
+              slug={slug}
+              productName={name}
+              imageUrl={activeImageUrl}
+              directVariant={directVariant}
+              layout="bar"
+              compact={compact}
+              premium={premiumRail}
             />
-          </div>
-        ) : ageLabel ? (
-          <div className="hidden sm:block">
-            <SizeAgeBadgeList
-              items={[ageLabel]}
-              variant="age"
-              max={1}
-              density={compact ? "compact" : "default"}
-            />
-          </div>
-        ) : null}
-
-        {inStock && (isLastPiece || lowStock) ? (
-          <p
-            className={cn(
-              "hidden text-[11px] leading-tight font-medium sm:block",
-              isLastPiece ? "text-tilouki-persimmon-dark" : "text-amber-900",
-            )}
-          >
-            {isLastPiece
-              ? "Dernière pièce disponible"
-              : `Plus que ${totalStock} en stock`}
-          </p>
-        ) : !inStock ? (
-          <p className="text-muted-foreground hidden text-[11px] sm:block">
-            Rupture de stock
-          </p>
-        ) : null}
-
-        <div className={cn("mt-auto pt-0.5", !compact && "md:pt-1")}>
-          {compact ? (
-            <Link
-              href={href}
-              className="text-primary hover:text-primary/85 inline-flex min-h-8 w-full items-center justify-center gap-1 text-xs font-semibold transition-colors"
-            >
-              {ctaLabel}
-              <ArrowRight className="size-3.5" aria-hidden />
-            </Link>
           ) : (
             <Link
               href={href}
               className={cn(
-                "border-border/80 text-foreground hover:border-primary/40 hover:bg-muted/40 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-[var(--radius-button)] border bg-transparent text-sm font-semibold transition-[opacity,transform,colors] duration-200",
-                "max-md:text-primary max-md:h-8 max-md:border-0 max-md:bg-transparent max-md:text-xs max-md:font-semibold max-md:hover:bg-transparent",
-                "md:translate-y-1 md:opacity-0 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-hover:translate-y-0 md:group-hover:opacity-100",
+                CARD_ACTION_CLASS,
+                compact ? "min-h-10 text-xs" : premiumRail ? "min-h-11 text-sm" : "min-h-10 text-sm",
+                needsSizeChoice &&
+                  inStock &&
+                  "border-primary/25 bg-primary/5 text-primary",
               )}
             >
               {ctaLabel}
-              <ArrowRight
-                className="max-md:text-primary size-3.5 opacity-70"
-                aria-hidden
-              />
+              <ArrowRight className="size-3.5 shrink-0 opacity-80" aria-hidden />
             </Link>
           )}
         </div>

@@ -1,5 +1,9 @@
 import type { NextResponse } from "next/server";
 
+/**
+ * En-têtes de sécurité et CSP à nonce (proxy / middleware).
+ * Stratégie perf + cache : docs/performance-cache-tilouki.md
+ */
 const SECURITY_HEADERS: Record<string, string> = {
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",

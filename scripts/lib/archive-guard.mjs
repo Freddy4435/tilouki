@@ -3,21 +3,29 @@
  * src/lib/archive/archive-guard.test.ts
  */
 
-/** Chemins qui ne doivent jamais figurer dans le dépôt archivable. */
-export const ARCHIVE_FORBIDDEN_FRAGMENTS = [
+/**
+ * Exclusions obligatoires — l'archive livrée ne doit jamais les contenir.
+ * (Liste de référence livraison / Prompt archive.)
+ */
+export const ARCHIVE_MANDATORY_EXCLUSION_KEYS = [
   ".env.local",
   ".env.vercel",
+  ".vercel/",
+  ".next/",
+  "node_modules/",
+  "test-results/",
+  "playwright-report/",
+  "archives/",
+];
+
+/** Chemins qui ne doivent jamais figurer dans le dépôt archivable. */
+export const ARCHIVE_FORBIDDEN_FRAGMENTS = [
+  ...ARCHIVE_MANDATORY_EXCLUSION_KEYS,
   ".env.production",
   ".env.development",
-  "node_modules/",
-  ".next/",
-  ".vercel/",
   ".email-preview/",
   "supabase/.temp/",
   "/logs/",
-  "archives/",
-  "playwright-report/",
-  "test-results/",
   "blob-report/",
   "screenshots/",
   "captures/",
@@ -27,19 +35,12 @@ export const ARCHIVE_FORBIDDEN_FRAGMENTS = [
 
 /** Présence interdite dans le zip final et dans tout livrable scanné. */
 export const ZIP_CRITICAL_FRAGMENTS = [
-  ".env.local",
-  ".env.vercel",
+  ...ARCHIVE_MANDATORY_EXCLUSION_KEYS,
   ".env.production",
   ".env.development",
-  "node_modules/",
-  ".next/",
-  ".vercel/",
   ".email-preview/",
   "supabase/.temp/",
   "tsconfig.tsbuildinfo",
-  "archives/",
-  "playwright-report/",
-  "test-results/",
   "blob-report/",
   "screenshots/",
   "captures/",
@@ -64,7 +65,7 @@ export function normalizeArchivePath(path) {
  */
 export function isAllowedEnvExamplePath(path) {
   const normalized = normalizeArchivePath(path);
-  return normalized === ".env.example" || normalized.endsWith("/.env.example");
+  return normalized.endsWith(".example");
 }
 
 /**
@@ -80,6 +81,53 @@ export function isForbiddenEnvPath(path) {
 }
 
 /**
+ * Contrôle explicite des exclusions obligatoires (échoue si l'une est présente).
+ * @param {string[]} paths
+ * @returns {Array<{ path: string, reason: string }>}
+ */
+export function findMandatoryExclusionViolations(paths) {
+  /** @type {Array<{ path: string, reason: string }>} */
+  const violations = [];
+
+  for (const rawPath of paths) {
+    const normalized = normalizeArchivePath(rawPath);
+
+    if (isAllowedEnvExamplePath(normalized)) {
+      continue;
+    }
+
+    for (const key of ARCHIVE_MANDATORY_EXCLUSION_KEYS) {
+      const bare = key.replace(/\/$/, "");
+      if (
+        normalized.includes(key) ||
+        normalized === bare ||
+        normalized.endsWith(`/${bare}`)
+      ) {
+        violations.push({
+          path: rawPath,
+          reason: `exclusion obligatoire : ${key}`,
+        });
+      }
+    }
+
+    if (isForbiddenEnvPath(normalized) && !isAllowedEnvExamplePath(normalized)) {
+      violations.push({
+        path: rawPath,
+        reason: "fichier .env autre que .env.example",
+      });
+    }
+  }
+
+  const seen = new Set();
+  return violations.filter((violation) => {
+    const dedupeKey = `${violation.path}::${violation.reason}`;
+    if (seen.has(dedupeKey)) return false;
+    seen.add(dedupeKey);
+    return true;
+  });
+}
+
+/**
  * @param {string[]} paths
  * @param {{ forbiddenFragments?: string[] }} [options]
  * @returns {Array<{ path: string, reason: string }>}
@@ -90,6 +138,10 @@ export function findArchivePathViolations(paths, options = {}) {
   const violations = [];
 
   for (const path of paths) {
+    if (isAllowedEnvExamplePath(path)) {
+      continue;
+    }
+
     for (const forbidden of forbiddenFragments) {
       if (path.includes(forbidden)) {
         violations.push({ path, reason: forbidden });
@@ -119,6 +171,10 @@ export function findZipEntryViolations(entries, options = {}) {
   const violations = [];
 
   for (const entry of entries) {
+    if (isAllowedEnvExamplePath(entry)) {
+      continue;
+    }
+
     for (const forbidden of criticalFragments) {
       if (entry.includes(forbidden)) {
         violations.push({ path: entry, reason: forbidden });
@@ -146,6 +202,7 @@ export function formatArchiveViolations(violations) {
  * @returns {Array<{ path: string, reason: string }>}
  */
 export function findDeliverableViolations(paths) {
+  const mandatory = findMandatoryExclusionViolations(paths);
   const pathViolations = findArchivePathViolations(paths);
   const zipStyleViolations = findZipEntryViolations(
     paths.map((p) => (p.startsWith("tilouki/") ? p : `tilouki/${p}`)),
@@ -155,7 +212,7 @@ export function findDeliverableViolations(paths) {
   /** @type {Array<{ path: string, reason: string }>} */
   const merged = [];
 
-  for (const violation of [...pathViolations, ...zipStyleViolations]) {
+  for (const violation of [...mandatory, ...pathViolations, ...zipStyleViolations]) {
     const key = `${violation.path}::${violation.reason}`;
     if (seen.has(key)) continue;
     seen.add(key);

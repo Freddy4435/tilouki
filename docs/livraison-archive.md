@@ -27,24 +27,47 @@ Une archive manuelle inclut presque toujours, sans que vous le voyiez :
 
 ## ✅ Seule méthode autorisée
 
+### Procédure complète (recommandée)
+
+Une seule commande enchaîne audit, création et contrôle du zip :
+
 ```bash
-npm run delivery:clean
+npm run delivery:release
 ```
 
-Alias : `npm run archive:clean`, `npm run prepare:archive`.
+Équivalent manuel en trois étapes :
 
-Le script :
+```bash
+npm run audit:secrets
+npm run delivery:clean
+npm run verify:archive -- archives/tilouki-AAAA-MM-JJ.zip
+```
+
+Ou, après `delivery:clean`, contrôler automatiquement le zip le plus récent :
+
+```bash
+npm run verify:archive -- --latest
+```
+
+Alias de création seule : `npm run archive:clean`, `npm run prepare:archive`.
+
+Le script `delivery:clean` :
 
 1. audite les secrets dans les fichiers **suivis par git** (`audit:secrets`) ;
 2. refuse si un chemin sensible est versionné ;
 3. crée `archives/tilouki-AAAA-MM-JJ.zip` via `git archive` (fichiers git uniquement) ;
-4. vérifie le zip (absence de `.env`, `.vercel`, `.next`, `node_modules`, rapports Playwright, etc.).
+4. **échoue** si le zip contient l'une des exclusions obligatoires :
+   - `.env.local`, `.env.vercel`
+   - `.vercel/`, `.next/`, `node_modules/`
+   - `test-results/`, `playwright-report/`, `archives/` (anciennes archives locales)
 
 Vérification du dépôt **sans** créer de zip :
 
 ```bash
 npm run verify:archive
 ```
+
+Le destinataire réinstalle les dépendances avec `npm install` puis configure `.env.local` à partir de `.env.example`.
 
 ---
 

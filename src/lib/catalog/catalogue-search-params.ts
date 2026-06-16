@@ -105,3 +105,43 @@ export function hasCatalogueFiltersInQuery(query: {
     query.ageBand,
   );
 }
+
+/** Nombre de filtres actifs (hors pagination) — badge mobile. */
+export function countActiveCatalogueFilters(
+  searchParams: URLSearchParams,
+  options?: { lockedCategorySlug?: string },
+): number {
+  let count = 0;
+
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.query)?.trim()) count += 1;
+  if (
+    searchParams.get(CATALOGUE_PARAM_KEYS.category) &&
+    !options?.lockedCategorySlug
+  ) {
+    count += 1;
+  }
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.gender)) count += 1;
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.ageBand)) count += 1;
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.season)) count += 1;
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.minPrice)) count += 1;
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.maxPrice)) count += 1;
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.promo)) count += 1;
+
+  count += readMultiParamFromSearchParams(
+    searchParams,
+    CATALOGUE_PARAM_KEYS.sizes,
+  ).length;
+  count += readMultiParamFromSearchParams(
+    searchParams,
+    CATALOGUE_PARAM_KEYS.colors,
+  ).length;
+  count += readMultiParamFromSearchParams(
+    searchParams,
+    CATALOGUE_PARAM_KEYS.ages,
+  ).length;
+
+  const sort = searchParams.get(CATALOGUE_PARAM_KEYS.sort);
+  if (sort && sort !== "newest") count += 1;
+
+  return count;
+}

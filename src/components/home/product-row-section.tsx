@@ -1,6 +1,7 @@
 import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
 import { ButtonLink } from "@/components/ui/button-link";
 import { MIN_HOME_SECTION_PRODUCTS } from "@/lib/catalog/home-sections";
+import { cn } from "@/lib/utils";
 import type { ProductListItem } from "@/types/catalog";
 
 interface ProductRowSectionProps {
@@ -38,11 +39,11 @@ export function ProductRowSection({
   return (
     <section
       id={id}
-      className={
-        variant === "tinted"
-          ? "border-tilouki-mint/20 bg-tilouki-peach-soft/35 scroll-mt-20 border-y py-10 md:py-12"
-          : "scroll-mt-20 py-10 md:py-12"
-      }
+      className={cn(
+        "retail-section scroll-mt-20 py-10 md:py-12",
+        variant === "tinted" &&
+          "border-tilouki-border/80 maison-surface maison-surface-jade border-y",
+      )}
       style={
         deferRender
           ? { contentVisibility: "auto", containIntrinsicSize: "0 520px" }
@@ -51,12 +52,13 @@ export function ProductRowSection({
     >
       <div className="container-tilouki">
         <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-section-title">{title}</h2>
-            <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm leading-relaxed">
+          <header className="retail-section__header">
+            <div className="brand-accent-bar" aria-hidden />
+            <h2 className="text-section-title retail-section__title">{title}</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
               {description}
             </p>
-          </div>
+          </header>
           <ButtonLink
             href={viewAllHref}
             variant="outline"

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { redactEmail, redactSecrets, redactSensitiveData } from "@/lib/security/log";
+import {
+  redactEmail,
+  redactSecrets,
+  redactSensitiveData,
+  serializeAppErrorMeta,
+} from "@/lib/security/log";
 
 describe("redactEmail", () => {
   it("masque les adresses e-mail", () => {
@@ -37,5 +42,28 @@ describe("redactSensitiveData", () => {
 
     expect(result?.html).toBe("[redacted]");
     expect(result?.error).toBe("Resend rejected [email]");
+  });
+
+  it("ne redige pas digest et name", () => {
+    const result = redactSensitiveData({
+      digest: "abc123digest",
+      name: "TypeError",
+      message: "client@example.com",
+    });
+
+    expect(result?.digest).toBe("abc123digest");
+    expect(result?.name).toBe("TypeError");
+    expect(result?.message).toBe("[email]");
+  });
+});
+
+describe("serializeAppErrorMeta", () => {
+  it("normalise digest et message vides", () => {
+    const meta = serializeAppErrorMeta(new Error(""));
+    expect(meta).toEqual({
+      digest: "unknown",
+      name: "Error",
+      message: "(sans message)",
+    });
   });
 });

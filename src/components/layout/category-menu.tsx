@@ -33,10 +33,6 @@ function isNavItemActive(
     return pathname === "/catalogue" && !searchParams.get("promo");
   }
 
-  if (href === NAV_HREF.blog) {
-    return pathname === "/blog" || pathname.startsWith("/blog/");
-  }
-
   return pathname === href;
 }
 
@@ -44,6 +40,10 @@ function isUniverseActive(pathname: string, slug: string): boolean {
   return (
     pathname === `/categorie/${slug}` || pathname.startsWith(`/categorie/${slug}/`)
   );
+}
+
+function isMegaMenuActive(pathname: string, item: { slug: string }): boolean {
+  return isUniverseActive(pathname, item.slug);
 }
 
 export function CategoryMenu({ className }: CategoryMenuProps) {
@@ -62,12 +62,12 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
       <div className="container-tilouki flex h-[var(--category-nav-height)] items-center">
         <ul className="scrollbar-hide flex min-w-0 flex-nowrap items-center gap-0.5 overflow-x-auto py-1">
           {navigation.topItems.map((item) => {
-            if (item.kind === "universe") {
+            if (item.kind === "universe" || item.kind === "category") {
               return (
                 <li key={item.id} className="shrink-0">
                   <CategoryNavDropdown
                     item={item}
-                    isActive={isUniverseActive(pathname, item.slug)}
+                    isActive={isMegaMenuActive(pathname, item)}
                   />
                 </li>
               );
@@ -92,22 +92,6 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
               </li>
             );
           })}
-          <li className="shrink-0">
-            <Link
-              href={NAV_HREF.blog}
-              className={cn(
-                "inline-flex h-9 shrink-0 items-center rounded-[var(--radius-button)] px-3 text-sm font-medium whitespace-nowrap transition-colors",
-                isNavItemActive(pathname, NAV_HREF.blog, searchParams)
-                  ? "bg-tilouki-brand-blue-soft text-tilouki-navy font-semibold"
-                  : "text-foreground hover:bg-tilouki-brand-blue-soft/70 hover:text-tilouki-navy",
-              )}
-              aria-current={
-                isNavItemActive(pathname, NAV_HREF.blog, searchParams) ? "page" : undefined
-              }
-            >
-              Carnet
-            </Link>
-          </li>
         </ul>
       </div>
     </nav>

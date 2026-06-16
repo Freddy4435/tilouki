@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { generateVariantSku } from "@/lib/admin/sku";
+import { getNonCommercialMainImageMessage } from "@/lib/admin/product-image-readiness";
 import {
   formatPublishBlockMessage,
   getProductReadinessIssues,
@@ -11,6 +12,10 @@ import {
   mapVariantsToReadiness,
 } from "@/lib/admin/product-readiness";
 import { DEV_SEED_PRODUCT_SLUGS } from "@/lib/catalog/dev-seed.fixture";
+import {
+  classifyProductImage,
+  isEditorialPackImageUrl,
+} from "@/lib/catalog/product-sellability";
 import { CACHE_TAGS } from "@/lib/supabase/cache";
 import {
   getAdminProduct,
@@ -370,6 +375,23 @@ export async function saveProductImageAction(
     if (error) return { error: error.message };
     revalidateProductPaths(productId);
     return { id: image.id };
+  }
+
+  if (isEditorialPackImageUrl(image.url)) {
+    return {
+      error:
+        "Les visuels du pack Tilouki sont réservés au site éditorial — uploadez une vraie photo de l'article.",
+    };
+  }
+
+  const imageKind = classifyProductImage(image.url, image.alt);
+  if (imageKind !== "commercial") {
+    const detail = getNonCommercialMainImageMessage(imageKind, image.url);
+    return {
+      error:
+        detail ||
+        "Cette image ne peut pas servir de photo produit (SVG, placeholder ou banque d'images).",
+    };
   }
 
   const { data, error } = await supabase

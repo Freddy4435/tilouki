@@ -1,20 +1,10 @@
 import { buildCatalogueHref, buildCategoryHref } from "@/lib/navigation/catalog-href";
 
-export const ATELIER_AGE_IDS = [
-  "0-3-mois",
-  "3-12-mois",
-  "1-3-ans",
-  "4-8-ans",
-] as const;
+export const ATELIER_AGE_IDS = ["0-3-mois", "3-12-mois", "1-3-ans", "4-8-ans"] as const;
 
 export type AtelierAgeId = (typeof ATELIER_AGE_IDS)[number];
 
-export const ATELIER_USAGE_IDS = [
-  "nuit",
-  "quotidien",
-  "sortie",
-  "cadeau",
-] as const;
+export const ATELIER_USAGE_IDS = ["nuit", "quotidien", "sortie", "cadeau"] as const;
 
 export type AtelierUsageId = (typeof ATELIER_USAGE_IDS)[number];
 
@@ -72,7 +62,7 @@ export const ATELIER_USAGES: readonly AtelierUsage[] = [
   {
     id: "nuit",
     label: "Nuit",
-    description: "Pyjamas, bodies de nuit, pièces douces pour dormir.",
+    description: "Pyjamas et bodies nuit — matières douces, faciles à enfiler.",
   },
   {
     id: "quotidien",
@@ -92,7 +82,7 @@ export const ATELIER_USAGES: readonly AtelierUsage[] = [
 ] as const;
 
 export const ATELIER_DISCLAIMER =
-  "Ces repères sont là pour vous aider à choisir sereinement. Ils ne remplacent pas l'essayage ni l'avis d'un professionnel de santé.";
+  "Ces repères aident à choisir une taille, mais ne remplacent pas l'essayage.";
 
 const DEFAULT_AGE: AtelierAgeId = "3-12-mois";
 const DEFAULT_USAGE: AtelierUsageId = "quotidien";
@@ -108,7 +98,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Une coupe légèrement ample aide au change et laisse de la place pour la couche.",
     materials: ["Coton doux", "Molleton léger"],
     blogSlug: "indispensables-bebe-premiers-mois",
-    blogTitle: "Les indispensables bébé des premiers mois",
+    blogTitle: "Guide d'achat garde-robe bébé",
   },
   "0-3-mois:quotidien": {
     headline: "Bodies et premières tenues",
@@ -118,7 +108,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Entre deux tailles en mois, la taille au-dessus est souvent plus confortable au quotidien.",
     materials: ["Coton", "Mélange coton doux"],
     blogSlug: "indispensables-bebe-premiers-mois",
-    blogTitle: "Les indispensables bébé des premiers mois",
+    blogTitle: "Guide d'achat garde-robe bébé",
   },
   "0-3-mois:sortie": {
     headline: "Tenues douces pour sortir",
@@ -128,7 +118,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Un peu de marge au niveau du ventre rend les sorties plus agréables après le repas.",
     materials: ["Coton", "Maille fine"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "0-3-mois:cadeau": {
     headline: "Offrir pour un tout-petit",
@@ -138,17 +128,17 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Pour un cadeau, une taille légèrement grande est souvent mieux reçue qu'une pièce trop juste.",
     materials: ["Coton doux", "Matières faciles à laver"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "3-12-mois:nuit": {
-    headline: "Nuits plus sereines",
+    headline: "Pyjamas bébé — coupe et matière",
     sizeAdvice:
       "Pyjama ou gigoteuse : vérifiez la longueur des jambes à plat, pieds inclus si la pièce les couvre.",
     marginAdvice:
-      "Prévoyez de la liberté aux hanches et aux épaules pour les nuits agitées.",
+      "Prévoyez de la liberté aux hanches et aux épaules pour bouger librement.",
     materials: ["Coton", "Molleton"],
     blogSlug: "choisir-pyjama-enfant-nuit-confortable",
-    blogTitle: "Choisir un pyjama confortable",
+    blogTitle: "Bien choisir un pyjama enfant",
   },
   "3-12-mois:quotidien": {
     headline: "Le quotidien d'un bébé qui bouge",
@@ -158,7 +148,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Entre deux tailles, montez d'un cran pour les pièces portées plusieurs heures d'affilée.",
     materials: ["Coton", "Molleton léger", "Maille souple"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "3-12-mois:sortie": {
     headline: "Sorties en douceur",
@@ -168,7 +158,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Laissez un peu de jeu aux épaules pour enfiler et retirer sans tirer.",
     materials: ["Coton", "Maille douce"],
     blogSlug: "composer-tenue-enfant-simple-trois-pieces",
-    blogTitle: "Composer une tenue en trois pièces",
+    blogTitle: "Guide d'achat tenue enfant",
   },
   "3-12-mois:cadeau": {
     headline: "Un cadeau utile et doux",
@@ -178,7 +168,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Les parents apprécient souvent une pièce qui pourra être portée un peu plus tard.",
     materials: ["Coton", "Molleton"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "1-3-ans:nuit": {
     headline: "Pyjamas pour tout-petits",
@@ -188,7 +178,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Une taille un peu ample facilite l'habillage le soir et laisse de la marge pour grandir.",
     materials: ["Coton", "Molleton", "Maille douce"],
     blogSlug: "choisir-pyjama-enfant-nuit-confortable",
-    blogTitle: "Choisir un pyjama confortable",
+    blogTitle: "Bien choisir un pyjama enfant",
   },
   "1-3-ans:quotidien": {
     headline: "Tenues qui suivent le rythme",
@@ -198,7 +188,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Pour jouer et s'accroupir, une coupe souple vaut mieux qu'une tenue juste « pour faire joli ».",
     materials: ["Coton", "Molleton", "Maille"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "1-3-ans:sortie": {
     headline: "Joli sans être fragile",
@@ -208,7 +198,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Un peu de marge aux épaules suffit — inutile de prendre très grand pour une sortie.",
     materials: ["Coton", "Lin léger", "Maille"],
     blogSlug: "composer-tenue-enfant-simple-trois-pieces",
-    blogTitle: "Composer une tenue en trois pièces",
+    blogTitle: "Guide d'achat tenue enfant",
   },
   "1-3-ans:cadeau": {
     headline: "Offrir à un enfant de 1 à 3 ans",
@@ -218,17 +208,17 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Pour un cadeau, la taille au-dessus laisse plus de chances que la pièce soit portée vite.",
     materials: ["Coton doux", "Molleton"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "4-8-ans:nuit": {
-    headline: "Nuits calmes, grande taille",
+    headline: "Pyjamas enfant — longueur et aisance",
     sizeAdvice:
       "Vérifiez la longueur du pyjama à plat : les jambes doivent arriver à la cheville sans tirer.",
     marginAdvice:
       "Un pyjama légèrement long se porte souvent bien ; trop court, il sera abandonné vite.",
     materials: ["Coton", "Molleton", "Maille"],
     blogSlug: "choisir-pyjama-enfant-nuit-confortable",
-    blogTitle: "Choisir un pyjama confortable",
+    blogTitle: "Bien choisir un pyjama enfant",
   },
   "4-8-ans:quotidien": {
     headline: "L'école et les jeux",
@@ -238,7 +228,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "À cet âge, une demi-taille de marge suffit souvent ; évitez le trop grand qui gêne le mouvement.",
     materials: ["Coton", "Molleton", "Maille résistante"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
   "4-8-ans:sortie": {
     headline: "Sorties en famille",
@@ -248,7 +238,7 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Pour une tenue de sortie, vous pouvez rester sur la taille portée — pas besoin de surdimensionner.",
     materials: ["Coton", "Lin", "Maille"],
     blogSlug: "composer-tenue-enfant-simple-trois-pieces",
-    blogTitle: "Composer une tenue en trois pièces",
+    blogTitle: "Guide d'achat tenue enfant",
   },
   "4-8-ans:cadeau": {
     headline: "Offrir à un enfant de 4 à 8 ans",
@@ -258,11 +248,13 @@ const RECOMMENDATIONS: Record<RecommendationKey, AtelierRecommendation> = {
       "Montez d'une taille si vous hésitez — mieux vaut un peu grand que trop juste.",
     materials: ["Coton", "Molleton", "Matières faciles d'entretien"],
     blogSlug: "choisir-bonne-taille-vetement-enfant",
-    blogTitle: "Comment choisir la bonne taille",
+    blogTitle: "Guide d'achat tailles enfant",
   },
 };
 
-export function isAtelierAgeId(value: string | null | undefined): value is AtelierAgeId {
+export function isAtelierAgeId(
+  value: string | null | undefined,
+): value is AtelierAgeId {
   return ATELIER_AGE_IDS.includes(value as AtelierAgeId);
 }
 

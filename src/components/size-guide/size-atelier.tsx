@@ -72,7 +72,9 @@ export function SizeAtelier({
     [searchParams],
   );
 
-  const [localAgeId, setLocalAgeId] = useState<AtelierAgeId>(initialAgeId ?? "3-12-mois");
+  const [localAgeId, setLocalAgeId] = useState<AtelierAgeId>(
+    initialAgeId ?? "3-12-mois",
+  );
   const [localUsageId, setLocalUsageId] = useState<AtelierUsageId>(
     initialUsageId ?? "quotidien",
   );
@@ -154,7 +156,11 @@ export function SizeAtelier({
 
       <fieldset className="space-y-2">
         <legend className="text-retail-label text-tilouki-teal-dark">Usage</legend>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="group" aria-label="Usage">
+        <div
+          className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+          role="group"
+          aria-label="Usage"
+        >
           {ATELIER_USAGES.map((item) => {
             const selected = item.id === usageId;
             const Icon = USAGE_ICONS[item.id];
@@ -208,16 +214,24 @@ export function SizeAtelier({
         <dl className="grid gap-3 sm:grid-cols-2">
           <div className="bg-tilouki-cloud/60 rounded-[var(--radius-button)] p-3.5">
             <dt className="text-retail-label text-tilouki-teal-dark">Conseil taille</dt>
-            <dd className="mt-1.5 text-sm leading-relaxed">{recommendation.sizeAdvice}</dd>
+            <dd className="mt-1.5 text-sm leading-relaxed">
+              {recommendation.sizeAdvice}
+            </dd>
           </div>
           <div className="bg-tilouki-cloud/60 rounded-[var(--radius-button)] p-3.5">
-            <dt className="text-retail-label text-tilouki-teal-dark">Marge conseillée</dt>
-            <dd className="mt-1.5 text-sm leading-relaxed">{recommendation.marginAdvice}</dd>
+            <dt className="text-retail-label text-tilouki-teal-dark">
+              Marge conseillée
+            </dt>
+            <dd className="mt-1.5 text-sm leading-relaxed">
+              {recommendation.marginAdvice}
+            </dd>
           </div>
         </dl>
 
         <div>
-          <p className="text-retail-label text-tilouki-teal-dark">Matières à privilégier</p>
+          <p className="text-retail-label text-tilouki-teal-dark">
+            Matières à privilégier
+          </p>
           <ul className="mt-2 flex flex-wrap gap-2">
             {recommendation.materials.map((material) => (
               <li
@@ -240,7 +254,7 @@ export function SizeAtelier({
           ) : (
             <>
               <ButtonLink href={blogHref} className="min-h-11">
-                Lire sur le carnet
+                Lire le guide
                 <BookOpen className="size-4" />
               </ButtonLink>
               <ButtonLink href="/#newsletter" variant="outline" className="min-h-11">
@@ -287,13 +301,15 @@ export function SizeAtelier({
           <p className="text-muted-foreground text-xs leading-relaxed">
             Le catalogue est filtré pour{" "}
             <span className="font-medium">{ageBand.label}</span> et l&apos;usage{" "}
-            <span className="font-medium">{usage.label.toLowerCase()}</span>. Les tailles
-            exactes sont indiquées sur chaque fiche.
+            <span className="font-medium">{usage.label.toLowerCase()}</span>. Les
+            tailles exactes sont indiquées sur chaque fiche.
           </p>
         ) : null}
       </article>
 
-      <p className="text-muted-foreground text-xs leading-relaxed">{ATELIER_DISCLAIMER}</p>
+      <p className="text-muted-foreground text-xs leading-relaxed">
+        {ATELIER_DISCLAIMER}
+      </p>
 
       {!syncUrl && isAtelierAgeId(ageId) && isAtelierUsageId(usageId) ? (
         <p className="sr-only">

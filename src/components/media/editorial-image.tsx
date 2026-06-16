@@ -1,9 +1,7 @@
 import Image, { type ImageProps } from "next/image";
 
-import {
-  getEditorialImage,
-  type EditorialImageId,
-} from "@/lib/media/editorial-images";
+import { getEditorialImage, type EditorialImageId } from "@/lib/media/editorial-images";
+import { IMAGE_SIZES } from "@/lib/media/image-sizes";
 import { cn } from "@/lib/utils";
 
 type EditorialImageProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
@@ -26,7 +24,7 @@ export function EditorialImage({
   imageClassName,
   fill,
   priority,
-  sizes,
+  sizes = IMAGE_SIZES.editorialCard,
   ...props
 }: EditorialImageProps) {
   const base = getEditorialImage(imageId);

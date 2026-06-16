@@ -3,20 +3,27 @@ import {
   countCommercialStorefrontImages,
   isCommercialProductImage,
   isDescriptiveCommercialAlt,
+  isEditorialPackImageUrl,
   isProductReadyToSell,
   STOREFRONT_READY_TO_SELL_PHOTOS_MIN,
   type ProductImageKind,
 } from "@/lib/catalog/product-sellability";
+import { TILOUKI_PACK_PRODUCT_PHOTO_NOTICE } from "@/lib/tilouki-images";
 
 export type { ProductImageKind } from "@/lib/catalog/product-sellability";
 export {
   classifyProductImage,
   countCommercialStorefrontImages,
+  getStorefrontListingBlockers,
+  getStorefrontListingBlockersFromImages,
+  getStorefrontPhotoStatus,
   isCommercialProductImage,
   isDescriptiveCommercialAlt,
   isProductReadyToSell,
   STOREFRONT_COMMERCIAL_PHOTOS_MIN,
   STOREFRONT_READY_TO_SELL_PHOTOS_MIN,
+  type StorefrontListingBlocker,
+  type StorefrontPhotoStatus,
 } from "@/lib/catalog/product-sellability";
 
 export interface ProductReadinessImage {
@@ -31,10 +38,15 @@ const DETAIL_ALT_PATTERN = /détail|detail|matière|matiere|texture|couture/i;
 const SCENE_ALT_PATTERN =
   /pliage|plié|plie|porté|porte|flat\s*lay|mise\s*en\s*scene|mise\s*en\s*scène|cintre/i;
 const DEFECT_ALT_PATTERN = /défaut|defaut|imperfection|trace/i;
-const COLOR_ALT_PATTERN =
-  /couleur|coloris|teinte|bleu|rouge|rose|vert|jaune|noir|blanc|gris|beige|marine|violet|orange|multicolore/i;
 
-export function getProductImageKindLabel(kind: ProductImageKind): string {
+export function getProductImageKindLabel(
+  kind: ProductImageKind,
+  url?: string | null,
+): string {
+  if (isEditorialPackImageUrl(url ?? "")) {
+    return "Pack Tilouki — éditorial uniquement";
+  }
+
   switch (kind) {
     case "commercial":
       return "Photo commerciale";
@@ -94,8 +106,7 @@ export type ProductPhotoChecklistId =
   | "face-avant"
   | "alt-descriptif"
   | "detail-matiere"
-  | "mise-en-scene"
-  | "couleur-fidele"
+  | "vue-portee-ou-defaut"
   | "defaut-documente"
   | "ratio-portrait";
 
@@ -137,29 +148,27 @@ export function buildProductPhotoChecklist(
       id: "alt-descriptif",
       label: "Description photo (alt text)",
       tier: "required",
-      filled: Boolean(mainCommercial?.alt && isDescriptiveCommercialAlt(mainCommercial.alt)),
+      filled: Boolean(
+        mainCommercial?.alt && isDescriptiveCommercialAlt(mainCommercial.alt),
+      ),
       hint: "Décrivez la vue réelle (ex. « Body bébé face avant, coton écru »). Minimum 8 caractères — pas « Photo à venir ».",
     },
     {
       id: "detail-matiere",
-      label: "Détail matière ou finition",
+      label: "2ᵉ photo — détail matière ou finition",
       tier: "recommended",
       filled: commercial.length >= 2 || altMatches(commercial, DETAIL_ALT_PATTERN),
-      hint: "Ajoutez un gros plan tissu, maille ou couture — mentionnez « détail matière » dans la description.",
+      hint: "Gros plan tissu, maille ou couture — mentionnez « détail matière » dans la description.",
     },
     {
-      id: "mise-en-scene",
-      label: "Mise en scène ou pliage",
+      id: "vue-portee-ou-defaut",
+      label: "3ᵉ photo — vue portée, cintre ou pliage",
       tier: "recommended",
-      filled: commercial.length >= 3 || altMatches(commercial, SCENE_ALT_PATTERN),
-      hint: "Montrez le vêtement plié, sur cintre ou en contexte doux — aide à visualiser le volume.",
-    },
-    {
-      id: "couleur-fidele",
-      label: "Couleur fidèle au vêtement",
-      tier: "recommended",
-      filled: commercial.length >= 3 || altMatches(commercial, COLOR_ALT_PATTERN),
-      hint: "Photographiez la teinte réelle (lumière naturelle) et précisez la couleur dans la description photo.",
+      filled:
+        commercial.length >= 3 ||
+        altMatches(commercial, SCENE_ALT_PATTERN) ||
+        altMatches(commercial, DEFECT_ALT_PATTERN),
+      hint: "Sur mannequin enfant, sur cintre dans le dressing, ou plié proprement — mentionnez « porté », « cintre » ou « pliage » dans la description.",
     },
     {
       id: "defaut-documente",
@@ -193,7 +202,14 @@ export function getPhotoReadinessSummary(images: ProductReadinessImage[]): {
   };
 }
 
-export function getNonCommercialMainImageMessage(kind: ProductImageKind): string {
+export function getNonCommercialMainImageMessage(
+  kind: ProductImageKind,
+  url?: string | null,
+): string {
+  if (isEditorialPackImageUrl(url ?? "")) {
+    return TILOUKI_PACK_PRODUCT_PHOTO_NOTICE;
+  }
+
   switch (kind) {
     case "demo-generated":
       return "Image principale générée (SVG catalogue démo) — remplacez-la par une photo réelle uploadée.";

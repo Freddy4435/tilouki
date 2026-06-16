@@ -1,115 +1,172 @@
 import { buildCatalogueHref, buildCategoryHref } from "@/lib/navigation/catalog-href";
 import type { EditorialImageId } from "@/lib/media/editorial-images";
 
+export interface RitualEmptyCta {
+  label: string;
+  href: string;
+}
+
 export interface Ritual {
   slug: string;
   title: string;
+  /** Accroche catalogue — une phrase, orientée achat. */
+  promise: string;
   description: string;
   imageId: EditorialImageId;
-  /** Catégories catalogue pour suggérer des produits. */
+  /** Catégories catalogue pour la sélection produits. */
   categorySlugs: readonly string[];
-  blogSlugs: readonly string[];
+  /** Mots-clés pour affiner la sélection (nom, description, catégorie). */
+  productKeywords?: readonly string[];
+  /** Catégorie principale — lien de repli si la sélection est vide. */
+  primaryCategorySlug: string;
+  primaryCategoryLabel: string;
   ctaLabel: string;
   catalogueHref: string;
-  emptyStateTitle: string;
-  emptyStateTips: readonly string[];
+  /** Aide courte sous les produits (une ligne). */
+  shoppingTip: string;
+  /** Message vide catalogue (une phrase). */
+  emptyStateMessage: string;
+  /** Boutons de repli quand aucun produit en ligne. */
+  emptyStateCtas: readonly RitualEmptyCta[];
 }
 
 export const RITUALS: readonly Ritual[] = [
   {
     slug: "matin-presse",
-    title: "Matin pressé",
-    description:
-      "Tee-shirt, jogging, chaussettes : l'essentiel qui s'enfile sans discussion avant l'école ou la garderie.",
+    title: "Matin école",
+    promise: "Hauts, bas et joggers prêts à enfiler — tailles affichées sur chaque fiche.",
+    description: "Basiques et tenues du matin pour fille, garçon et bébé.",
     imageId: "ritual-morning",
     categorySlugs: ["garcon", "fille", "bebe"],
-    blogSlugs: ["composer-tenue-enfant-simple-trois-pieces"],
-    ctaLabel: "Voir le catalogue du matin",
+    productKeywords: [
+      "jogger",
+      "jogging",
+      "tee",
+      "t-shirt",
+      "body",
+      "basique",
+      "sweat",
+    ],
+    primaryCategorySlug: "garcon",
+    primaryCategoryLabel: "Garçon",
+    ctaLabel: "Voir les basiques",
     catalogueHref: buildCatalogueHref({ sort: "newest" }),
-    emptyStateTitle: "Préparer un matin sans stress",
-    emptyStateTips: [
-      "Préparez la tenue la veille au soir — moins de décisions à 7 h.",
-      "Privilégiez le coton et les élastiques souples pour s'habiller seul.",
-      "Gardez une pièce de rechange dans le sac si l'enfant est en bas âge.",
+    shoppingTip: "3 pièces suffisent : haut, bas, chaussettes.",
+    emptyStateMessage: "Pas encore de pièces dans cette sélection.",
+    emptyStateCtas: [
+      { label: "Voir garçon", href: buildCategoryHref("garcon") },
+      { label: "Voir fille", href: buildCategoryHref("fille") },
+      { label: "Tout le catalogue", href: buildCatalogueHref({ sort: "newest" }) },
     ],
   },
   {
     slug: "nuit-calme",
-    title: "Nuit calme",
-    description:
-      "Pyjama moelleux, coupe ample, matières douces — pour des soirées un peu plus sereines.",
+    title: "Nuit douce",
+    promise: "Pyjamas et ensembles nuit en stock — du 12 mois au 12 ans.",
+    description: "Pyjamas fille, garçon et bébé pour des nuits confortables.",
     imageId: "ritual-night-calm",
     categorySlugs: ["pyjamas", "bebe"],
-    blogSlugs: ["choisir-pyjama-enfant-nuit-confortable"],
-    ctaLabel: "Explorer les nuits douces",
+    productKeywords: ["pyjama", "nuit", "gigoteuse", "ensemble"],
+    primaryCategorySlug: "pyjamas",
+    primaryCategoryLabel: "Pyjamas",
+    ctaLabel: "Voir les pyjamas",
     catalogueHref: buildCategoryHref("pyjamas"),
-    emptyStateTitle: "Installer un rituel du soir",
-    emptyStateTips: [
-      "Même pyjama = repère rassurant : l'enfant sait que la journée s'arrête.",
-      "Choisissez une taille légèrement ample pour bouger dans le lit.",
-      "Coton ou molleton léger : agréable sans trop chauffer.",
+    shoppingTip: "Coupe ample : plus facile à enfiler le soir.",
+    emptyStateMessage: "Les pyjamas arrivent bientôt — parcourez le rayon en attendant.",
+    emptyStateCtas: [
+      { label: "Voir les pyjamas", href: buildCategoryHref("pyjamas") },
+      { label: "Voir bébé", href: buildCategoryHref("bebe") },
+      { label: "Tout le catalogue", href: buildCatalogueHref() },
     ],
   },
   {
-    slug: "sortie-famille",
-    title: "Sortie famille",
-    description:
-      "Une tenue complète, confortable pour bouger et jolie pour les photos du week-end.",
-    imageId: "ritual-family-outing",
-    categorySlugs: ["fille", "garcon", "accessoires"],
-    blogSlugs: [
-      "composer-tenue-enfant-simple-trois-pieces",
-      "valise-week-end-enfant-vetements",
-    ],
-    ctaLabel: "Composer une tenue de sortie",
-    catalogueHref: buildCatalogueHref({ sort: "newest" }),
-    emptyStateTitle: "Partir léger, rester à l'aise",
-    emptyStateTips: [
-      "Trois pièces suffisent : haut, bas, veste ou gilet selon la météo.",
-      "Prévoyez une couche en plus plutôt qu'une tenue trop habillée.",
-      "Chaussures faciles à enfiler = moins de négociation au départ.",
+    slug: "bebe-cocon",
+    title: "Bébé cocon",
+    promise: "Bodies, pyjamas et essentiels bébé — tailles mois et ans.",
+    description: "Bodies, pyjamas et gigoteuses pour les tout-petits.",
+    imageId: "ritual-baby-cocoon",
+    categorySlugs: ["bebe", "bodies", "pyjamas"],
+    productKeywords: ["body", "gigoteuse", "pyjama", "combinaison", "grenouillère"],
+    primaryCategorySlug: "bebe",
+    primaryCategoryLabel: "Bébé",
+    ctaLabel: "Voir bébé",
+    catalogueHref: buildCategoryHref("bebe"),
+    shoppingTip: "Prévoyez 2 bodies par jour de garde.",
+    emptyStateMessage: "Pas de pièce bébé en ligne pour l'instant.",
+    emptyStateCtas: [
+      { label: "Voir bébé", href: buildCategoryHref("bebe") },
+      { label: "Voir les bodies", href: buildCategoryHref("bodies") },
+      { label: "Voir les pyjamas", href: buildCategoryHref("pyjamas") },
     ],
   },
   {
     slug: "jour-de-pluie",
     title: "Jour de pluie",
-    description:
-      "Maille douce, couches chaudes, tenues qui sèchent vite — rester au sec sans sacrifier le confort.",
+    promise: "Couches chaudes, sweats et tenues pluie — rester au sec dehors.",
+    description: "Vestes, sweats et pantalons pour les journées humides.",
     imageId: "ritual-rainy-day",
-    categorySlugs: ["fille", "garcon", "pyjamas"],
-    blogSlugs: ["matieres-douces-vetements-enfants"],
-    ctaLabel: "Voir les pièces cocooning",
-    catalogueHref: buildCatalogueHref({ sort: "newest" }),
-    emptyStateTitle: "Affronter la grisaille",
-    emptyStateTips: [
-      "Superposez maille + sweat : on retire une couche à l'intérieur.",
-      "Évitez le trop volumineux sous la combinaison de pluie.",
-      "Un pantalon qui sèche vite sauve les après-midis à la maison.",
+    categorySlugs: ["pluie", "garcon", "fille"],
+    productKeywords: [
+      "veste",
+      "sweat",
+      "pantalon",
+      "botte",
+      "imperméable",
+      "pluie",
+      "coupe-vent",
+      "polaire",
+    ],
+    primaryCategorySlug: "pluie",
+    primaryCategoryLabel: "Pluie",
+    ctaLabel: "Voir la pluie",
+    catalogueHref: buildCategoryHref("pluie"),
+    shoppingTip: "Maille + sweat : une couche en moins à l'intérieur.",
+    emptyStateMessage: "Aucune pièce pluie disponible pour le moment.",
+    emptyStateCtas: [
+      { label: "Voir la pluie", href: buildCategoryHref("pluie") },
+      { label: "Voir fille", href: buildCategoryHref("fille") },
+      { label: "Voir garçon", href: buildCategoryHref("garcon") },
     ],
   },
   {
     slug: "petit-budget",
-    title: "Petit budget",
-    description:
-      "Les essentiels du quotidien à prix doux — pour compléter la garde-robe sans culpabiliser.",
+    title: "Petits prix",
+    promise: "Essentiels remisés du catalogue — prix affichés, tailles visibles.",
+    description: "Bonnes affaires et essentiels à petit budget.",
     imageId: "colors-soft",
     categorySlugs: ["bebe", "fille", "garcon", "pyjamas"],
-    blogSlugs: ["acheter-vetements-enfants-malin-petits-prix"],
+    primaryCategorySlug: "fille",
+    primaryCategoryLabel: "Fille",
     ctaLabel: "Voir les petits prix",
     catalogueHref: buildCatalogueHref({ promo: "petit-prix" }),
-    emptyStateTitle: "Acheter malin, pas à la va-vite",
-    emptyStateTips: [
-      "Les basiques (tee-shirt, body, legging) sont les meilleurs achats utiles.",
-      "Vérifiez la taille sur une pièce qui va bien avant de commander.",
-      "Un petit prix n'a de sens que si le vêtement sera porté souvent.",
+    shoppingTip: "Bodies, tee-shirts et leggings : les basiques qui partent vite.",
+    emptyStateMessage: "Pas d'offre petit prix en ce moment.",
+    emptyStateCtas: [
+      { label: "Voir les petits prix", href: buildCatalogueHref({ promo: "petit-prix" }) },
+      { label: "Tout le catalogue", href: buildCatalogueHref() },
     ],
   },
 ] as const;
 
 export type RitualSlug = (typeof RITUALS)[number]["slug"];
 
+/** Ordre vitrine accueil — modules shoppables. */
+export const HOME_RITUAL_DISPLAY_ORDER = [
+  "nuit-calme",
+  "jour-de-pluie",
+  "bebe-cocon",
+  "matin-presse",
+  "petit-budget",
+] as const satisfies readonly RitualSlug[];
+
 export function getAllRituals(): Ritual[] {
   return [...RITUALS];
+}
+
+export function getHomeRituals(): Ritual[] {
+  return HOME_RITUAL_DISPLAY_ORDER.map((slug) => getRitualBySlug(slug)).filter(
+    (ritual): ritual is Ritual => ritual != null,
+  );
 }
 
 export function getRitualBySlug(slug: string): Ritual | undefined {
@@ -118,10 +175,6 @@ export function getRitualBySlug(slug: string): Ritual | undefined {
 
 export function getAllRitualSlugs(): RitualSlug[] {
   return RITUALS.map((ritual) => ritual.slug);
-}
-
-export function getPrimaryBlogSlug(ritual: Ritual): string {
-  return ritual.blogSlugs[0] ?? "choisir-bonne-taille-vetement-enfant";
 }
 
 /** Rituels mis en avant sur le catalogue vide (lancement). */
