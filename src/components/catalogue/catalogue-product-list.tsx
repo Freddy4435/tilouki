@@ -1,4 +1,5 @@
 import { ProductCard } from "@/components/product/product-card";
+import { ProductCardRail } from "@/components/product/product-card-rail";
 import { ProductGrid } from "@/components/product/product-grid";
 import { isProductNew } from "@/lib/catalog/product-new";
 import { applyStorefrontListItemGuards } from "@/lib/catalog/product-card-data";
@@ -63,32 +64,50 @@ export function CatalogueProductList({
 
   return (
     <ProductGrid layout={layout} density={density} className={className}>
-      {listedProducts.map((product, index) => (
-        <ProductCard
-          key={product.id}
-          productId={product.id}
-          slug={product.slug}
-          name={product.name}
-          priceCents={product.minPriceCents}
-          compareAtPriceCents={product.compareAtPriceCents}
-          imageUrl={product.primaryImageUrl}
-          imageAlt={product.primaryImageAlt ?? product.name}
-          secondaryImageUrl={product.secondaryImageUrl}
-          secondaryImageAlt={product.secondaryImageAlt}
-          colorOptions={product.colorOptions}
-          quickAddVariants={product.quickAddVariants}
-          categoryName={product.categoryName}
-          material={product.material}
-          sizes={product.sizes}
-          ageLabel={product.ageLabels[0]}
-          badges={mergeBadges(product)}
-          totalStock={product.totalStock}
-          ratingAverage={product.ratingAverage}
-          ratingCount={product.ratingCount}
-          priority={index < resolvedPriorityLimit}
-          variant={cardVariant}
-        />
-      ))}
+      {listedProducts.map((product, index) =>
+        layout === "scroll-mobile" ? (
+          <ProductCardRail
+            key={product.id}
+            slug={product.slug}
+            name={product.name}
+            priceCents={product.minPriceCents}
+            compareAtPriceCents={product.compareAtPriceCents}
+            imageUrl={product.primaryImageUrl}
+            imageAlt={product.primaryImageAlt ?? product.name}
+            categoryName={product.categoryName}
+            sizes={product.sizes}
+            ageLabel={product.ageLabels[0]}
+            badges={mergeBadges(product)}
+            totalStock={product.totalStock}
+            priority={index < resolvedPriorityLimit}
+          />
+        ) : (
+          <ProductCard
+            key={product.id}
+            productId={product.id}
+            slug={product.slug}
+            name={product.name}
+            priceCents={product.minPriceCents}
+            compareAtPriceCents={product.compareAtPriceCents}
+            imageUrl={product.primaryImageUrl}
+            imageAlt={product.primaryImageAlt ?? product.name}
+            secondaryImageUrl={product.secondaryImageUrl}
+            secondaryImageAlt={product.secondaryImageAlt}
+            colorOptions={product.colorOptions}
+            quickAddVariants={product.quickAddVariants}
+            categoryName={product.categoryName}
+            material={product.material}
+            sizes={product.sizes}
+            ageLabel={product.ageLabels[0]}
+            badges={mergeBadges(product)}
+            totalStock={product.totalStock}
+            ratingAverage={product.ratingAverage}
+            ratingCount={product.ratingCount}
+            priority={index < resolvedPriorityLimit}
+            variant={cardVariant}
+          />
+        ),
+      )}
     </ProductGrid>
   );
 }

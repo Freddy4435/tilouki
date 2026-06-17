@@ -2,10 +2,10 @@ import { Suspense } from "react";
 
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { AccountTrigger } from "@/components/account/account-trigger";
+import { CategoryMenuDeferred } from "@/components/layout/category-menu-deferred";
 import { HeaderReassuranceNav } from "@/components/layout/header-reassurance-nav";
 import { CartTrigger } from "@/components/cart/cart-trigger";
 import { FavoritesTrigger } from "@/components/favorites/favorites-trigger";
-import { CategoryMenu } from "@/components/layout/category-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SearchBar } from "@/components/layout/search-bar";
 import { SiteLogo } from "@/components/layout/site-logo";
@@ -68,7 +68,7 @@ export function SiteHeader({
       </div>
 
       <Suspense fallback={null}>
-        <CategoryMenu />
+        <CategoryMenuDeferred />
       </Suspense>
     </header>
   );

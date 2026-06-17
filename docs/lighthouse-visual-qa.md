@@ -45,14 +45,15 @@ Fichiers JSON : [`lighthouse-home-mobile.json`](lighthouse-home-mobile.json), [`
 | Accueil       | Image `HeroMobileFeatured` (1er produit / hero admin) ou titre `h1` si aucune image | `priority` + `fetchPriority="high"`, `sizes="100vw"`, préchargement Fraunces seul |
 | Fiche produit | Image principale galerie (`ProductGalleryMainImage` ou 1ère image galerie)          | Rendu serveur si 1 photo, `sizes` mobile 100vw, `fetchPriority="high"`            |
 
-### Baseline (15 juin 2026, avant optimisations)
+### Mesures après lot C.5 (juin 2026, build local port 3004)
 
-| Page                                | Performance | Accessibilité | LCP   | CLS   | TBT    |
-| ----------------------------------- | ----------- | ------------- | ----- | ----- | ------ |
-| Accueil `/`                         | **83**      | **96**        | 4,2 s | 0,008 | 170 ms |
-| Fiche `/produit/short-garcon-promo` | **82**      | **97**        | 4,5 s | 0,008 | 160 ms |
+| Page    | Performance | Accessibilité | LCP   | CLS   | TBT    |
+| ------- | ----------- | ------------- | ----- | ----- | ------ |
+| Accueil | **76**      | **97**        | 6,0 s | 0,001 | 130 ms |
 
-**Cible :** Perf ≥ 90, CLS &lt; 0,05.
+**Cible :** Perf ≥ 90 — le goulot reste le **LCP** (image hero + TTFB SSR). Le TBT a fortement baissé grâce aux cartes rail RSC et au chargement différé du JS (vestiaire, bottom nav, menu catégories).
+
+**Pour atteindre 90 :** compression des photos catalogue/hero à l'upload Supabase, éventuel hero mobile dédié plus léger, re-mesure sur `https://tilouki.vercel.app` après déploiement.
 
 ### Optimisations performance (juin 2026)
 
@@ -61,6 +62,7 @@ Fichiers JSON : [`lighthouse-home-mobile.json`](lighthouse-home-mobile.json), [`
 3. **Accueil** — pool produits limité en DB (`getActiveProductsForHome`, 96 lignes) ; sections sous la ligne de flottaison en `content-visibility: auto` ; max 2 images `priority` par carrousel.
 4. **Fiche produit** — galerie 1 photo rendue côté serveur (`ProductGalleryMainImage`).
 5. **Images** — `loading="lazy"` sur miniatures, catégories et looks ; pas de `priority` sur sections différées.
+6. **Lot C.5** — `HomeVestiaireAssistant` et `CartDrawer` en `next/dynamic` ; sections home sous la flottaison en chunks séparés ; `npm run lighthouse:mobile` (budget perf ≥ 90).
 
 ### Pistes si LCP reste &gt; 2,5 s en preview/prod
 
@@ -152,6 +154,9 @@ node scripts/run-playwright.mjs e2e/visual-qa-retail.spec.ts --project=desktop
 node scripts/run-playwright.mjs e2e/accessibility.spec.ts --project=desktop
 
 # Lighthouse mobile (serveur déjà démarré sur 3002)
+npm run lighthouse:mobile
+
+# Ou manuellement :
 npx lighthouse@12 http://127.0.0.1:3002/ \
   --only-categories=performance,accessibility \
   --form-factor=mobile --output=json \

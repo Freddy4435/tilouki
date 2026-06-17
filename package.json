@@ -33,6 +33,7 @@
     "e2e:battle-plan": "node scripts/run-playwright.mjs e2e/battle-plan-features.spec.ts",
     "e2e:tracking": "node scripts/run-playwright.mjs e2e/order-tracking.spec.ts",
     "e2e:visual-qa": "node scripts/run-playwright.mjs e2e/visual-qa-retail.spec.ts",
+    "lighthouse:mobile": "node scripts/lighthouse-perf-budget.mjs",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",
     "qa": "npm run typecheck && npm run lint && npm run test && npm run build && node scripts/run-e2e.mjs",

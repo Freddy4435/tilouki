@@ -322,6 +322,12 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /** Sections sous la ligne de flottaison — skip rendu hors écran (perf mobile). */
+  .defer-below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 520px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

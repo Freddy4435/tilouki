@@ -24,7 +24,7 @@ const REASSURANCE_ITEMS = [
   { icon: Truck, label: "Livraison point relais" },
 ] as const;
 
-function resolveHeroImage(heroImageUrl?: string | null) {
+export function resolveHeroImage(heroImageUrl?: string | null) {
   if (heroImageUrl?.trim()) {
     return {
       src: heroImageUrl,
@@ -52,6 +52,7 @@ export function HeroSection({ shopName, heroImageUrl }: HeroSectionProps) {
           priority
           fetchPriority="high"
           sizes={IMAGE_SIZES.hero}
+          quality={72}
           className="object-cover object-[center_42%]"
         />
         <div

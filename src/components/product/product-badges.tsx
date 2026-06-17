@@ -78,7 +78,6 @@ export function ProductBadge({ type, className, size = "default" }: ProductBadge
   const config = badgeConfig[type];
   return (
     <Badge
-      variant="outline"
       className={cn(
         "rounded-full font-semibold tracking-wide uppercase backdrop-blur-[2px]",
         size === "card"

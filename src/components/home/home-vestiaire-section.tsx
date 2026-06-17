@@ -41,7 +41,7 @@ export function HomeVestiaireSection({
   return (
     <section
       id="home-arrivage-mercredi"
-      className="retail-section home-maison-section maison-surface maison-surface-butter border-tilouki-border/80 scroll-mt-20 border-y"
+      className="retail-section home-maison-section maison-surface maison-surface-butter border-tilouki-border/80 defer-below-fold scroll-mt-20 border-y"
       aria-labelledby="home-arrivage-title"
     >
       <div className="container-tilouki section-tilouki py-10 md:py-12">
@@ -77,7 +77,7 @@ export function HomeVestiaireSection({
             <CatalogueProductList
               products={products}
               layout="scroll-mobile"
-              priorityLimit={2}
+              priorityLimit={0}
             />
             <div className="mt-6 sm:hidden">
               <ButtonLink

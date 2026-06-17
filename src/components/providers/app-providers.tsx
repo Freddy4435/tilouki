@@ -1,7 +1,13 @@
 "use client";
 
-import { CartDrawer } from "@/components/cart/cart-drawer";
+import dynamic from "next/dynamic";
+
 import { Toaster } from "@/components/ui/sonner";
+
+const CartDrawer = dynamic(
+  () => import("@/components/cart/cart-drawer").then((mod) => mod.CartDrawer),
+  { ssr: false },
+);
 
 interface AppProvidersProps {
   children: React.ReactNode;

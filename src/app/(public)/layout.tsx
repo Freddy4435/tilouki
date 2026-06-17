@@ -3,7 +3,7 @@ import { SkipToContent } from "@/components/layout/skip-to-content";
 import { AppProviders } from "@/components/providers/app-providers";
 import { ShopProvider } from "@/components/providers/shop-provider";
 import { CookieConsent } from "@/components/layout/cookie-consent";
-import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { MobileBottomNavDeferred } from "@/components/layout/mobile-bottom-nav-deferred";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteJsonLd } from "@/components/seo/site-json-ld";
@@ -35,7 +35,7 @@ export default async function PublicLayout({
             {children}
           </main>
           <SiteFooter className="pb-[var(--mobile-bottom-nav-height,0px)] md:pb-0" />
-          <MobileBottomNav />
+          <MobileBottomNavDeferred />
           <CookieConsent />
           <ConsentGatedAnalytics />
         </AppProviders>

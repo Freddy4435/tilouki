@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+import { preload } from "react-dom";
 
 import { CategoryGrid } from "@/components/home/category-grid";
-import { HeroSection } from "@/components/home/hero-section";
-import { HomeCarnetSection } from "@/components/home/home-carnet-section";
-import { HomeComeBackSection } from "@/components/home/home-come-back-section";
-import { HomeReadyLooksSection } from "@/components/home/home-ready-looks-section";
-import { HomeReassuranceSection } from "@/components/home/home-reassurance-section";
-import { HomeRitualsSection } from "@/components/home/home-rituals-section";
-import { HomeSizeGuideSection } from "@/components/home/home-size-guide-section";
-import { HomeVestiaireAssistant } from "@/components/home/home-vestiaire-assistant";
+import { HeroSection, resolveHeroImage } from "@/components/home/hero-section";
+import { HomeVestiaireAssistantDeferred } from "@/components/home/home-vestiaire-assistant-deferred";
 import { HomeVestiaireSection } from "@/components/home/home-vestiaire-section";
-import { HomeYourSelectionSection } from "@/components/home/home-your-selection-section";
 import { ProductRowSection } from "@/components/home/product-row-section";
 import {
   buildReadyLooks,
@@ -25,6 +20,40 @@ import { getHomeRituals } from "@/lib/rituals/rituals";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
 import { getActiveProductsForHome } from "@/lib/supabase/queries/products";
+
+const HomeRitualsSection = dynamic(() =>
+  import("@/components/home/home-rituals-section").then(
+    (mod) => mod.HomeRitualsSection,
+  ),
+);
+const HomeYourSelectionSection = dynamic(() =>
+  import("@/components/home/home-your-selection-section").then(
+    (mod) => mod.HomeYourSelectionSection,
+  ),
+);
+const HomeReadyLooksSection = dynamic(() =>
+  import("@/components/home/home-ready-looks-section").then(
+    (mod) => mod.HomeReadyLooksSection,
+  ),
+);
+const HomeSizeGuideSection = dynamic(() =>
+  import("@/components/home/home-size-guide-section").then(
+    (mod) => mod.HomeSizeGuideSection,
+  ),
+);
+const HomeReassuranceSection = dynamic(() =>
+  import("@/components/home/home-reassurance-section").then(
+    (mod) => mod.HomeReassuranceSection,
+  ),
+);
+const HomeComeBackSection = dynamic(() =>
+  import("@/components/home/home-come-back-section").then(
+    (mod) => mod.HomeComeBackSection,
+  ),
+);
+const HomeCarnetSection = dynamic(() =>
+  import("@/components/home/home-carnet-section").then((mod) => mod.HomeCarnetSection),
+);
 
 export const revalidate = 300;
 
@@ -57,11 +86,14 @@ export default async function HomePage() {
   const lastPieceProducts = pickLastPieceProducts(allProducts);
   const readyLooks = buildReadyLooks(allProducts);
 
+  const heroImage = resolveHeroImage(settings.heroImageUrl);
+  preload(heroImage.src, { as: "image", fetchPriority: "high" });
+
   return (
     <>
       <HeroSection shopName={settings.name} heroImageUrl={settings.heroImageUrl} />
 
-      <HomeVestiaireAssistant products={allProducts} />
+      <HomeVestiaireAssistantDeferred products={allProducts} />
 
       <HomeVestiaireSection
         products={newProducts}
@@ -70,7 +102,9 @@ export default async function HomePage() {
 
       <HomeRitualsSection modules={ritualModules} />
 
-      <CategoryGrid />
+      <div className="defer-below-fold">
+        <CategoryGrid />
+      </div>
 
       <ProductRowSection
         id="home-dernieres-tailles"
