@@ -30,6 +30,8 @@
     "editorial:fetch": "node scripts/fetch-editorial-images.mjs",
     "e2e": "node scripts/run-playwright.mjs",
     "e2e:journey": "node scripts/run-playwright.mjs e2e/sales-journey.spec.ts",
+    "e2e:battle-plan": "node scripts/run-playwright.mjs e2e/battle-plan-features.spec.ts",
+    "e2e:tracking": "node scripts/run-playwright.mjs e2e/order-tracking.spec.ts",
     "e2e:visual-qa": "node scripts/run-playwright.mjs e2e/visual-qa-retail.spec.ts",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",

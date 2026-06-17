@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { InventoryMovementType } from "@/types/database";
+
 import { getAdminSupabase } from "@/lib/supabase/queries/admin/client";
 
 export interface AdminStockItem {
@@ -95,4 +97,82 @@ export async function listAdminStockMovements(
       createdAt: row.created_at,
     };
   });
+}
+
+export async function findAdminVariantBySku(
+  sku: string,
+): Promise<AdminStockItem | null> {
+  const supabase = await getAdminSupabase();
+  if (!supabase) return null;
+
+  const normalized = sku.trim();
+  if (!normalized) return null;
+
+  const { data } = await supabase
+    .from("product_variants")
+    .select(`*, product:products(id, name)`)
+    .eq("sku", normalized)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  const product = data.product as { id: string; name: string } | null;
+  return {
+    variantId: data.id,
+    productId: product?.id ?? "",
+    productName: product?.name ?? "—",
+    sku: data.sku,
+    sizeLabel: data.size_label,
+    ageLabel: data.age_label,
+    stockQuantity: data.stock_quantity,
+    isActive: data.is_active,
+  };
+}
+
+export async function adjustAdminVariantStock(input: {
+  variantId: string;
+  delta: number;
+  note: string;
+  adminEmail: string;
+}): Promise<{ newStockQuantity: number }> {
+  const supabase = await getAdminSupabase();
+  if (!supabase) {
+    throw new Error("Base de données indisponible.");
+  }
+
+  const { data: variant, error: variantError } = await supabase
+    .from("product_variants")
+    .select("id, stock_quantity")
+    .eq("id", input.variantId)
+    .maybeSingle();
+
+  if (variantError || !variant) {
+    throw new Error("Variante introuvable.");
+  }
+
+  const movementType: InventoryMovementType =
+    input.delta > 0 ? "restock" : "manual_adjustment";
+
+  const { error: insertError } = await supabase.from("inventory_movements").insert({
+    variant_id: input.variantId,
+    type: movementType,
+    quantity: input.delta,
+    note: `admin:${input.adminEmail} — ${input.note}`,
+  });
+
+  if (insertError) {
+    throw new Error(insertError.message);
+  }
+
+  const { data: updated, error: readError } = await supabase
+    .from("product_variants")
+    .select("stock_quantity")
+    .eq("id", input.variantId)
+    .single();
+
+  if (readError || !updated) {
+    throw new Error("Impossible de relire le stock après ajustement.");
+  }
+
+  return { newStockQuantity: updated.stock_quantity };
 }

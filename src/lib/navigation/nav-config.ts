@@ -33,6 +33,7 @@ export const NAV_HREF = {
   accessoires: "/categorie/accessoires",
   livraison: "/livraison-retours",
   favoris: "/favoris",
+  compte: "/compte",
   blog: "/blog",
 } as const;
 

@@ -34,6 +34,28 @@ export async function seedCartInBrowser(page: Page, variantId?: string) {
   }, item);
 }
 
+/** Injecte N lignes distinctes pour tester la remise bundle. */
+export async function seedMultiItemCartInBrowser(page: Page, lineCount: number) {
+  const items = Array.from({ length: lineCount }, (_, index) => ({
+    ...DEFAULT_CART_ITEM,
+    productId: `00000000-0000-0000-0000-0000000000${90 + index}`,
+    variantId: `00000000-0000-0000-0000-0000000000${80 + index}`,
+    productName: `${DEFAULT_CART_ITEM.productName} ${index + 1}`,
+    slug: `${DEFAULT_CART_ITEM.slug}-${index + 1}`,
+    sku: `E2E-TEST-${index + 1}`,
+  }));
+
+  await page.addInitScript((cartItems) => {
+    localStorage.setItem(
+      "tilouki-cart",
+      JSON.stringify({
+        state: { items: cartItems, carrier: "mondial_relay" },
+        version: 1,
+      }),
+    );
+  }, items);
+}
+
 export async function waitForCartHydrated(page: Page) {
   await page.waitForFunction(() => {
     const raw = localStorage.getItem("tilouki-cart");

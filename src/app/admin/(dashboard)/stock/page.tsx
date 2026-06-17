@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { StockAdjustPanel } from "@/components/admin/stock-adjust-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,8 +26,8 @@ export const metadata: Metadata = {
 const MOVEMENT_LABELS: Record<string, string> = {
   sale: "Vente",
   restock: "Réapprovisionnement",
-  adjustment: "Ajustement",
-  return: "Retour",
+  manual_adjustment: "Ajustement",
+  cancel: "Annulation / retour",
 };
 
 function formatDate(iso: string) {
@@ -49,8 +50,17 @@ export default async function AdminStockPage() {
     <>
       <AdminPageHeader
         title="Stock"
-        description="Surveillez les niveaux de stock et l'historique des mouvements."
+        description="Surveillez les niveaux de stock, ajustez les quantités et consultez l'historique."
       />
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-base">Ajuster le stock</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <StockAdjustPanel />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

@@ -48,6 +48,38 @@ export const orderStatusActionSchema = z.object({
   trackingNumber: z.string().trim().max(100).optional().nullable(),
 });
 
+export const adminOrderRefundSchema = z
+  .object({
+    orderId: z.string().uuid(),
+    mode: z.enum(["full", "partial"]),
+    amountCents: z.number().int().positive().optional(),
+    reason: z
+      .enum(["requested_by_customer", "duplicate", "fraudulent"])
+      .default("requested_by_customer"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.mode === "partial" && data.amountCents == null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Montant requis pour un remboursement partiel.",
+        path: ["amountCents"],
+      });
+    }
+  });
+
+export const adminStockAdjustSchema = z.object({
+  variantId: z.string().uuid(),
+  delta: z
+    .number()
+    .int()
+    .refine((value) => value !== 0, "La variation doit être différente de zéro."),
+  note: z
+    .string()
+    .trim()
+    .min(3, "Précisez la raison de l'ajustement (3 caractères min.).")
+    .max(500),
+});
+
 export type OrderAdminAction = z.infer<typeof orderStatusActionSchema>["action"];
 
 export function actionToStatus(action: OrderAdminAction): OrderStatus {

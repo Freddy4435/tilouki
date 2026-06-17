@@ -205,6 +205,7 @@ function buildMobileSections(
     { label: "Livraison point relais", href: NAV_HREF.livraison, icon: "truck" },
     { label: "Retours 14 jours", href: NAV_HREF.livraison, icon: "rotate-ccw" },
     { label: "Mes favoris", href: NAV_HREF.favoris, icon: "heart" },
+    { label: "Mon compte", href: NAV_HREF.compte, icon: "user" },
     { label: "Nous écrire", href: "__contact__", icon: "mail" },
   ];
 

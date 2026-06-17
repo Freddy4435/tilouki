@@ -17,6 +17,7 @@ import {
   Sparkles,
   Tag,
   Truck,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -48,6 +49,7 @@ const MOBILE_LINK_ICONS = {
   truck: Truck,
   "rotate-ccw": RotateCcw,
   heart: Heart,
+  user: User,
   mail: Mail,
   "book-open": BookOpen,
   "cloud-rain": CloudRain,

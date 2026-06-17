@@ -66,6 +66,7 @@ export interface NavMobileLink {
     | "truck"
     | "rotate-ccw"
     | "heart"
+    | "user"
     | "mail"
     | "book-open"
     | "package"

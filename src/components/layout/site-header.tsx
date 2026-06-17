@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
+import { AccountTrigger } from "@/components/account/account-trigger";
 import { HeaderReassuranceNav } from "@/components/layout/header-reassurance-nav";
 import { CartTrigger } from "@/components/cart/cart-trigger";
 import { FavoritesTrigger } from "@/components/favorites/favorites-trigger";
@@ -60,6 +61,7 @@ export function SiteHeader({
               <SearchBar compact className="md:hidden" />
             </Suspense>
             <FavoritesTrigger />
+            <AccountTrigger />
             <CartTrigger />
           </div>
         </div>

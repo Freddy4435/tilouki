@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { OrderRefundForm } from "@/components/admin/order-refund-form";
 import { OrderActions } from "@/components/admin/order-actions";
 import { OrderShippingCard } from "@/components/admin/order-shipping-card";
 import { OrderInternalNotesForm } from "@/components/admin/order-internal-notes-form";
@@ -178,6 +179,7 @@ export default async function AdminCommandeDetailPage({ params }: PageProps) {
                   Session : {order.stripeSessionId}
                 </p>
               ) : null}
+              <OrderRefundForm order={order} />
             </CardContent>
           </Card>
 

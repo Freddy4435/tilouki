@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
 
+import { scheduleCustomerFavoritesSync } from "@/lib/account/schedule-favorites-sync";
+import { useCustomerSession } from "@/hooks/use-customer-session";
 import { useFavoritesStore } from "@/lib/favorites/store";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +16,7 @@ interface FavoriteButtonProps {
 export function FavoriteButton({ slug, className }: FavoriteButtonProps) {
   const isFavorite = useFavoritesStore((state) => state.slugs.includes(slug));
   const toggle = useFavoritesStore((state) => state.toggle);
+  const isAuthenticated = useCustomerSession();
   const [feedback, setFeedback] = useState<"added" | "removed" | null>(null);
   const feedbackTimerRef = useRef<number | null>(null);
 
@@ -35,8 +38,11 @@ export function FavoriteButton({ slug, className }: FavoriteButtonProps) {
         window.clearTimeout(feedbackTimerRef.current);
       }
       feedbackTimerRef.current = window.setTimeout(() => setFeedback(null), 2200);
+      if (isAuthenticated) {
+        scheduleCustomerFavoritesSync(useFavoritesStore.getState().slugs);
+      }
     },
-    [slug, toggle],
+    [slug, toggle, isAuthenticated],
   );
 
   return (

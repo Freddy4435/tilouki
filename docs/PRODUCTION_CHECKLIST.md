@@ -67,6 +67,7 @@ Page **Admin → Préparation** :
 - [ ] **Ne pas** exécuter les seeds dev en production
 - [ ] RLS vérifié ; bucket `product-images` ; backup activé
 - [ ] Administrateur dans `admin_users`
+- [ ] **Auth client** : redirect autorisé `https://votre-domaine.fr/auth/callback` (magic link `/compte`)
 
 ## Stripe
 

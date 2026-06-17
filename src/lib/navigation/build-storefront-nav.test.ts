@@ -193,6 +193,7 @@ describe("buildStorefrontNavigation", () => {
 
     const reassurance = navigation.mobileSections[2]?.links ?? [];
     expect(reassurance.some((link) => link.href === NAV_HREF.favoris)).toBe(true);
+    expect(reassurance.some((link) => link.href === NAV_HREF.compte)).toBe(true);
     expect(reassurance.some((link) => link.href === "__contact__")).toBe(true);
     expect(reassurance.some((link) => link.label === buyingGuidesNav.label)).toBe(true);
     expect(navigation.topItems.some((item) => item.href === NAV_HREF.blog)).toBe(false);
