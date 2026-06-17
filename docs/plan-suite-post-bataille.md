@@ -10,7 +10,7 @@ Le [plan bataille 15 étapes](./plan-bataille-15-etapes.md) est livré en produc
 | --- | ------------------------------------------------------------------------ | ------ |
 | A.1 | `npm run verify:deploy:prod` vert sur Vercel                             | 🔲     |
 | A.2 | Admin → identité légale + pages légales complètes                        | 🔲     |
-| A.3 | Catalogue réel (10+ produits, photos commerciales)                       | 🔲     |
+| A.3 | Catalogue réel (10+ produits, photos commerciales)                       | ✅ DB  |
 | A.4 | Supabase Auth : redirect `https://tilouki.vercel.app/auth/callback`      | 🔲     |
 | A.5 | Plausible : goals `add_to_cart`, `begin_checkout`, `add_capsule_to_cart` | 🔲     |
 | A.6 | Commande test Live ≤ 5 € ([GO_LIVE_RECETTE.md](./GO_LIVE_RECETTE.md))    | 🔲     |

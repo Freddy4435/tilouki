@@ -19,6 +19,8 @@ import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 import { DEV_SEED_PRODUCT_SLUGS } from "./lib/dev-seed-slugs.mjs";
+import { executeSqlFile } from "./lib/execute-sql-file.mjs";
+import { loadProjectEnv } from "./lib/load-env-files.mjs";
 import {
   CATALOG_PRODUCT_SLUGS,
   DEMO_DEACTIVATION_STATUS,
@@ -72,22 +74,18 @@ function loadCatalogSeed(execute) {
 
   if (!execute) {
     console.log(
-      `\n  [dry-run] Exécuterait : supabase db execute --file supabase/seed.catalog-products.sql`,
+      `\n  [dry-run] Exécuterait : supabase db query --linked --file supabase/seed.catalog-products.sql`,
     );
     return;
   }
 
-  const result = spawnSync("supabase", ["db", "execute", "--file", catalogSeed], {
-    cwd: root,
-    stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+  const status = executeSqlFile(catalogSeed, { cwd: root });
 
-  if (result.status !== 0) {
+  if (status !== 0) {
     console.error(
       "\n  ✗ Échec chargement catalogue. Vérifiez : supabase login && supabase link\n",
     );
-    process.exit(result.status ?? 1);
+    process.exit(status ?? 1);
   }
 
   console.log("\n  ✓ Catalogue réel chargé (UPSERT par slug, sans DELETE).");
@@ -229,6 +227,8 @@ async function deactivateExclusiveDemos(supabase, slugs, execute) {
 }
 
 async function main() {
+  loadProjectEnv({ production: false });
+
   console.log("\nTilouki — bascule catalogue (go-live)\n");
   console.log(
     `  Mode : ${apply ? "APPLICATION (--apply)" : "dry-run (ajoutez --apply pour exécuter)"}\n`,

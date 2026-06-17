@@ -13,10 +13,13 @@
 import { createClient } from "@supabase/supabase-js";
 
 import { DEV_SEED_PRODUCT_SLUGS } from "./lib/dev-seed-slugs.mjs";
+import { loadProjectEnv } from "./lib/load-env-files.mjs";
 
 const apply = process.argv.includes("--apply");
 
 async function main() {
+  loadProjectEnv({ production: false });
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 

@@ -40,6 +40,7 @@
     "verify:deploy": "node scripts/verify-deploy.mjs",
     "verify:deploy:prod": "node scripts/verify-deploy.mjs --production",
     "go-live:preflight": "node scripts/go-live-preflight.mjs",
+    "go-live:audit": "node scripts/go-live-audit.mjs",
     "email:preview": "node scripts/preview-emails.mjs"
   },
   "dependencies": {

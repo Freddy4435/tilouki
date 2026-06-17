@@ -36,16 +36,21 @@ function svg(label, accent) {
 `;
 }
 
+function catalogUuid(prefix, serial) {
+  const tail = serial.toString(16).padStart(12, "0");
+  return `${prefix}000000-${tail.slice(0, 4)}-4000-8000-${tail}`;
+}
+
 function productId(index) {
-  return `c200000${index}-000${index}-4000-8000-00000000000${index}`;
+  return catalogUuid("c2", index);
 }
 
 function imageId(index) {
-  return `d200000${index}-000${index}-4000-8000-00000000000${index}`;
+  return catalogUuid("d2", index);
 }
 
 function variantId(pIndex, vIndex) {
-  return `e200000${pIndex}-000${vIndex}-4000-8000-0000000000${String(pIndex).padStart(2, "0")}${vIndex}`;
+  return catalogUuid("e2", pIndex * 100 + vIndex);
 }
 
 mkdirSync(productsDir, { recursive: true });

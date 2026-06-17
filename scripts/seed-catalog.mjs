@@ -6,14 +6,19 @@
  * Usage : npm run seed:catalog
  */
 
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
+
+import { executeSqlFile } from "./lib/execute-sql-file.mjs";
+import { loadProjectEnv } from "./lib/load-env-files.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const catalogSeed = resolve(root, "supabase/seed.catalog-products.sql");
 
 function main() {
+  loadProjectEnv({ production: false });
+
   if (!existsSync(catalogSeed)) {
     console.error("  ✗ Fichier introuvable : supabase/seed.catalog-products.sql");
     console.error("  Exécutez d'abord : npm run generate:catalog\n");
@@ -28,17 +33,13 @@ function main() {
     console.warn("  ⚠ Dépôt git non détecté — poursuite quand même.\n");
   }
 
-  const result = spawnSync("supabase", ["db", "execute", "--file", catalogSeed], {
-    cwd: root,
-    stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+  const status = executeSqlFile(catalogSeed, { cwd: root });
 
-  if (result.status !== 0) {
+  if (status !== 0) {
     console.error(
       "\n  ✗ Échec. Vérifiez : supabase login && supabase link --project-ref VOTRE_REF\n",
     );
-    process.exit(result.status ?? 1);
+    process.exit(status ?? 1);
   }
 
   console.log("\n  ✓ 20 produits catalogue chargés (images : /products/, SKU TK-).");
