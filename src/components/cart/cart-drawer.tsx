@@ -1,6 +1,7 @@
 "use client";
 
 import { CartAlerts } from "@/components/cart/cart-alerts";
+import { CartComplementSection } from "@/components/cart/cart-complement-section";
 import { CartEmptyState } from "@/components/cart/cart-empty-state";
 import { CartLineItem } from "@/components/cart/cart-line-item";
 import { CartSummary } from "@/components/cart/cart-summary";
@@ -67,6 +68,10 @@ export function CartDrawer() {
                     />
                   ))}
                 </div>
+                <CartComplementSection
+                  cartSlugs={items.map((item) => item.slug).filter(Boolean)}
+                  compact
+                />
               </div>
 
               <div className="bg-background sticky bottom-0 shrink-0 border-t shadow-[0_-4px_24px_oklch(0.28_0.02_50_/_0.06)]">

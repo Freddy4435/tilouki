@@ -79,6 +79,8 @@ export async function subscribeToNewsletter(
       .update({
         consent_at: now,
         source: input.source,
+        segment_size: input.segmentSize?.trim() || null,
+        segment_ritual: input.segmentRitual?.trim() || null,
         status: "pending",
         confirm_token_hash: hash,
         confirmed_at: null,
@@ -97,6 +99,8 @@ export async function subscribeToNewsletter(
       email: input.email,
       consent_at: now,
       source: input.source,
+      segment_size: input.segmentSize?.trim() || null,
+      segment_ritual: input.segmentRitual?.trim() || null,
       status: "pending",
       confirm_token_hash: hash,
     });

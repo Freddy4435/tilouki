@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { RotateCcw, ShieldCheck, Truck } from "lucide-react";
+import { Calendar, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 
 import { useOptionalShop } from "@/components/providers/shop-provider";
 import { defaultShopSettings } from "@/lib/shop/defaults";
+import { formatDeliveryArrivalSummary } from "@/lib/shipping/delivery-estimate";
 import { cn, formatPrice } from "@/lib/utils";
 
 interface ProductShippingRecapProps {
@@ -59,6 +62,12 @@ export function ProductShippingRecap({
             Paiement sécurisé Stripe
           </li>
         ) : null}
+        <li className="inline-flex items-center gap-1.5 font-medium">
+          <Calendar className="text-tilouki-teal-dark size-3.5 shrink-0" aria-hidden />
+          <span className="text-muted-foreground">
+            {formatDeliveryArrivalSummary("mondial_relay")}
+          </span>
+        </li>
       </ul>
       {!compact ? (
         <p className="text-muted-foreground mt-2 text-xs">

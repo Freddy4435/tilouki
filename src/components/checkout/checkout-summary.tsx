@@ -7,6 +7,7 @@ import { CheckoutShippingRecap } from "@/components/checkout/checkout-shipping-r
 import { OrderTotalsBreakdown } from "@/components/commerce/order-totals-breakdown";
 import { Separator } from "@/components/ui/separator";
 import { useCartShipping } from "@/hooks/use-cart-shipping";
+import { previewRitualBundleDiscount } from "@/lib/cart/ritual-bundle-discount";
 import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils";
 import type { CheckoutFormValues } from "@/lib/validations/checkout";
@@ -27,6 +28,7 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
   const carrier = useCartStore((s) => s.carrier);
   const subtotalCents = useCartStore((s) => s.subtotalCents());
   const { shippingCents, carriers, rateLabel } = useCartShipping();
+  const bundleDiscount = previewRitualBundleDiscount(subtotalCents, items.length);
   const carrierLabel =
     carriers.find((info) => info.id === carrier)?.label ??
     (carrier === "chronopost" ? "Chronopost relais" : "Mondial Relay");
@@ -92,6 +94,8 @@ export function CheckoutSummary({ form }: CheckoutSummaryProps) {
       <OrderTotalsBreakdown
         subtotalCents={subtotalCents}
         shippingCents={shippingCents}
+        discountCents={bundleDiscount.discountCents}
+        discountLabel={bundleDiscount.label || "Remise tenue Tilouki"}
         totalLabel="Total TTC"
       />
     </aside>

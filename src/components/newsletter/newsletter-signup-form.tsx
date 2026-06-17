@@ -54,6 +54,8 @@ function NewsletterSuccessMessage({ message }: { message: string }) {
 export interface NewsletterSignupFormProps {
   id?: string;
   source?: string;
+  segmentSize?: string;
+  segmentRitual?: string;
   heading?: string;
   description?: string;
   className?: string;
@@ -64,6 +66,8 @@ export interface NewsletterSignupFormProps {
 export function NewsletterSignupForm({
   id = "newsletter",
   source = "footer",
+  segmentSize,
+  segmentRitual,
   heading = "Arrivage du mercredi",
   description = NEWSLETTER_MERCHANT_DESCRIPTION,
   className,
@@ -126,6 +130,10 @@ export function NewsletterSignupForm({
       ) : (
         <form onSubmit={onSubmit} className="space-y-3">
           <input type="hidden" name="source" value={source} />
+          {segmentSize ? <input type="hidden" name="segmentSize" value={segmentSize} /> : null}
+          {segmentRitual ? (
+            <input type="hidden" name="segmentRitual" value={segmentRitual} />
+          ) : null}
           <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden>
             <label htmlFor={`${id}-website`}>Site web</label>
             <input

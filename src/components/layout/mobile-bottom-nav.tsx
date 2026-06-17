@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, ShoppingBag } from "lucide-react";
+import { Heart, Home, LayoutGrid, ShoppingBag } from "lucide-react";
 
+import { FavoritesBadge } from "@/components/favorites/favorites-badge";
 import { useCartStore } from "@/lib/cart/store";
 import { cn } from "@/lib/utils";
 
@@ -16,13 +17,22 @@ const items = [
     match: (path: string) =>
       path.startsWith("/catalogue") ||
       path.startsWith("/categorie") ||
-      path.startsWith("/produit"),
+      path.startsWith("/produit") ||
+      path.startsWith("/rituels"),
+  },
+  {
+    href: "/favoris",
+    label: "Favoris",
+    icon: Heart,
+    match: (path: string) => path.startsWith("/favoris"),
+    showFavoritesBadge: true,
   },
   {
     href: "/panier",
     label: "Panier",
     icon: ShoppingBag,
     match: (path: string) => path.startsWith("/panier") || path.startsWith("/commande"),
+    showCartBadge: true,
   },
 ] as const;
 
@@ -38,10 +48,13 @@ export function MobileBottomNav() {
       className="border-border/80 bg-card/95 fixed inset-x-0 bottom-[var(--cookie-banner-height,0px)] z-50 border-t shadow-[0_-2px_16px_oklch(0.28_0.02_50_/_0.06)] backdrop-blur-md md:hidden"
       style={{ height: "var(--mobile-bottom-nav-height)" }}
     >
-      <ul className="grid h-full grid-cols-3">
-        {items.map(({ href, label, icon: Icon, match }) => {
+      <ul className="grid h-full grid-cols-4">
+        {items.map((item) => {
+          const { href, label, icon: Icon, match } = item;
           const active = match(pathname);
-          const isCart = href === "/panier";
+          const showCartBadge = "showCartBadge" in item && item.showCartBadge;
+          const showFavoritesBadge =
+            "showFavoritesBadge" in item && item.showFavoritesBadge;
           return (
             <li key={href}>
               <Link
@@ -54,14 +67,19 @@ export function MobileBottomNav() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Icon
-                  className="size-5"
-                  strokeWidth={active ? 2.25 : 1.75}
-                  aria-hidden
-                />
+                <span className="relative">
+                  <Icon
+                    className="size-5"
+                    strokeWidth={active ? 2.25 : 1.75}
+                    aria-hidden
+                  />
+                  {showFavoritesBadge ? (
+                    <FavoritesBadge className="top-0 right-0 size-3.5 translate-x-1/2 -translate-y-1/2 text-[8px]" />
+                  ) : null}
+                </span>
                 <span>{label}</span>
-                {isCart && itemCount > 0 ? (
-                  <span className="bg-primary text-primary-foreground absolute top-1.5 right-[calc(50%-1.25rem)] flex size-4 items-center justify-center rounded-full text-[9px] font-bold tabular-nums">
+                {showCartBadge && itemCount > 0 ? (
+                  <span className="bg-primary text-primary-foreground absolute top-1 right-[calc(50%-1.35rem)] flex size-4 items-center justify-center rounded-full text-[9px] font-bold tabular-nums">
                     {itemCount > 9 ? "9+" : itemCount}
                   </span>
                 ) : null}

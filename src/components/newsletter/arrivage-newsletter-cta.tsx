@@ -11,6 +11,8 @@ interface ArrivageNewsletterCtaProps {
   source: string;
   variant?: "default" | "rayon";
   categoryName?: string;
+  segmentSize?: string;
+  segmentRitual?: string;
   className?: string;
   notifyHeading?: string;
 }
@@ -19,6 +21,8 @@ export function ArrivageNewsletterCta({
   source,
   variant = "default",
   categoryName,
+  segmentSize,
+  segmentRitual,
   className,
   notifyHeading = "Me prévenir",
 }: ArrivageNewsletterCtaProps) {
@@ -41,6 +45,8 @@ export function ArrivageNewsletterCta({
       <NewsletterSignupForm
         id={`newsletter-${source}`}
         source={source}
+        segmentSize={segmentSize}
+        segmentRitual={segmentRitual}
         heading={notifyHeading}
         description={description}
         submitLabel="Me prévenir"

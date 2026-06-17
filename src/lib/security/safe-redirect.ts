@@ -1,4 +1,4 @@
-const ALLOWED_PREFIXES = ["/admin", "/auth/callback"] as const;
+const ALLOWED_PREFIXES = ["/admin", "/auth/callback", "/compte", "/favoris"] as const;
 
 /**
  * Valide un chemin de redirection interne (anti open-redirect).

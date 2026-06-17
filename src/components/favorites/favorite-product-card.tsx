@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react";
 
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { ProductCardPrice } from "@/components/product/product-card-price";
+import { ProductStockAlertForm } from "@/components/product/product-stock-alert-form";
+import { listOutOfStockQuickAddOptions } from "@/lib/catalog/stock-alert-variants";
 import { resolveFavoriteVariantAvailability } from "@/lib/favorites/variants";
 import { IMAGE_SIZES } from "@/lib/media/image-sizes";
 import type { ProductListItem } from "@/types/catalog";
@@ -65,6 +67,21 @@ export function FavoriteProductCard({ product }: FavoriteProductCardProps) {
           outOfStock={outOfStock}
           fullyOut={!inStock}
         />
+
+        {outOfStock.length > 0 ? (
+          <ProductStockAlertForm
+            productId={product.id}
+            productSlug={product.slug}
+            productName={product.name}
+            outOfStockVariants={listOutOfStockQuickAddOptions(
+              (product.quickAddVariants ?? []).filter(
+                (variant) => variant.stockQuantity <= 0,
+              ),
+            )}
+            compact
+            className="mt-1"
+          />
+        ) : null}
 
         <Link
           href={href}

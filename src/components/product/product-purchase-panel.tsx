@@ -20,7 +20,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { useToast } from "@/hooks/use-toast";
+import { ProductStockAlertForm } from "@/components/product/product-stock-alert-form";
+import { listOutOfStockVariantOptions } from "@/lib/catalog/stock-alert-variants";
+import { trackRetailEvent } from "@/lib/analytics/retail-events";
 import { useConsultedSizesStore } from "@/lib/favorites/consulted-sizes-store";
+import { useGrowthPassportStore } from "@/lib/growth-passport/store";
 import { useCartStore } from "@/lib/cart/store";
 import {
   isProductCuratedSelection,
@@ -62,9 +66,29 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
 
   const trackConsultedSize = useConsultedSizesStore((state) => state.track);
 
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    sellable ? (product.variants.find((v) => v.stockQuantity > 0)?.id ?? null) : null,
-  );
+  const passportSize = useGrowthPassportStore((state) => state.activeProfile()?.sizeLabel);
+
+  const defaultInStockVariantId = useMemo(() => {
+    if (!sellable) return null;
+    return product.variants.find((variant) => variant.stockQuantity > 0)?.id ?? null;
+  }, [product.variants, sellable]);
+
+  const passportVariantId = useMemo(() => {
+    if (!sellable || !passportSize?.trim()) return null;
+    const normalized = passportSize.trim().toLowerCase();
+    const match = product.variants.find((variant) => {
+      if (variant.stockQuantity <= 0) return false;
+      const labels = [variant.sizeLabel, variant.ageLabel]
+        .filter(Boolean)
+        .map((label) => label!.trim().toLowerCase());
+      return labels.some((label) => label === normalized || label.includes(normalized));
+    });
+    return match?.id ?? null;
+  }, [product.variants, passportSize, sellable]);
+
+  const [userSelectedVariantId, setUserSelectedVariantId] = useState<string | null>(null);
+  const selectedVariantId =
+    userSelectedVariantId ?? passportVariantId ?? defaultInStockVariantId;
   const [added, setAdded] = useState(false);
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -81,7 +105,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     sellable && selectedVariant != null && selectedVariant.stockQuantity > 0 && !added;
 
   const handleVariantSelect = (variantId: string) => {
-    setSelectedVariantId(variantId);
+    setUserSelectedVariantId(variantId);
     const variant = product.variants.find((item) => item.id === variantId);
     const label = variant?.sizeLabel?.trim() || variant?.ageLabel?.trim();
     if (variant && label) {
@@ -92,6 +116,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       });
     }
   };
+
 
   useEffect(() => {
     if (!sellable || !selectedVariantId) return;
@@ -107,6 +132,11 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     // Enregistre la taille pré-sélectionnée au chargement de la fiche.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- une fois par montage produit
   }, [product.slug]);
+
+  const outOfStockVariants = useMemo(
+    () => listOutOfStockVariantOptions(product.variants),
+    [product.variants],
+  );
 
   const handleAddToCart = () => {
     if (!sellable) {
@@ -147,6 +177,13 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     setAdded(true);
     if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
     addedTimerRef.current = setTimeout(() => setAdded(false), 2200);
+
+    trackRetailEvent("add_to_cart", {
+      product_slug: product.slug,
+      product_name: product.name,
+      value_cents: selectedVariant.priceCents,
+      source: "pdp",
+    });
 
     toast.success(
       "Ajouté au panier",
@@ -267,6 +304,25 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       </div>
 
       <ProductShippingRecap variant="cta" />
+
+      {selectedVariant && selectedVariant.stockQuantity <= 0 ? (
+        <ProductStockAlertForm
+          productId={product.id}
+          productSlug={product.slug}
+          productName={product.name}
+          outOfStockVariants={outOfStockVariants}
+          defaultVariantId={selectedVariant.id}
+          compact
+        />
+      ) : outOfStockVariants.length > 0 && !selectedVariant ? (
+        <ProductStockAlertForm
+          productId={product.id}
+          productSlug={product.slug}
+          productName={product.name}
+          outOfStockVariants={outOfStockVariants}
+          compact
+        />
+      ) : null}
 
       <div className="hidden flex-col gap-2.5 lg:flex">
         <Button

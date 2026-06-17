@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Lock, ShieldCheck } from "lucide-react";
 
+import { FreeShippingProgressBar } from "@/components/cart/free-shipping-progress";
+import { RitualBundleBanner } from "@/components/cart/ritual-bundle-banner";
 import { OrderTotalsBreakdown } from "@/components/commerce/order-totals-breakdown";
+import { trackRetailEvent } from "@/lib/analytics/retail-events";
+import { previewRitualBundleDiscount } from "@/lib/cart/ritual-bundle-discount";
 import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -28,6 +32,7 @@ export function CartSummary({
   const carrier = useCartStore((s) => s.carrier);
   const subtotalCents = useCartStore((s) => s.subtotalCents());
   const { shippingCents, rateLabel } = useCartShipping();
+  const bundleDiscount = previewRitualBundleDiscount(subtotalCents, items.length);
   const canCheckout = useCartStore((s) => s.canCheckout());
   const closeDrawer = useCartStore((s) => s.closeDrawer);
   const { isValidating, validate } = useCartValidation({ enabled: false });
@@ -41,6 +46,12 @@ export function CartSummary({
       setCheckoutError(CHECKOUT_CLIENT_MESSAGES.stockChanged);
       return;
     }
+
+    trackRetailEvent("begin_checkout", {
+      item_count: items.length,
+      value_cents: subtotalCents,
+      source: variant,
+    });
 
     closeDrawer();
     router.push("/commande");
@@ -65,9 +76,24 @@ export function CartSummary({
         </div>
       ) : null}
 
+      <FreeShippingProgressBar
+        subtotalCents={subtotalCents}
+        compact={variant === "drawer"}
+        className="mb-3"
+      />
+
+      <RitualBundleBanner
+        subtotalCents={subtotalCents}
+        distinctLineCount={items.length}
+        compact={variant === "drawer"}
+        className="mb-3"
+      />
+
       <OrderTotalsBreakdown
         subtotalCents={subtotalCents}
         shippingCents={shippingCents}
+        discountCents={bundleDiscount.discountCents}
+        discountLabel={bundleDiscount.label || "Remise tenue Tilouki"}
         shippingNote={`Estimation selon le poids (tranche ${rateLabel}). Expédié depuis la France.`}
         carrier={carrier}
         showDeliveryEstimate

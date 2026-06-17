@@ -122,7 +122,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             )}
           />
         )}
-        <ProductPurchasePanel product={product} />
+        <ProductPurchasePanel key={product.slug} product={product} />
       </div>
 
       <div className="mt-8 space-y-6 lg:mt-10">

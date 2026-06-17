@@ -20,6 +20,7 @@ export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type InventoryMovementType = "sale" | "manual_adjustment" | "restock" | "cancel";
 export type ProductReviewStatus = "pending" | "published" | "rejected";
 export type NewsletterSubscriberStatus = "pending" | "confirmed" | "unsubscribed";
+export type StockAlertStatus = "pending" | "notified" | "cancelled";
 
 export interface Database {
   public: {
@@ -129,6 +130,8 @@ export interface Database {
           status: NewsletterSubscriberStatus;
           confirm_token_hash: string | null;
           confirmed_at: string | null;
+          segment_size: string | null;
+          segment_ritual: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -140,6 +143,8 @@ export interface Database {
           status?: NewsletterSubscriberStatus;
           confirm_token_hash?: string | null;
           confirmed_at?: string | null;
+          segment_size?: string | null;
+          segment_ritual?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -151,7 +156,66 @@ export interface Database {
           status?: NewsletterSubscriberStatus;
           confirm_token_hash?: string | null;
           confirmed_at?: string | null;
+          segment_size?: string | null;
+          segment_ritual?: string | null;
           created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      stock_alerts: {
+        Row: {
+          id: string;
+          email: string;
+          product_id: string;
+          variant_id: string;
+          product_slug: string;
+          size_label: string | null;
+          status: StockAlertStatus;
+          consent_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          product_id: string;
+          variant_id: string;
+          product_slug: string;
+          size_label?: string | null;
+          status?: StockAlertStatus;
+          consent_at: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          product_id?: string;
+          variant_id?: string;
+          product_slug?: string;
+          size_label?: string | null;
+          status?: StockAlertStatus;
+          consent_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      customer_favorites: {
+        Row: {
+          user_id: string;
+          slugs: string[];
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          slugs?: string[];
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          slugs?: string[];
           updated_at?: string;
         };
         Relationships: [];
@@ -973,6 +1037,7 @@ export interface Database {
       inventory_movement_type: InventoryMovementType;
       product_review_status: ProductReviewStatus;
       newsletter_subscriber_status: NewsletterSubscriberStatus;
+      stock_alert_status: StockAlertStatus;
     };
   };
 }

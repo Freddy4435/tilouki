@@ -79,6 +79,7 @@ export function RitualEmptyState({ ritual, className }: RitualEmptyStateProps) {
 
       <ArrivageNewsletterCta
         source={`capsule-${ritual.slug}`}
+        segmentRitual={ritual.slug}
         notifyHeading="Me prévenir"
         className="border-tilouki-pistache/20 bg-card/80"
       />

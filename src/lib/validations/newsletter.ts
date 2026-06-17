@@ -11,6 +11,8 @@ export const newsletterSubscribeSchema = z.object({
     message: "Vous devez accepter de recevoir la newsletter.",
   }),
   source: z.string().trim().max(64).optional().default("footer"),
+  segmentSize: z.string().trim().max(64).optional(),
+  segmentRitual: z.string().trim().max(64).optional(),
   website: z.string().optional(),
 });
 

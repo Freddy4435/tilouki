@@ -36,6 +36,8 @@ export async function subscribeNewsletterAction(
     email: formData.get("email"),
     consent: formData.get("consent") === "on",
     source: formData.get("source") ?? "footer",
+    segmentSize: formData.get("segmentSize") ?? undefined,
+    segmentRitual: formData.get("segmentRitual") ?? undefined,
     website: formData.get("website"),
   });
 

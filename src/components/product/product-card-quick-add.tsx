@@ -6,6 +6,7 @@ import { Check, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { formatQuickAddVariantLabel } from "@/lib/catalog/product-card-data";
+import { trackRetailEvent } from "@/lib/analytics/retail-events";
 import { useCartStore } from "@/lib/cart/store";
 import type { ProductQuickAddVariant } from "@/types/catalog";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,13 @@ export function ProductCardQuickAdd({
     setAdded(true);
     if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
     addedTimerRef.current = setTimeout(() => setAdded(false), 1800);
+
+    trackRetailEvent("add_to_cart", {
+      product_slug: slug,
+      product_name: productName,
+      value_cents: directVariant.priceCents,
+      source: "quick_add",
+    });
 
     toast.success("Ajouté au panier", `${productName} — ${variantLabel}`);
     openDrawer();

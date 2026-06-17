@@ -32,7 +32,7 @@ export function CheckoutPurchaseTrust({
         <ShieldCheck className="text-primary size-3.5 shrink-0" aria-hidden />
         Paiement sécurisé via Stripe
       </p>
-      <p>Aucune carte bancaire n&apos;est enregistrée sur Tilouki.</p>
+      <p>Carte bancaire, Apple Pay et Google Pay selon votre appareil — aucune carte enregistrée sur Tilouki.</p>
       {showReturnSummary && hasReturnPolicy ? <p>{CHECKOUT_RETURN_SUMMARY}</p> : null}
       <p>
         <Link

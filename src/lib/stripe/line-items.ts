@@ -15,9 +15,56 @@ interface BuildLineItemsInput {
   expectedTotalCents: number;
 }
 
+function allocateLineDiscounts(
+  orderItems: OrderItemRow[],
+  discountCents: number,
+): number[] {
+  if (discountCents <= 0) {
+    return orderItems.map(() => 0);
+  }
+
+  const subtotal = orderItems.reduce((sum, item) => sum + item.total_price_cents, 0);
+  if (subtotal <= 0) {
+    throw new StripeCheckoutError("Sous-total invalide pour la remise.");
+  }
+
+  let assigned = 0;
+  return orderItems.map((item, index) => {
+    const lineDiscount =
+      index === orderItems.length - 1
+        ? discountCents - assigned
+        : Math.floor((discountCents * item.total_price_cents) / subtotal);
+    assigned += lineDiscount;
+    return lineDiscount;
+  });
+}
+
+function resolveDiscountedUnitAmount(
+  item: OrderItemRow,
+  lineDiscountCents: number,
+): number {
+  let discount = lineDiscountCents;
+  let adjustedTotal = item.total_price_cents - discount;
+
+  while (adjustedTotal > 0 && adjustedTotal % item.quantity !== 0 && discount > 0) {
+    discount -= 1;
+    adjustedTotal = item.total_price_cents - discount;
+  }
+
+  if (adjustedTotal <= 0 || adjustedTotal % item.quantity !== 0) {
+    throw new StripeCheckoutError(
+      `Remise incompatible avec la quantité pour ${item.product_name}.`,
+      500,
+    );
+  }
+
+  return adjustedTotal / item.quantity;
+}
+
 /**
  * Construit les line_items Stripe à partir des lignes commande en base.
  * Les montants proviennent exclusivement de Supabase (jamais du client).
+ * Une remise bundle est répartie proportionnellement sur les articles.
  */
 export function buildStripeCheckoutLineItems({
   orderItems,
@@ -29,8 +76,10 @@ export function buildStripeCheckoutLineItems({
     throw new StripeCheckoutError("Aucun article dans la commande.");
   }
 
+  const lineDiscounts = allocateLineDiscounts(orderItems, discountCents);
+
   const productLines: Stripe.Checkout.SessionCreateParams.LineItem[] = orderItems.map(
-    (item) => {
+    (item, index) => {
       if (item.unit_price_cents <= 0 || item.quantity <= 0) {
         throw new StripeCheckoutError(`Prix invalide pour ${item.product_name}.`);
       }
@@ -40,10 +89,12 @@ export function buildStripeCheckoutLineItems({
         throw new StripeCheckoutError(`Incohérence de prix pour ${item.product_name}.`);
       }
 
+      const unitAmount = resolveDiscountedUnitAmount(item, lineDiscounts[index] ?? 0);
+
       return {
         price_data: {
           currency: STRIPE_CURRENCY,
-          unit_amount: item.unit_price_cents,
+          unit_amount: unitAmount,
           product_data: {
             name: item.product_name,
             description:
@@ -76,10 +127,12 @@ export function buildStripeCheckoutLineItems({
   }
 
   const computedSubtotal = orderItems.reduce(
-    (sum, item) => sum + item.total_price_cents,
+    (sum, item, index) =>
+      sum +
+      resolveDiscountedUnitAmount(item, lineDiscounts[index] ?? 0) * item.quantity,
     0,
   );
-  const computedTotal = computedSubtotal + shippingCents - discountCents;
+  const computedTotal = computedSubtotal + shippingCents;
 
   if (computedTotal !== expectedTotalCents) {
     throw new StripeCheckoutError("Le total de la commande est incohérent.", 500);

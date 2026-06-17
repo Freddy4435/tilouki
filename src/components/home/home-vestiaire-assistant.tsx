@@ -3,11 +3,18 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Package, Sparkles } from "lucide-react";
+import { ArrowRight, Package, ShoppingBag, Sparkles } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
+import { useToast } from "@/hooks/use-toast";
+import { trackRetailEvent } from "@/lib/analytics/retail-events";
 import { applyStorefrontListItemGuards } from "@/lib/catalog/product-card-data";
 import { isProductStorefrontListed } from "@/lib/catalog/product-sellability";
+import {
+  buildCapsuleCartLines,
+  summarizeCapsuleAddToCart,
+} from "@/lib/catalog/vestiaire-cart";
 import {
   DEFAULT_VESTIAIRE_SELECTION,
   isVestiaireLowStock,
@@ -20,6 +27,7 @@ import {
   type VestiaireMomentId,
   type VestiaireSelection,
 } from "@/lib/catalog/vestiaire-assistant";
+import { useCartStore } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/utils";
 import type { ProductListItem } from "@/types/catalog";
 import { cn } from "@/lib/utils";
@@ -159,19 +167,66 @@ function VestiaireEmptyState({
 }
 
 export function HomeVestiaireAssistant({ products }: HomeVestiaireAssistantProps) {
+  const toast = useToast();
+  const addItem = useCartStore((state) => state.addItem);
+  const openDrawer = useCartStore((state) => state.openDrawer);
   const [selection, setSelection] = useState<VestiaireSelection>(
     DEFAULT_VESTIAIRE_SELECTION,
   );
+  const [capsuleAdded, setCapsuleAdded] = useState(false);
 
   const capsule = useMemo(
     () => pickVestiaireCapsule(products, selection),
     [products, selection],
   );
 
-  const listedCapsuleProducts =
-    capsule?.products
-      .map(applyStorefrontListItemGuards)
-      .filter(isProductStorefrontListed) ?? [];
+  const listedCapsuleProducts = useMemo(
+    () =>
+      capsule?.products
+        .map(applyStorefrontListItemGuards)
+        .filter(isProductStorefrontListed) ?? [],
+    [capsule?.products],
+  );
+
+  const capsuleLines = useMemo(
+    () => buildCapsuleCartLines(listedCapsuleProducts),
+    [listedCapsuleProducts],
+  );
+
+  const handleAddCapsuleToCart = () => {
+    if (capsuleLines.length === 0) {
+      toast.warning(
+        "Capsule indisponible",
+        "Aucune pièce en stock pour cette sélection — essayez un autre moment ou âge.",
+      );
+      return;
+    }
+
+    for (const line of capsuleLines) {
+      addItem(line, 1);
+    }
+
+    const summary = summarizeCapsuleAddToCart(listedCapsuleProducts, capsuleLines);
+    trackRetailEvent("add_capsule_to_cart", {
+      item_count: summary.addedCount,
+      value_cents: summary.totalCents,
+      source: "vestiaire",
+    });
+
+    setCapsuleAdded(true);
+    window.setTimeout(() => setCapsuleAdded(false), 2200);
+
+    const skippedNote =
+      summary.skippedCount > 0
+        ? ` (${summary.skippedCount} pièce${summary.skippedCount > 1 ? "s" : ""} en rupture ignorée${summary.skippedCount > 1 ? "s" : ""})`
+        : "";
+
+    toast.success(
+      "Tenue ajoutée au panier",
+      `${summary.addedCount} article${summary.addedCount > 1 ? "s" : ""}${skippedNote}`,
+    );
+    openDrawer();
+  };
 
   const hasCapsule = listedCapsuleProducts.length > 0;
   const momentLabel =
@@ -251,7 +306,7 @@ export function HomeVestiaireAssistant({ products }: HomeVestiaireAssistantProps
                 ))}
               </div>
 
-              <div className="flex flex-col gap-3 border-t border-[var(--tilouki-border-subtle)] pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 border-t border-[var(--tilouki-border-subtle)] pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                 <p className="text-sm">
                   Total estimé{" "}
                   <span className="text-tilouki-navy text-lg font-bold tabular-nums">
@@ -261,10 +316,21 @@ export function HomeVestiaireAssistant({ products }: HomeVestiaireAssistantProps
                     (prix les plus bas par fiche)
                   </span>
                 </p>
-                <ButtonLink href={capsule.capsuleHref} className="min-h-11 shrink-0">
-                  Voir la capsule
-                  <ArrowRight className="size-4" />
-                </ButtonLink>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <Button
+                    type="button"
+                    className="min-h-11 shrink-0"
+                    onClick={handleAddCapsuleToCart}
+                    disabled={capsuleLines.length === 0 || capsuleAdded}
+                  >
+                    <ShoppingBag className="size-4" aria-hidden />
+                    {capsuleAdded ? "Tenue ajoutée" : "Ajouter la tenue au panier"}
+                  </Button>
+                  <ButtonLink href={capsule.capsuleHref} variant="outline" className="min-h-11 shrink-0">
+                    Voir la capsule
+                    <ArrowRight className="size-4" />
+                  </ButtonLink>
+                </div>
               </div>
             </>
           ) : (

@@ -72,6 +72,7 @@ function buildSessionParams(
     locale: "fr",
     customer_email: customerEmail,
     line_items: lineItems,
+    payment_method_types: ["card"],
     metadata: {
       order_id: order.id,
       order_number: order.orderNumber,

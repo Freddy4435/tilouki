@@ -1,6 +1,7 @@
 "use client";
 
 import { CartAlerts } from "@/components/cart/cart-alerts";
+import { CartComplementSection } from "@/components/cart/cart-complement-section";
 import { CartEmptyState } from "@/components/cart/cart-empty-state";
 import { CartLineItem } from "@/components/cart/cart-line-item";
 import { CartSummary } from "@/components/cart/cart-summary";
@@ -51,6 +52,8 @@ export function CartView({ recommendations }: CartViewProps) {
 
         <CartSummary variant="page" />
       </div>
+
+      <CartComplementSection cartSlugs={cartSlugs} />
 
       <RecentlyViewedSection
         excludeSlugs={cartSlugs}

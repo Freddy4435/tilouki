@@ -1,5 +1,6 @@
 import "server-only";
 
+import { computeRitualBundleDiscount } from "@/lib/cart/ritual-bundle-discount";
 import { computeCartWeightGrams } from "@/lib/shipping/rates";
 import { SHIPPING_METHOD_RELAY_POINT } from "@/lib/shipping/checkout";
 import { isChronopostQuickCostEnabled } from "@/lib/shipping/env";
@@ -167,7 +168,8 @@ export async function createPendingOrder(
   const lineItems = await resolveLineItems(input.items);
 
   const subtotalCents = lineItems.reduce((sum, item) => sum + item.totalPriceCents, 0);
-  const discountCents = input.discountCents ?? 0;
+  const ritualBundle = computeRitualBundleDiscount(subtotalCents, lineItems.length);
+  const discountCents = ritualBundle.discountCents;
   const carrier: CarrierName = input.carrier ?? "mondial_relay";
   const shippingQuote = await computeServerShippingQuote(
     lineItems,

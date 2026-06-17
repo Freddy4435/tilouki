@@ -1,12 +1,14 @@
 import { Clock } from "lucide-react";
 
-import { getCarrierEstimatedDelay } from "@/lib/shipping/delivery-copy";
+import { formatDeliveryArrivalSummary } from "@/lib/shipping/delivery-estimate";
 import type { CarrierName } from "@/lib/shipping/types";
 import { cn, formatPrice } from "@/lib/utils";
 
 interface OrderTotalsBreakdownProps {
   subtotalCents: number;
   shippingCents: number;
+  discountCents?: number;
+  discountLabel?: string;
   /** Libellé sous la ligne livraison (ex. tranche poids). */
   shippingNote?: string;
   carrier?: CarrierName;
@@ -15,17 +17,19 @@ interface OrderTotalsBreakdownProps {
   className?: string;
 }
 
-/** Sous-total, livraison et total TTC — panier et checkout. */
+/** Sous-total, livraison, remise et total TTC — panier et checkout. */
 export function OrderTotalsBreakdown({
   subtotalCents,
   shippingCents,
+  discountCents = 0,
+  discountLabel = "Remise",
   shippingNote,
   carrier = "mondial_relay",
   showDeliveryEstimate = false,
   totalLabel = "Total TTC",
   className,
 }: OrderTotalsBreakdownProps) {
-  const totalCents = subtotalCents + shippingCents;
+  const totalCents = subtotalCents + shippingCents - discountCents;
 
   return (
     <div className={cn("space-y-2 text-sm", className)}>
@@ -40,15 +44,17 @@ export function OrderTotalsBreakdown({
       {shippingNote ? (
         <p className="text-muted-foreground text-xs leading-relaxed">{shippingNote}</p>
       ) : null}
+      {discountCents > 0 ? (
+        <div className="flex justify-between gap-4 text-emerald-800">
+          <span>{discountLabel}</span>
+          <span className="font-semibold tabular-nums">−{formatPrice(discountCents)}</span>
+        </div>
+      ) : null}
       {showDeliveryEstimate ? (
         <p className="text-muted-foreground flex items-start gap-1.5 text-xs leading-relaxed">
           <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <span>
-            Délai indicatif :{" "}
-            <strong className="text-foreground">
-              {getCarrierEstimatedDelay(carrier)}
-            </strong>{" "}
-            après expédition depuis la France.
+            {formatDeliveryArrivalSummary(carrier)}
           </span>
         </p>
       ) : null}
