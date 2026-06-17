@@ -23,7 +23,10 @@ export function CatalogueToolbar({
       </p>
 
       {showSort ? (
-        <CatalogueSortSelect className="hidden sm:flex lg:hidden" triggerClassName="min-h-9" />
+        <CatalogueSortSelect
+          className="hidden sm:flex lg:hidden"
+          triggerClassName="min-h-9"
+        />
       ) : null}
     </div>
   );

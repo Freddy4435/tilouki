@@ -33,17 +33,19 @@ export function CheckoutPurchaseTrust({
         Paiement sécurisé via Stripe
       </p>
       <p>Aucune carte bancaire n&apos;est enregistrée sur Tilouki.</p>
-      {showReturnSummary && hasReturnPolicy ? (
-        <p>{CHECKOUT_RETURN_SUMMARY}</p>
-      ) : null}
+      {showReturnSummary && hasReturnPolicy ? <p>{CHECKOUT_RETURN_SUMMARY}</p> : null}
       <p>
-        <Link href="/cgv" className="font-medium text-foreground underline underline-offset-4" target="_blank">
+        <Link
+          href="/cgv"
+          className="text-foreground font-medium underline underline-offset-4"
+          target="_blank"
+        >
           CGV
         </Link>
         {" · "}
         <Link
           href="/livraison-retours"
-          className="font-medium text-foreground underline underline-offset-4"
+          className="text-foreground font-medium underline underline-offset-4"
           target="_blank"
         >
           Livraison &amp; retours

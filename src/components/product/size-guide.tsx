@@ -29,8 +29,8 @@ export function SizeGuide({
 
   return (
     <aside
-      id="size-guide"
-      className="border-tilouki-jade/25 bg-card scroll-mt-24 rounded-[var(--radius-card)] border p-4 lg:scroll-mt-8"
+      id="size-guide-full"
+      className="border-tilouki-pistache/25 bg-tilouki-milk scroll-mt-24 rounded-[var(--radius-card)] border p-4 lg:scroll-mt-8"
     >
       <p className="inline-flex items-center gap-2 text-sm font-semibold">
         <Ruler className="text-tilouki-teal-dark size-4" aria-hidden />

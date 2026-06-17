@@ -114,6 +114,7 @@ describe("sanitizeLegalHtml — contenu légal", () => {
         mobileSections: [],
         categoryProductCounts: {},
         hasLowPriceProducts: false,
+        hasLastPieceProducts: false,
       },
     };
 

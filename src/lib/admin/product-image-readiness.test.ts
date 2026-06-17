@@ -3,9 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   buildProductPhotoChecklist,
   classifyProductImage,
+  findLegacyDemoProductImageIssues,
+  getMissingExpectedPhotoSlots,
   getNonCommercialMainImageMessage,
   getPhotoReadinessSummary,
   getStorefrontListingBlockersFromImages,
+  hasLegacyDemoProductImages,
   isCommercialProductImage,
   pickStorefrontPrimaryImage,
   type ProductReadinessImage,
@@ -119,5 +122,31 @@ describe("product-image-readiness", () => {
       { url: "/products/robe.svg", sortOrder: 0 } as ProductReadinessImage,
     ]);
     expect(blockers[0]?.message).toMatch(/SVG|démo/i);
+  });
+
+  it("liste les photos manquantes attendues", () => {
+    const missing = getMissingExpectedPhotoSlots([
+      {
+        url: commercialUrl,
+        sortOrder: 0,
+        alt: descriptiveAlt,
+      },
+    ]);
+    expect(missing.map((slot) => slot.id)).toEqual(["detail-matiere", "vue-portee"]);
+    expect(missing[0]?.exampleFilename).toMatch(/detail-matiere/);
+  });
+
+  it("signale les SVG legacy sur la galerie", () => {
+    const issues = findLegacyDemoProductImageIssues([
+      { url: "/products/bonnet-maille-doux.svg" },
+      { url: "/demo-products/body.svg" },
+    ]);
+    expect(issues).toHaveLength(2);
+    expect(
+      hasLegacyDemoProductImages([
+        { url: "/products/bonnet-maille-doux.svg" },
+        { url: "/demo-products/body.svg" },
+      ]),
+    ).toBe(true);
   });
 });

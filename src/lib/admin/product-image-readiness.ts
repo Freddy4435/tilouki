@@ -14,14 +14,18 @@ export type { ProductImageKind } from "@/lib/catalog/product-sellability";
 export {
   classifyProductImage,
   countCommercialStorefrontImages,
+  findLegacyDemoProductImageIssues,
   getStorefrontListingBlockers,
   getStorefrontListingBlockersFromImages,
   getStorefrontPhotoStatus,
+  hasLegacyDemoProductImages,
   isCommercialProductImage,
   isDescriptiveCommercialAlt,
+  isLegacyDemoProductImageUrl,
   isProductReadyToSell,
   STOREFRONT_COMMERCIAL_PHOTOS_MIN,
   STOREFRONT_READY_TO_SELL_PHOTOS_MIN,
+  type LegacyDemoProductImageIssue,
   type StorefrontListingBlocker,
   type StorefrontPhotoStatus,
 } from "@/lib/catalog/product-sellability";
@@ -200,6 +204,73 @@ export function getPhotoReadinessSummary(images: ProductReadinessImage[]): {
     readyToSell: isProductReadyToSell(images),
     targetCount: STOREFRONT_READY_TO_SELL_PHOTOS_MIN,
   };
+}
+
+export type ExpectedProductPhotoSlotId = "face-avant" | "detail-matiere" | "vue-portee";
+
+export interface ExpectedProductPhotoSlot {
+  id: ExpectedProductPhotoSlotId;
+  label: string;
+  filled: boolean;
+  hint: string;
+  exampleFilename: string;
+  exampleAlt: string;
+}
+
+export const STOREFRONT_PHOTO_STATUS_LABELS = {
+  hidden: "Invisible en boutique",
+  listed: "Visible catalogue",
+  "ready-to-sell": "Prêt à vendre",
+} as const;
+
+export function getExpectedProductPhotoSlots(
+  images: ProductReadinessImage[],
+  options?: BuildProductPhotoChecklistOptions,
+): ExpectedProductPhotoSlot[] {
+  const checklist = buildProductPhotoChecklist(images, options);
+
+  const byId = Object.fromEntries(checklist.map((item) => [item.id, item])) as Record<
+    ProductPhotoChecklistId,
+    ProductPhotoChecklistItem
+  >;
+
+  return [
+    {
+      id: "face-avant",
+      label: "Face avant — produit entier",
+      filled: byId["face-avant"]?.filled ?? false,
+      hint: byId["face-avant"]?.hint ?? "",
+      exampleFilename: "body-bebe-coton-ecru-face-avant.jpg",
+      exampleAlt: "Body bébé face avant, coton écru, col rond",
+    },
+    {
+      id: "detail-matiere",
+      label: "Détail matière ou finition",
+      filled: byId["detail-matiere"]?.filled ?? false,
+      hint: byId["detail-matiere"]?.hint ?? "",
+      exampleFilename: "body-bebe-coton-ecru-detail-matiere.jpg",
+      exampleAlt: "Détail matière — maille coton bio douce",
+    },
+    {
+      id: "vue-portee",
+      label: "Portée, mise en situation ou défaut",
+      filled:
+        (byId["vue-portee-ou-defaut"]?.filled ?? false) ||
+        Boolean(options?.secondHand && byId["defaut-documente"]?.filled),
+      hint: options?.secondHand
+        ? "Vue portée ou pliage — et photo défaut obligatoire en seconde main."
+        : (byId["vue-portee-ou-defaut"]?.hint ?? ""),
+      exampleFilename: "body-bebe-coton-ecru-porte-mannequin.jpg",
+      exampleAlt: "Body bébé porté sur mannequin 3 mois, vue de face",
+    },
+  ];
+}
+
+export function getMissingExpectedPhotoSlots(
+  images: ProductReadinessImage[],
+  options?: BuildProductPhotoChecklistOptions,
+): ExpectedProductPhotoSlot[] {
+  return getExpectedProductPhotoSlots(images, options).filter((slot) => !slot.filled);
 }
 
 export function getNonCommercialMainImageMessage(

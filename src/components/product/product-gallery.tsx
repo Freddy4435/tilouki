@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Camera, ImageIcon } from "lucide-react";
+import { Camera } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { ProductPhotoSignal } from "@/components/product/product-photo-signal";
 import { filterCommercialProductImages } from "@/lib/catalog/product-sellability";
 import { IMAGE_SIZES } from "@/lib/media/image-sizes";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,8 @@ interface ProductGalleryProps {
   /** true si au moins une variante en stock a ≤ 2 exemplaires */
   showLowStockBadge?: boolean;
   sellable?: boolean;
+  secondHand?: boolean;
+  defects?: string[];
 }
 
 function GalleryPlaceholder({ productName }: { productName: string }) {
@@ -25,21 +28,23 @@ function GalleryPlaceholder({ productName }: { productName: string }) {
       role="img"
       aria-label={`Photo produit en attente pour ${productName}`}
     >
-      <div className="bg-tilouki-jade-soft/60 flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+      <div className="bg-tilouki-pistache-soft/40 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
         <div className="bg-card/90 flex size-14 items-center justify-center rounded-full shadow-sm">
-          <Camera className="text-tilouki-teal-dark size-7" aria-hidden />
+          <Camera className="text-tilouki-navy size-7" aria-hidden />
         </div>
-        <div className="max-w-sm">
-          <p className="text-foreground text-base font-semibold">Photos en préparation</p>
-          <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
-            Ce vêtement n&apos;est pas encore disponible à l&apos;achat. Dès que les
-            photos réelles seront publiées, vous pourrez commander en toute confiance.
+        <div className="max-w-sm space-y-2">
+          <p className="text-foreground text-base font-semibold">Photos bientôt en ligne</p>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Cet article sera commandable dès publication des photos réelles. Le stock et
+            les tailles s&apos;afficheront ici.
           </p>
         </div>
-        <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
-          <ImageIcon className="size-3.5 opacity-60" aria-hidden />
-          Visuels d&apos;ambiance non contractuels
-        </p>
+        <a
+          href="/catalogue?tri=newest"
+          className="text-tilouki-pistache text-sm font-semibold hover:underline"
+        >
+          Voir les tailles disponibles ailleurs →
+        </a>
       </div>
     </div>
   );
@@ -84,7 +89,11 @@ function ThumbnailButton({
         alt={thumbAlt}
         fill
         loading="lazy"
-        sizes={layout === "column" ? IMAGE_SIZES.productThumbColumn : IMAGE_SIZES.productThumbRow}
+        sizes={
+          layout === "column"
+            ? IMAGE_SIZES.productThumbColumn
+            : IMAGE_SIZES.productThumbRow
+        }
         className="object-cover"
       />
     </button>
@@ -96,6 +105,8 @@ export function ProductGallery({
   productName,
   showLowStockBadge = false,
   sellable = true,
+  secondHand = false,
+  defects = [],
 }: ProductGalleryProps) {
   const commercialImages = useMemo(
     () => filterCommercialProductImages(images),
@@ -230,6 +241,12 @@ export function ProductGallery({
           ))}
         </div>
       ) : null}
+
+      <ProductPhotoSignal
+        commercialCount={commercialImages.length}
+        secondHand={secondHand}
+        defects={defects}
+      />
     </div>
   );
 }

@@ -13,9 +13,9 @@ export interface NavMegaMenuFeatured {
   title: string;
   description: string;
   href: string;
-  /** Slug catégorie pour resolveCategoryTiloukiImage, ou id module éditorial. */
+  /** Slug catégorie, rituel ou id module éditorial pour le visuel Tilouki. */
   imageSlug: string;
-  imageKind: "category" | "editorial";
+  imageKind: "category" | "editorial" | "ritual";
 }
 
 export interface NavMegaMenuBase {
@@ -68,7 +68,8 @@ export interface NavMobileLink {
     | "heart"
     | "mail"
     | "book-open"
-    | "package";
+    | "package"
+    | "cloud-rain";
 }
 
 export interface NavMobileSection {
@@ -82,4 +83,5 @@ export interface StorefrontNavigation {
   mobileSections: NavMobileSection[];
   categoryProductCounts: Record<string, number>;
   hasLowPriceProducts: boolean;
+  hasLastPieceProducts: boolean;
 }

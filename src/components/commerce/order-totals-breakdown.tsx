@@ -45,7 +45,9 @@ export function OrderTotalsBreakdown({
           <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <span>
             Délai indicatif :{" "}
-            <strong className="text-foreground">{getCarrierEstimatedDelay(carrier)}</strong>{" "}
+            <strong className="text-foreground">
+              {getCarrierEstimatedDelay(carrier)}
+            </strong>{" "}
             après expédition depuis la France.
           </span>
         </p>

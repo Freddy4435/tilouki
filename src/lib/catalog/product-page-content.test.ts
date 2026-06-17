@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  deriveChildAutonomyNote,
   deriveComfortNote,
   isProductCuratedSelection,
   resolveBriefSizeTip,
   resolveContextualSizeAdvice,
   resolveProductCuratorContent,
   resolveProductConditionSummary,
+  resolveVariantSizeAdvice,
 } from "@/lib/catalog/product-page-content";
 
 describe("resolveProductCuratorContent", () => {
@@ -90,5 +92,40 @@ describe("resolveProductConditionSummary", () => {
       material: null,
     });
     expect(summary?.title).toMatch(/seconde main/i);
+  });
+});
+
+describe("deriveChildAutonomyNote", () => {
+  it("propose une note autonomie pour les pyjamas", () => {
+    expect(
+      deriveChildAutonomyNote({
+        name: "Pyjama coton bio",
+        categorySlug: "pyjamas",
+      }),
+    ).toMatch(/autonomie/i);
+  });
+
+  it("reste silencieux si le produit ne le justifie pas", () => {
+    expect(
+      deriveChildAutonomyNote({
+        name: "Bonnet laine",
+        categorySlug: "accessoires",
+      }),
+    ).toBeNull();
+  });
+});
+
+describe("resolveVariantSizeAdvice", () => {
+  it("personnalise le conseil selon la taille sélectionnée", () => {
+    const advice = resolveVariantSizeAdvice(
+      { sizeLabel: "6 ans", ageLabel: "6 ans" },
+      {
+        sizes: ["4 ans", "6 ans"],
+        ageLabels: ["6 ans"],
+        gender: "fille",
+        material: "coton",
+      },
+    );
+    expect(advice).toMatch(/^Taille 6 ans/);
   });
 });

@@ -5,10 +5,13 @@ import { AlertTriangle, Camera, CheckCircle2, Circle, Info, Store } from "lucide
 import {
   buildProductPhotoChecklist,
   classifyProductImage,
+  findLegacyDemoProductImageIssues,
+  getMissingExpectedPhotoSlots,
   getPhotoReadinessSummary,
   getProductImageKindLabel,
   getStorefrontListingBlockersFromImages,
   getStorefrontPhotoStatus,
+  STOREFRONT_PHOTO_STATUS_LABELS,
   type ProductReadinessImage,
 } from "@/lib/admin/product-image-readiness";
 import { cn } from "@/lib/utils";
@@ -21,19 +24,19 @@ const TIER_LABELS = {
 
 const STOREFRONT_STATUS_LABELS = {
   hidden: {
-    label: "Invisible en boutique",
+    label: STOREFRONT_PHOTO_STATUS_LABELS.hidden,
     className:
       "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100",
     icon: AlertTriangle,
   },
   listed: {
-    label: "Visible catalogue",
+    label: STOREFRONT_PHOTO_STATUS_LABELS.listed,
     className:
       "border-sky-200 bg-sky-50 text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-100",
     icon: Store,
   },
   "ready-to-sell": {
-    label: "Prêt à vendre",
+    label: STOREFRONT_PHOTO_STATUS_LABELS["ready-to-sell"],
     className:
       "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-100",
     icon: CheckCircle2,
@@ -54,6 +57,8 @@ export function ProductPhotoReadinessChecklist({
   className,
 }: ProductPhotoReadinessChecklistProps) {
   const items = buildProductPhotoChecklist(images, { secondHand });
+  const missingSlots = getMissingExpectedPhotoSlots(images, { secondHand });
+  const legacyDemoIssues = findLegacyDemoProductImageIssues(images);
   const summary = getPhotoReadinessSummary(images);
   const photoStatus = getStorefrontPhotoStatus(images);
   const blockers = slug.trim()
@@ -113,6 +118,47 @@ export function ProductPhotoReadinessChecklist({
           ) : null}
         </div>
       </div>
+
+      {legacyDemoIssues.length > 0 ? (
+        <div
+          className="mt-4 rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100"
+          role="alert"
+        >
+          <p className="font-medium">Visuels démo encore présents</p>
+          <ul className="mt-1.5 list-inside list-disc space-y-1 text-xs leading-relaxed">
+            {legacyDemoIssues.map((issue) => (
+              <li key={issue.url}>
+                <code className="text-[11px]">{issue.pathname}</code> — {issue.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {missingSlots.length > 0 ? (
+        <div className="mt-4 space-y-2">
+          <p className="text-sm font-medium">Photos manquantes attendues</p>
+          <ul className="space-y-2">
+            {missingSlots.map((slot) => (
+              <li
+                key={slot.id}
+                className="rounded-lg border border-dashed px-3 py-2.5 text-sm"
+              >
+                <p className="font-medium">{slot.label}</p>
+                <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                  {slot.hint}
+                </p>
+                <p className="text-muted-foreground mt-1.5 text-xs">
+                  Ex. fichier :{" "}
+                  <code className="text-foreground">{slot.exampleFilename}</code>
+                  <br />
+                  Ex. description : « {slot.exampleAlt} »
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {pendingRequired.length > 0 ? (
         <p className="mt-3 flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">

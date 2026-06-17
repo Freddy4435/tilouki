@@ -19,8 +19,6 @@ describe("countActiveCatalogueFilters", () => {
   it("ignore la catégorie verrouillée sur une page rayon", () => {
     const params = new URLSearchParams();
     params.set(CATALOGUE_PARAM_KEYS.category, "bebe");
-    expect(
-      countActiveCatalogueFilters(params, { lockedCategorySlug: "bebe" }),
-    ).toBe(0);
+    expect(countActiveCatalogueFilters(params, { lockedCategorySlug: "bebe" })).toBe(0);
   });
 });

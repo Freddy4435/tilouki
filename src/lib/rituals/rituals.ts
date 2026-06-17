@@ -34,7 +34,8 @@ export const RITUALS: readonly Ritual[] = [
   {
     slug: "matin-presse",
     title: "Matin école",
-    promise: "Hauts, bas et joggers prêts à enfiler — tailles affichées sur chaque fiche.",
+    promise:
+      "Hauts, bas et joggers prêts à enfiler — tailles affichées sur chaque fiche.",
     description: "Basiques et tenues du matin pour fille, garçon et bébé.",
     imageId: "ritual-morning",
     categorySlugs: ["garcon", "fille", "bebe"],
@@ -52,7 +53,7 @@ export const RITUALS: readonly Ritual[] = [
     ctaLabel: "Voir les basiques",
     catalogueHref: buildCatalogueHref({ sort: "newest" }),
     shoppingTip: "3 pièces suffisent : haut, bas, chaussettes.",
-    emptyStateMessage: "Pas encore de pièces dans cette sélection.",
+    emptyStateMessage: "Les basiques du matin complètent bientôt cette capsule.",
     emptyStateCtas: [
       { label: "Voir garçon", href: buildCategoryHref("garcon") },
       { label: "Voir fille", href: buildCategoryHref("fille") },
@@ -72,7 +73,8 @@ export const RITUALS: readonly Ritual[] = [
     ctaLabel: "Voir les pyjamas",
     catalogueHref: buildCategoryHref("pyjamas"),
     shoppingTip: "Coupe ample : plus facile à enfiler le soir.",
-    emptyStateMessage: "Les pyjamas arrivent bientôt — parcourez le rayon en attendant.",
+    emptyStateMessage:
+      "Les pyjamas arrivent bientôt — parcourez le rayon en attendant.",
     emptyStateCtas: [
       { label: "Voir les pyjamas", href: buildCategoryHref("pyjamas") },
       { label: "Voir bébé", href: buildCategoryHref("bebe") },
@@ -92,7 +94,7 @@ export const RITUALS: readonly Ritual[] = [
     ctaLabel: "Voir bébé",
     catalogueHref: buildCategoryHref("bebe"),
     shoppingTip: "Prévoyez 2 bodies par jour de garde.",
-    emptyStateMessage: "Pas de pièce bébé en ligne pour l'instant.",
+    emptyStateMessage: "Les essentiels bébé arrivent avec le prochain arrivage.",
     emptyStateCtas: [
       { label: "Voir bébé", href: buildCategoryHref("bebe") },
       { label: "Voir les bodies", href: buildCategoryHref("bodies") },
@@ -121,7 +123,7 @@ export const RITUALS: readonly Ritual[] = [
     ctaLabel: "Voir la pluie",
     catalogueHref: buildCategoryHref("pluie"),
     shoppingTip: "Maille + sweat : une couche en moins à l'intérieur.",
-    emptyStateMessage: "Aucune pièce pluie disponible pour le moment.",
+    emptyStateMessage: "Les pièces pluie rejoignent le rayon très bientôt.",
     emptyStateCtas: [
       { label: "Voir la pluie", href: buildCategoryHref("pluie") },
       { label: "Voir fille", href: buildCategoryHref("fille") },
@@ -140,9 +142,12 @@ export const RITUALS: readonly Ritual[] = [
     ctaLabel: "Voir les petits prix",
     catalogueHref: buildCatalogueHref({ promo: "petit-prix" }),
     shoppingTip: "Bodies, tee-shirts et leggings : les basiques qui partent vite.",
-    emptyStateMessage: "Pas d'offre petit prix en ce moment.",
+    emptyStateMessage: "De nouvelles bonnes affaires sont en cours de mise en ligne.",
     emptyStateCtas: [
-      { label: "Voir les petits prix", href: buildCatalogueHref({ promo: "petit-prix" }) },
+      {
+        label: "Voir les petits prix",
+        href: buildCatalogueHref({ promo: "petit-prix" }),
+      },
       { label: "Tout le catalogue", href: buildCatalogueHref() },
     ],
   },

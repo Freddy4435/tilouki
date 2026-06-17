@@ -1,13 +1,8 @@
 import Link from "next/link";
 
-import {
-  ShoppableRitualModule,
-  type ShoppableRitualLayout,
-} from "@/components/home/shoppable-ritual-module";
+import { ShoppableRitualModule } from "@/components/home/shoppable-ritual-module";
 import type { Ritual } from "@/lib/rituals/rituals";
 import type { ProductListItem } from "@/types/catalog";
-
-const RITUAL_LAYOUTS: ShoppableRitualLayout[] = ["stack", "split", "banner"];
 
 export interface HomeRitualModule {
   ritual: Ritual;
@@ -28,9 +23,7 @@ export function HomeRitualsSection({ modules }: HomeRitualsSectionProps) {
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
           <header className="retail-section__header max-w-2xl">
             <div className="brand-accent-bar" aria-hidden />
-            <p className="text-retail-label text-tilouki-brand-blue">
-              Besoins du quotidien
-            </p>
+            <p className="text-retail-label text-tilouki-rose-linge">Capsules</p>
             <h2
               id="home-rituals-title"
               className="text-section-title retail-section__title"
@@ -38,8 +31,8 @@ export function HomeRitualsSection({ modules }: HomeRitualsSectionProps) {
               Shopper par moment
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Pyjamas, pluie, bébé, école ou petits prix — pièces en stock avec tailles
-              sur chaque fiche.
+              Nuit douce, pluie, bébé cocon ou matin école — scène + pièces en stock,
+              total estimé quand la capsule est complète.
             </p>
           </header>
           <Link
@@ -51,13 +44,9 @@ export function HomeRitualsSection({ modules }: HomeRitualsSectionProps) {
         </div>
 
         <ul className="space-y-5 md:space-y-6">
-          {modules.map(({ ritual, products }, index) => (
+          {modules.map(({ ritual, products }) => (
             <li key={ritual.slug}>
-              <ShoppableRitualModule
-                ritual={ritual}
-                products={products}
-                layout={RITUAL_LAYOUTS[index % RITUAL_LAYOUTS.length]!}
-              />
+              <ShoppableRitualModule ritual={ritual} products={products} />
             </li>
           ))}
         </ul>

@@ -14,11 +14,11 @@ Document de référence pour l’équilibre **sécurité CSP** / **vitesse** / *
 
 ### Ce qui force le rendu dynamique
 
-| Mécanisme | Effet |
-|-----------|--------|
-| CSP à **nonce** (doc Next.js) | Le HTML doit être généré **par requête** : pas de page statique build-time avec nonce valide. |
-| `getRequestCspNonce()` / `JsonLdScript` dans le layout public | Opt-in dynamique pour les routes qui rendent le JSON-LD (`SiteJsonLd`). |
-| `export const dynamic = "force-dynamic"` | `/commande`, `/suivi-commande`, admin, API. |
+| Mécanisme                                                     | Effet                                                                                         |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| CSP à **nonce** (doc Next.js)                                 | Le HTML doit être généré **par requête** : pas de page statique build-time avec nonce valide. |
+| `getRequestCspNonce()` / `JsonLdScript` dans le layout public | Opt-in dynamique pour les routes qui rendent le JSON-LD (`SiteJsonLd`).                       |
+| `export const dynamic = "force-dynamic"`                      | `/commande`, `/suivi-commande`, admin, API.                                                   |
 
 ### Ce qui a été retiré du root layout
 
@@ -38,11 +38,11 @@ Avec nonce, **le HTML ne peut pas être mis en cache CDN** tel quel (nonce uniqu
 
 Aligné sur `PAGE_REVALIDATE` — limite la fraîcheur des **données** même si le symbole build reste `ƒ` :
 
-| Segment | Secondes | Exemples |
-|---------|----------|----------|
-| Catalogue | 300 | `/`, `/catalogue`, `/categorie/*`, `/produit/*`, `/panier`, `/rituels/*` |
-| Légal / blog | 3600 | `/cgv`, `/mentions-legales`, `/blog/*` |
-| Dynamique | — | `/commande`, `/suivi-commande`, admin |
+| Segment      | Secondes | Exemples                                                                 |
+| ------------ | -------- | ------------------------------------------------------------------------ |
+| Catalogue    | 300      | `/`, `/catalogue`, `/categorie/*`, `/produit/*`, `/panier`, `/rituels/*` |
+| Légal / blog | 3600     | `/cgv`, `/mentions-legales`, `/blog/*`                                   |
+| Dynamique    | —        | `/commande`, `/suivi-commande`, admin                                    |
 
 ### Pages volontairement dynamiques
 
@@ -61,13 +61,13 @@ Aligné sur `PAGE_REVALIDATE` — limite la fraîcheur des **données** même si
 
 Constantes partagées : **`src/lib/media/image-sizes.ts`**
 
-| Usage | Constante | Notes |
-|-------|-----------|--------|
-| Hero accueil / rituel | `IMAGE_SIZES.hero` | `priority` + `fetchPriority="high"` |
-| Photo principale produit | `IMAGE_SIZES.productMain` | LCP fiche produit |
-| Cartes catalogue | `IMAGE_SIZES.productCard` | `priority` sur les 2–4 premières cartes visibles |
-| Vignettes galerie | `productThumbColumn` / `productThumbRow` | `loading="lazy"` |
-| Sous la ligne de flottaison home | `priorityLimit={0}` | Pas de `priority` inutile |
+| Usage                            | Constante                                | Notes                                            |
+| -------------------------------- | ---------------------------------------- | ------------------------------------------------ |
+| Hero accueil / rituel            | `IMAGE_SIZES.hero`                       | `priority` + `fetchPriority="high"`              |
+| Photo principale produit         | `IMAGE_SIZES.productMain`                | LCP fiche produit                                |
+| Cartes catalogue                 | `IMAGE_SIZES.productCard`                | `priority` sur les 2–4 premières cartes visibles |
+| Vignettes galerie                | `productThumbColumn` / `productThumbRow` | `loading="lazy"`                                 |
+| Sous la ligne de flottaison home | `priorityLimit={0}`                      | Pas de `priority` inutile                        |
 
 Config globale : `next.config.ts` — formats **AVIF/WebP**, `minimumCacheTTL: 86400` pour `/_next/image`.
 

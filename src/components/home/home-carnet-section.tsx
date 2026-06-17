@@ -1,12 +1,32 @@
 import Link from "next/link";
-import { ArrowRight, Moon, Ruler } from "lucide-react";
+import { ArrowRight, Moon, Ruler, Sparkles, Sun } from "lucide-react";
+
+import { buildCatalogueHref } from "@/lib/navigation/catalog-href";
 
 const BUYING_HELP_LINKS = [
   {
+    label: "Nouveautés du catalogue",
+    href: buildCatalogueHref({ sort: "newest" }),
+    description: "Derniers articles ajoutés — tailles visibles sur chaque fiche.",
+    icon: Sparkles,
+  },
+  {
+    label: "Capsule Nuit douce",
+    href: "/rituels/nuit-calme",
+    description: "Pyjamas et ensembles nuit — composer la capsule du soir.",
+    icon: Moon,
+  },
+  {
     label: "Guide des tailles",
     href: "/guide-tailles",
-    description: "Comparer les tailles et choisir sans stress.",
+    description: "Comparer les tailles et filtrer le catalogue par âge.",
     icon: Ruler,
+  },
+  {
+    label: "Capsule Matin école",
+    href: "/rituels/matin-presse",
+    description: "Basiques prêts à enfiler — voir les pièces en stock.",
+    icon: Sun,
   },
   {
     label: "Guide d'achat tailles enfant",
@@ -42,15 +62,15 @@ export function HomeCarnetSection() {
             </p>
           </div>
           <Link
-            href="/catalogue"
-            className="text-tilouki-teal-dark inline-flex items-center gap-1 text-sm font-semibold underline-offset-4 hover:underline"
+            href={buildCatalogueHref({ sort: "newest" })}
+            className="text-tilouki-navy inline-flex items-center gap-1 text-sm font-semibold underline-offset-4 hover:underline"
           >
             Retour au catalogue
             <ArrowRight className="size-3.5" aria-hidden />
           </Link>
         </div>
 
-        <ul className="grid gap-2.5 sm:grid-cols-3">
+        <ul className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {BUYING_HELP_LINKS.map((item) => (
             <li key={item.href}>
               <Link

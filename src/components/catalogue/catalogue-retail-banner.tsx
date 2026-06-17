@@ -33,7 +33,7 @@ export function CatalogueRetailBanner({
       <div className="grid min-h-[6.5rem] grid-cols-[minmax(0,1fr)_5.5rem] items-stretch sm:min-h-[7.5rem] sm:grid-cols-[minmax(0,1fr)_9rem] md:grid-cols-[minmax(0,1fr)_12rem]">
         <div className="flex flex-col justify-center p-4 sm:p-5">
           {eyebrow ? (
-            <p className="text-retail-label text-muted-foreground mb-1">{eyebrow}</p>
+            <p className="text-retail-label text-tilouki-pistache mb-1">{eyebrow}</p>
           ) : null}
           <h1 className="text-section-title text-tilouki-navy">{title}</h1>
           <p className="text-muted-foreground mt-1 text-sm font-medium tabular-nums">
@@ -51,7 +51,7 @@ export function CatalogueRetailBanner({
             </ButtonLink>
           ) : null}
         </div>
-        <div className="bg-tilouki-jade-soft/40 relative">
+        <div className="bg-tilouki-denim-soft/55 relative">
           <Image
             src={image.src}
             alt={image.alt}

@@ -15,8 +15,8 @@ export default function FavorisPage() {
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Mes favoris</h1>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-            Retrouvez les articles que vous avez enregistrés — tailles, stock et prix à
-            jour.
+            Retrouvez vos articles enregistrés — tailles en stock et ruptures affichées
+            clairement, prix à jour sur cet appareil.
           </p>
         </div>
         <ReassuranceStrip variant="compact" className="justify-start" />

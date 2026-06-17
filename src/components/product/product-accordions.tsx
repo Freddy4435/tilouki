@@ -17,7 +17,9 @@ export function ProductAccordions({
     null;
 
   const sections = [
-    ...(description ? [{ title: "Description détaillée" as const, content: description }] : []),
+    ...(description
+      ? [{ title: "Description détaillée" as const, content: description }]
+      : []),
     {
       title: "Livraison",
       content:

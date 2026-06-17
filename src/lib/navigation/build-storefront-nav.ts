@@ -3,22 +3,25 @@ import { filterLowPriceProducts } from "@/lib/catalog/sort-products";
 import {
   buildAccessoiresMegaPanels,
   buildMegaMenuFeatured,
+  buildPyjamasMegaFeatured,
   buildPyjamasMegaPanels,
   buildUniverseMegaPanels,
+  catalogHasLastPieceProducts,
   categoryHasLastPieceProducts,
   categoryHasLowPriceProducts,
   MAIN_NAV_CATEGORY_MEGA_SLUGS,
   MAIN_NAV_LABELS,
   MAIN_NAV_UNIVERSE_SLUGS,
+  NAV_CAPSULE_MOMENTS,
   NAV_HREF,
 } from "@/lib/navigation/nav-config";
+import type { NavDealsAvailability } from "@/lib/navigation/nav-config";
 import type {
   NavMobileLink,
   NavMobileSection,
   NavTopItem,
   StorefrontNavigation,
 } from "@/lib/navigation/types";
-import type { NavDealsAvailability } from "@/lib/navigation/nav-config";
 import type { ShopCategory } from "@/lib/shop/types";
 import type { ProductListItem } from "@/types/catalog";
 
@@ -33,6 +36,10 @@ function countProductsByCategory(products: ProductListItem[]): Record<string, nu
 
 function categoryExists(categories: ShopCategory[], slug: string): boolean {
   return categories.some((category) => category.slug === slug);
+}
+
+function buildAvailableCategorySlugs(categories: ShopCategory[]): ReadonlySet<string> {
+  return new Set(categories.map((category) => category.slug));
 }
 
 function buildDealsAvailability(
@@ -52,6 +59,7 @@ function buildTopItems(
   products: ProductListItem[],
   categoryCounts: Record<string, number>,
   hasLowPriceProducts: boolean,
+  availableSlugs: ReadonlySet<string>,
 ): NavTopItem[] {
   const items: NavTopItem[] = [
     {
@@ -80,7 +88,7 @@ function buildTopItems(
       slug,
       href: `/categorie/${slug}`,
       productCount: categoryCounts[slug] ?? 0,
-      panels: buildUniverseMegaPanels(slug, availability),
+      panels: buildUniverseMegaPanels(slug, availability, availableSlugs),
       featured: buildMegaMenuFeatured(slug, label),
     });
   }
@@ -104,7 +112,10 @@ function buildTopItems(
       href: `/categorie/${slug}`,
       productCount: categoryCounts[slug] ?? 0,
       panels,
-      featured: buildMegaMenuFeatured(slug, label),
+      featured:
+        slug === "pyjamas"
+          ? buildPyjamasMegaFeatured()
+          : buildMegaMenuFeatured(slug, label),
     });
   }
 
@@ -130,6 +141,7 @@ function buildTopItems(
 function buildMobileSections(
   categories: ShopCategory[],
   hasLowPriceProducts: boolean,
+  hasLastPieceProducts: boolean,
 ): NavMobileSection[] {
   const parcourir: NavMobileLink[] = [
     { label: "Nouveautés", href: NAV_HREF.nouveautes, icon: "sparkles" },
@@ -161,17 +173,32 @@ function buildMobileSections(
     });
   }
 
+  if (hasLastPieceProducts) {
+    parcourir.push({
+      label: "Dernières pièces",
+      href: NAV_HREF.dernieresTailles,
+      icon: "package",
+    });
+  }
+
   parcourir.push({
     label: "Guide tailles",
     href: NAV_HREF.guideTailles,
     icon: "ruler",
   });
 
-  const selections: NavMobileLink[] = [
-    { label: "Nuit douce", href: "/rituels/nuit-calme", icon: "moon" },
-    { label: "Matin école", href: "/rituels/matin-presse", icon: "shirt" },
-    { label: "Bébé cocon", href: "/rituels/bebe-cocon", icon: "baby" },
-  ];
+  const moments: NavMobileLink[] = NAV_CAPSULE_MOMENTS.map(({ label, ritualSlug }) => ({
+    label,
+    href: `/rituels/${ritualSlug}`,
+    icon:
+      ritualSlug === "nuit-calme"
+        ? "moon"
+        : ritualSlug === "bebe-cocon"
+          ? "baby"
+          : ritualSlug === "jour-de-pluie"
+            ? "cloud-rain"
+            : "shirt",
+  }));
 
   const reassurance: NavMobileLink[] = [
     { label: buyingGuidesNav.label, href: buyingGuidesNav.href, icon: "book-open" },
@@ -183,7 +210,7 @@ function buildMobileSections(
 
   return [
     { id: "parcourir", title: "Parcourir", links: parcourir },
-    { id: "selections", title: "Sélections", links: selections },
+    { id: "moments", title: "Par moment", links: moments },
     { id: "reassurance", title: "Aide & confiance", links: reassurance },
   ];
 }
@@ -194,17 +221,25 @@ export function buildStorefrontNavigation(
 ): StorefrontNavigation {
   const categoryProductCounts = countProductsByCategory(products);
   const hasLowPriceProducts = filterLowPriceProducts(products).length > 0;
+  const hasLastPieceProducts = catalogHasLastPieceProducts(products);
+  const availableSlugs = buildAvailableCategorySlugs(categories);
   const topItems = buildTopItems(
     categories,
     products,
     categoryProductCounts,
     hasLowPriceProducts,
+    availableSlugs,
   );
 
   return {
     topItems,
-    mobileSections: buildMobileSections(categories, hasLowPriceProducts),
+    mobileSections: buildMobileSections(
+      categories,
+      hasLowPriceProducts,
+      hasLastPieceProducts,
+    ),
     categoryProductCounts,
     hasLowPriceProducts,
+    hasLastPieceProducts,
   };
 }

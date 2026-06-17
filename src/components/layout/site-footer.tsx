@@ -3,7 +3,7 @@
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { FooterSocialLinks } from "@/components/layout/footer-social-links";
 import { FooterTrustBlock } from "@/components/layout/footer-trust-block";
-import { NewsletterSignupForm } from "@/components/layout/newsletter-signup-form";
+import { NewsletterSignupForm } from "@/components/newsletter/newsletter-signup-form";
 import { ReassuranceStrip } from "@/components/layout/reassurance-strip";
 import { useShop } from "@/components/providers/shop-provider";
 import { Separator } from "@/components/ui/separator";

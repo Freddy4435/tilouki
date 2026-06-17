@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
+import { FavoritesProductList } from "@/components/favorites/favorites-product-list";
 import { FavoritesEmptyState } from "@/components/favorites/favorites-empty-state";
 import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { useProductsBySlugs } from "@/hooks/use-products-by-slugs";
@@ -25,13 +25,19 @@ function FavoritesLoadedList({ slugs }: FavoritesLoadedListProps) {
     return <ProductGridSkeleton count={Math.min(slugs.length, 4)} />;
   }
 
-  return (
-    <CatalogueProductList
-      products={orderedProducts}
-      emptyTitle="Aucun article disponible"
-      emptyDescription="Les articles enregistrés ne sont plus en vente. Parcourez le catalogue pour découvrir la nouvelle sélection."
-    />
-  );
+  if (orderedProducts.length === 0) {
+    return (
+      <div className="border-tilouki-border/60 bg-muted/20 rounded-[var(--radius-card)] border px-4 py-8 text-center">
+        <p className="font-semibold">Articles plus disponibles</p>
+        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+          Vos favoris enregistrés ne sont plus en vente. Parcourez le catalogue pour
+          découvrir la sélection actuelle.
+        </p>
+      </div>
+    );
+  }
+
+  return <FavoritesProductList products={orderedProducts} />;
 }
 
 export function FavoritesView() {

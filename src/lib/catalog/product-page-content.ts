@@ -170,3 +170,58 @@ export function resolveProductConditionSummary(input: {
 
   return null;
 }
+
+const AUTONOMY_PYJAMA_PATTERN =
+  /pyjama|gigoteuse|body|grenouillère|grenouillere|surpyjama|peignoir/i;
+const AUTONOMY_EASY_DRESS_PATTERN =
+  /velcro|élastique|elastique|élasthanne|elasthanne|jogging|legging|pantalon\s+élastiqué/i;
+const AUTONOMY_CLOSURE_PATTERN = /bouton|zip|fermeture|pression/i;
+const AUTONOMY_PLAY_PATTERN = /robe|jupe|short|tee|t-shirt|sweat/i;
+
+/** Note parent sur l'autonomie de l'enfant — si le produit le justifie. */
+export function deriveChildAutonomyNote(input: {
+  name: string;
+  categorySlug?: string | null;
+  material?: string | null;
+  careInstructions?: string | null;
+}): string | null {
+  const text = [input.name, input.categorySlug, input.material, input.careInstructions]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (AUTONOMY_PYJAMA_PATTERN.test(text)) {
+    return "Fermetures pensées pour le change — votre enfant gagne en autonomie au fil des semaines.";
+  }
+  if (AUTONOMY_EASY_DRESS_PATTERN.test(text)) {
+    return "Coupe souple et enfilage simple — facile à mettre seul dès 3–4 ans.";
+  }
+  if (AUTONOMY_CLOSURE_PATTERN.test(text)) {
+    return "Fermeture accessible — idéal pour apprendre à s'habiller avec un peu d'aide.";
+  }
+  if (AUTONOMY_PLAY_PATTERN.test(text)) {
+    return "Liberté de mouvement pour jouer, courir et s'asseoir à l'école sans gêne.";
+  }
+
+  return null;
+}
+
+export function resolveVariantSizeAdvice(
+  variant: { sizeLabel: string | null; ageLabel: string | null } | null,
+  product: {
+    sizes: string[];
+    ageLabels: string[];
+    gender: ProductGender;
+    material: string | null;
+    secondHand?: boolean;
+  },
+): string {
+  const base = resolveBriefSizeTip(product);
+  if (!variant) return base;
+
+  const label = variant.sizeLabel?.trim() || variant.ageLabel?.trim();
+  if (!label) return base;
+
+  const normalizedBase = base.charAt(0).toLowerCase() + base.slice(1);
+  return `Taille ${label} — ${normalizedBase}`;
+}

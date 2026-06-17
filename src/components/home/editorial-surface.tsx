@@ -1,86 +1,80 @@
 import { cn } from "@/lib/utils";
 
-type EditorialSurfaceTone = "jade" | "powder" | "cloud" | "butter" | "teal";
+type EditorialSurfaceTone = "pistache" | "rose" | "cloud" | "argile" | "denim";
 
 const TONE_CLASSES: Record<
   EditorialSurfaceTone,
-  { bg: string; blobA: string; blobB: string; label: string }
+  { bg: string; border: string; label: string }
 > = {
-  jade: {
-    bg: "bg-tilouki-jade-soft",
-    blobA: "bg-tilouki-jade/25",
-    blobB: "bg-tilouki-cloud/80",
-    label: "text-tilouki-teal-dark",
+  pistache: {
+    bg: "bg-tilouki-pistache-soft",
+    border: "border-tilouki-pistache/25",
+    label: "text-tilouki-navy",
   },
-  powder: {
-    bg: "bg-tilouki-powder-soft",
-    blobA: "bg-tilouki-powder/40",
-    blobB: "bg-tilouki-jade-soft/70",
-    label: "text-tilouki-plum",
+  rose: {
+    bg: "bg-tilouki-rose-linge-soft",
+    border: "border-tilouki-rose-linge/30",
+    label: "text-tilouki-navy",
   },
   cloud: {
     bg: "bg-tilouki-cloud",
-    blobA: "bg-tilouki-jade/20",
-    blobB: "bg-tilouki-powder-soft/60",
-    label: "text-tilouki-teal-dark",
+    border: "border-tilouki-border-subtle",
+    label: "text-tilouki-navy",
   },
-  butter: {
-    bg: "bg-tilouki-butter-soft",
-    blobA: "bg-tilouki-butter/35",
-    blobB: "bg-tilouki-jade-soft/50",
-    label: "text-tilouki-ink",
+  argile: {
+    bg: "bg-tilouki-argile-soft",
+    border: "border-tilouki-argile/25",
+    label: "text-tilouki-navy",
   },
-  teal: {
-    bg: "bg-tilouki-teal/10",
-    blobA: "bg-tilouki-teal/15",
-    blobB: "bg-tilouki-jade-soft/60",
-    label: "text-tilouki-teal-dark",
+  denim: {
+    bg: "bg-tilouki-denim-soft",
+    border: "border-tilouki-denim/20",
+    label: "text-tilouki-navy",
   },
+};
+
+/** @deprecated tones legacy — mappés vers la palette 2026 */
+const LEGACY_TONE_MAP: Record<string, EditorialSurfaceTone> = {
+  jade: "pistache",
+  powder: "rose",
+  butter: "argile",
+  teal: "denim",
 };
 
 interface EditorialSurfaceProps {
   label?: string;
   title?: string;
-  tone?: EditorialSurfaceTone;
+  tone?: EditorialSurfaceTone | "jade" | "powder" | "cloud" | "butter" | "teal";
   className?: string;
 }
 
 export function EditorialSurface({
   label,
   title,
-  tone = "jade",
+  tone = "rose",
   className,
 }: EditorialSurfaceProps) {
-  const palette = TONE_CLASSES[tone];
+  const resolvedTone =
+    tone in LEGACY_TONE_MAP
+      ? LEGACY_TONE_MAP[tone as keyof typeof LEGACY_TONE_MAP]!
+      : tone;
+  const palette = TONE_CLASSES[resolvedTone as EditorialSurfaceTone];
 
   return (
     <div
       className={cn(
-        "relative flex h-full w-full items-end overflow-hidden p-5 sm:p-6",
+        "flex h-full w-full items-end border p-5 shadow-[var(--shadow-inset-surface)] sm:p-6",
         palette.bg,
+        palette.border,
         className,
       )}
     >
-      <div
-        className={cn(
-          "pointer-events-none absolute -top-10 -right-8 size-40 rounded-full",
-          palette.blobA,
-        )}
-        aria-hidden
-      />
-      <div
-        className={cn(
-          "pointer-events-none absolute -bottom-8 -left-6 size-32 rounded-full",
-          palette.blobB,
-        )}
-        aria-hidden
-      />
-      <div className="relative max-w-[14rem] space-y-1.5">
+      <div className="max-w-[14rem] space-y-1.5">
         {label ? (
           <p className={cn("text-retail-label", palette.label)}>{label}</p>
         ) : null}
         {title ? (
-          <p className="font-display text-lg leading-snug font-semibold text-balance sm:text-xl">
+          <p className="text-foreground text-base leading-snug font-semibold text-balance sm:text-lg">
             {title}
           </p>
         ) : null}

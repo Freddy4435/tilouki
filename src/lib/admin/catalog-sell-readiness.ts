@@ -2,6 +2,7 @@ export interface CatalogSellReadinessInput {
   activeDevSeedProductCount: number;
   activeRealProductCount: number;
   activeProductsWithReadinessIssues: number;
+  activeProductsWithLegacyDemoImages: number;
   draftProductsReadyToPublish: number;
   importPageHref?: string;
 }
@@ -40,6 +41,18 @@ export function buildCatalogSellReadinessItems(
       hint: "Importez votre catalogue ou publiez une fiche complète.",
       href: input.importPageHref ?? "/admin/import",
       hrefLabel: "Importer",
+    },
+    {
+      id: "no-legacy-demo-images",
+      label: "Aucun visuel SVG démo (/products/*.svg ou /demo-products/*)",
+      required: true,
+      filled: input.activeProductsWithLegacyDemoImages === 0,
+      hint:
+        input.activeProductsWithLegacyDemoImages > 0
+          ? `${input.activeProductsWithLegacyDemoImages} fiche(s) utilisent encore un SVG catalogue ou démo — uploadez des photos réelles.`
+          : undefined,
+      href: "/admin/produits?status=active",
+      hrefLabel: "Produits actifs",
     },
     {
       id: "active-complete",

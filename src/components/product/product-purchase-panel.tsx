@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Check, PackageCheck, Ruler, ShoppingBag } from "lucide-react";
 
 import { ProductBadgeList } from "@/components/product/product-badges";
 import { ProductCardPrice } from "@/components/product/product-card-price";
+import { ProductCompactSizeGuide } from "@/components/product/product-compact-size-guide";
 import {
   ProductDefectNotice,
   ProductSellabilityNotice,
@@ -19,10 +20,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { useToast } from "@/hooks/use-toast";
+import { useConsultedSizesStore } from "@/lib/favorites/consulted-sizes-store";
 import { useCartStore } from "@/lib/cart/store";
 import {
   isProductCuratedSelection,
-  resolveBriefSizeTip,
   resolveProductConditionSummary,
 } from "@/lib/catalog/product-page-content";
 import {
@@ -58,13 +59,8 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     defects,
     material: product.material,
   });
-  const sizeTip = resolveBriefSizeTip({
-    sizes: product.sizes,
-    ageLabels: product.ageLabels,
-    gender: product.gender,
-    material: product.material,
-    secondHand,
-  });
+
+  const trackConsultedSize = useConsultedSizesStore((state) => state.track);
 
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
     sellable ? (product.variants.find((v) => v.stockQuantity > 0)?.id ?? null) : null,
@@ -83,6 +79,34 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
 
   const canPurchase =
     sellable && selectedVariant != null && selectedVariant.stockQuantity > 0 && !added;
+
+  const handleVariantSelect = (variantId: string) => {
+    setSelectedVariantId(variantId);
+    const variant = product.variants.find((item) => item.id === variantId);
+    const label = variant?.sizeLabel?.trim() || variant?.ageLabel?.trim();
+    if (variant && label) {
+      trackConsultedSize({
+        productSlug: product.slug,
+        productName: product.name,
+        label,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!sellable || !selectedVariantId) return;
+    const variant = product.variants.find((item) => item.id === selectedVariantId);
+    const label = variant?.sizeLabel?.trim() || variant?.ageLabel?.trim();
+    if (variant && label) {
+      trackConsultedSize({
+        productSlug: product.slug,
+        productName: product.name,
+        label,
+      });
+    }
+    // Enregistre la taille pré-sélectionnée au chargement de la fiche.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- une fois par montage produit
+  }, [product.slug]);
 
   const handleAddToCart = () => {
     if (!sellable) {
@@ -141,12 +165,14 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         {product.categoryName && product.categorySlug ? (
           <Link
             href={`/categorie/${product.categorySlug}`}
-            className="text-retail-label text-tilouki-teal-dark bg-tilouki-jade-soft/60 inline-flex rounded-full px-2.5 py-0.5"
+            className="text-retail-label text-tilouki-pistache bg-tilouki-pistache-soft/60 inline-flex rounded-full px-2.5 py-0.5"
           >
             {product.categoryName}
           </Link>
         ) : product.categoryName ? (
-          <p className="text-retail-label text-tilouki-teal-dark">{product.categoryName}</p>
+          <p className="text-retail-label text-tilouki-teal-dark">
+            {product.categoryName}
+          </p>
         ) : null}
         <h1 className="text-product-title">{product.name}</h1>
         {(product.ratingCount ?? 0) > 0 ? (
@@ -164,7 +190,11 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         className="[&_span:first-child]:text-2xl [&_span:first-child]:sm:text-[1.75rem]"
       />
 
-      <ProductSellabilityNotice sellable={sellable} />
+      <ProductSellabilityNotice
+        sellable={sellable}
+        slug={product.slug}
+        images={product.images}
+      />
 
       <ProductDefectNotice
         defects={defects}
@@ -191,11 +221,18 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
         <ProductVariantPicker
           variants={product.variants}
           selectedVariantId={selectedVariantId}
-          onSelect={setSelectedVariantId}
+          onSelect={handleVariantSelect}
           disabled={!sellable}
         />
 
-        <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">{sizeTip}</p>
+        <ProductCompactSizeGuide
+          selectedVariant={selectedVariant}
+          sizes={product.sizes}
+          ageLabels={product.ageLabels}
+          gender={product.gender}
+          material={product.material}
+          secondHand={secondHand}
+        />
 
         {selectedVariant ? (
           <div className="flex items-center gap-2 text-sm">
@@ -217,7 +254,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
                 En stock — expédié sous 48 h
               </span>
             ) : (
-              <span className="text-destructive font-medium">Rupture sur cette taille</span>
+              <span className="text-destructive font-medium">
+                Rupture sur cette taille
+              </span>
             )}
           </div>
         ) : sellable && product.variants.length > 0 ? (
@@ -235,9 +274,11 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           className={cn(
             "min-h-12 w-full text-base font-semibold shadow-[var(--shadow-soft)] transition-all duration-[var(--transition-base)]",
             added && "bg-tilouki-sage-dark hover:bg-tilouki-sage-dark/90",
+            !sellable && "opacity-80",
           )}
           onClick={handleAddToCart}
           disabled={!canPurchase}
+          aria-disabled={!sellable || !canPurchase}
         >
           {added ? (
             <Check className="animate-in zoom-in-50 size-4 duration-200" aria-hidden />
@@ -265,7 +306,7 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           >
             <div className="mx-auto flex max-w-lg items-center gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-foreground text-lg font-bold leading-none tabular-nums">
+                <p className="text-foreground text-lg leading-none font-bold tabular-nums">
                   {formatPrice(displayPrice)}
                 </p>
                 <p className="text-muted-foreground mt-0.5 truncate text-xs">

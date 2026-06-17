@@ -35,8 +35,8 @@ export function CatalogueQuickChips({
                 className={cn(
                   "inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-semibold transition-colors",
                   active
-                    ? "border-tilouki-teal-dark bg-tilouki-teal-dark text-white shadow-[var(--shadow-soft)]"
-                    : "bg-card text-tilouki-navy border-tilouki-jade/25 hover:bg-tilouki-jade-soft/50",
+                    ? "border-tilouki-navy bg-tilouki-navy text-white shadow-[var(--shadow-soft)]"
+                    : "bg-tilouki-milk text-tilouki-navy border-tilouki-border hover:bg-tilouki-denim-soft/70",
                 )}
               >
                 {chip.label}

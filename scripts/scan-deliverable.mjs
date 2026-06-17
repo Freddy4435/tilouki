@@ -32,7 +32,7 @@ Exemples :
   npm run scan:deliverable -- .
 
 ⛔ Un scan « propre » ne rend pas une archive manuelle acceptable.
-   Seul livrable autorisé : npm run delivery:clean
+   Seul livrable autorisé : npm run delivery:release
 `);
 }
 
@@ -165,7 +165,7 @@ function main() {
     `  ✓ Aucun chemin interdit détecté dans ce ${kind} (${paths.length} entrée(s)).`,
   );
   console.log("\n  Note : un scan propre ne valide pas une archive manuelle.");
-  console.log("  Seul livrable autorisé à transmettre : npm run delivery:clean\n");
+  console.log("  Seul livrable autorisé à transmettre : npm run delivery:release\n");
 }
 
 main();

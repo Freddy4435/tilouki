@@ -28,7 +28,11 @@ export function ProductCardPrice({
           className={cn(
             "font-bold tracking-tight tabular-nums",
             hasDiscount ? "text-tilouki-persimmon-dark" : "text-tilouki-navy",
-            compact ? "text-[0.9375rem] leading-none" : premium ? "text-xl" : "text-base sm:text-lg",
+            compact
+              ? "text-[0.9375rem] leading-none"
+              : premium
+                ? "text-xl"
+                : "text-base sm:text-lg",
           )}
         >
           {formatPrice(priceCents)}

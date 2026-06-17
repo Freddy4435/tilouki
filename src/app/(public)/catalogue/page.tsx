@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { CatalogueRayonBanner, CatalogueRayonTools } from "@/components/catalogue/catalogue-rayon-header";
+import { CatalogueCapsulesView } from "@/components/catalogue/catalogue-capsules-view";
+import {
+  CatalogueRayonBanner,
+  CatalogueRayonTools,
+} from "@/components/catalogue/catalogue-rayon-header";
 import { CatalogueActiveFilters } from "@/components/catalogue/catalogue-active-filters";
 import { CatalogueEmptyState } from "@/components/catalogue/catalogue-empty-state";
 import { CatalogueLaunchState } from "@/components/catalogue/catalogue-launch-state";
@@ -9,7 +13,9 @@ import { CatalogueMobileFilterBar } from "@/components/catalogue/catalogue-mobil
 import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
 import { CatalogueFilters } from "@/components/catalogue/catalogue-filters";
 import { CataloguePagination } from "@/components/catalogue/catalogue-pagination";
+import { CatalogueRayonsView } from "@/components/catalogue/catalogue-rayons-view";
 import { CatalogueToolbar } from "@/components/catalogue/catalogue-toolbar";
+import { CatalogueViewSwitch } from "@/components/catalogue/catalogue-view-switch";
 import { RecentlyViewedSection } from "@/components/recently-viewed/recently-viewed-section";
 import { ProductGridSkeleton } from "@/components/product/product-card-skeleton";
 import { JsonLdScript } from "@/components/seo/json-ld-script";
@@ -18,6 +24,7 @@ import {
   hasCatalogueFiltersInQuery,
 } from "@/lib/catalog/catalogue-search-params";
 import { formatCategoryCountLabel } from "@/lib/catalog/catalogue-labels";
+import { parseCatalogueView } from "@/lib/catalog/catalogue-view";
 import { parseCatalogueQuery } from "@/lib/catalog/parse-catalogue-query";
 import { buildItemListJsonLd } from "@/lib/seo/json-ld";
 import { CATALOGUE_SEO_DESCRIPTION } from "@/lib/seo/copy";
@@ -30,6 +37,7 @@ import {
 import { getCategories } from "@/lib/supabase/queries/categories";
 import {
   getActiveProductsPaginated,
+  getFilteredCatalogueProducts,
   hasActiveCatalogueProducts,
 } from "@/lib/supabase/queries/products";
 import { getShopSettings } from "@/lib/supabase/queries/shop";
@@ -37,7 +45,7 @@ import type { PaginatedCatalogueResult } from "@/types/catalog";
 
 export const revalidate = 300;
 
-const CATALOGUE_CANONICAL_KEYS = [...CATALOGUE_URL_FILTER_KEYS, "page"];
+const CATALOGUE_CANONICAL_KEYS = [...CATALOGUE_URL_FILTER_KEYS, "page", "vue"];
 
 interface CataloguePageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -64,7 +72,7 @@ export async function generateMetadata({
       : "Le catalogue Tilouki arrive bientôt",
     description: catalogueHasProducts
       ? CATALOGUE_SEO_DESCRIPTION.replace("Tilouki", name)
-      : `Le catalogue ${name} se prépare — conseils tailles, idées shopping et newsletter en attendant les premières pièces.`,
+      : `Catalogue ${name} — premières pièces en ligne bientôt. Arrivage du mercredi et capsules shopping.`,
     path: canonicalPath,
     noIndex: hasActiveFilters,
   });
@@ -132,77 +140,120 @@ function CatalogueResults({
 export default async function CataloguePage({ searchParams }: CataloguePageProps) {
   const resolvedParams = await searchParams;
   const query = parseCatalogueQuery(resolvedParams);
-  const [categories, result, settings, catalogueHasProducts] = await Promise.all([
+  const view = parseCatalogueView(resolvedParams);
+
+  const [categories, settings, catalogueHasProducts] = await Promise.all([
     getCategories(),
-    getActiveProductsPaginated(query),
     getShopSettings(),
     hasActiveCatalogueProducts(),
   ]);
 
-  if (!catalogueHasProducts) {
-    return (
-      <div className="container-tilouki section-tilouki pb-10 md:pb-14">
-        <header className="mb-6 space-y-2 sm:mb-8">
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
-            Catalogue vêtements enfants
-          </h1>
-          <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm">
-            Le catalogue se remplit au fil des mercredis — en attendant, voici comment
-            préparer la garde-robe de votre enfant.
-          </p>
-        </header>
-        <CatalogueLaunchState />
-      </div>
-    );
-  }
+  const [result, capsuleProducts] = await Promise.all([
+    view === "produits" && catalogueHasProducts
+      ? getActiveProductsPaginated(query)
+      : Promise.resolve(null),
+    view === "capsules" ? getFilteredCatalogueProducts(query) : Promise.resolve([]),
+  ]);
 
   const activeCategoryCount = Object.values(
     settings.navigation.categoryProductCounts,
   ).filter((count) => count > 0).length;
 
   const catalogueBannerImage = getTiloukiImage("categorie-boutique-enfants-mannequins");
+  const bannerCount =
+    view === "rayons"
+      ? activeCategoryCount
+      : view === "capsules"
+        ? capsuleProducts.length
+        : (result?.total ?? 0);
+
+  const bannerEyebrow =
+    view === "rayons"
+      ? "Tableau des rayons"
+      : view === "capsules"
+        ? "Tableau des capsules"
+        : formatCategoryCountLabel(activeCategoryCount);
 
   return (
     <div className="container-tilouki section-tilouki overflow-x-hidden pb-6 md:pb-0">
       <header className="mb-4 space-y-3 sm:mb-5">
         <CatalogueRayonBanner
           title="Catalogue"
-          productCount={result.total}
-          eyebrow={formatCategoryCountLabel(activeCategoryCount)}
+          productCount={bannerCount}
+          eyebrow={bannerEyebrow}
           image={{ src: catalogueBannerImage.src, alt: catalogueBannerImage.alt }}
           cta={{ label: "Guide des tailles", href: "/guide-tailles" }}
         />
         <Suspense
           fallback={
-            <div className="h-16 animate-pulse rounded-[var(--radius-card)] bg-muted" aria-hidden />
+            <div
+              className="bg-muted h-11 w-full max-w-md animate-pulse rounded-full"
+              aria-hidden
+            />
           }
         >
-          <CatalogueRayonTools showSort={result.total > 0} productCount={result.total} />
+          <CatalogueViewSwitch />
         </Suspense>
-      </header>
-
-      <div className="grid gap-5 lg:grid-cols-[15rem_1fr] lg:gap-6">
-        <aside
-          className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
-          aria-label="Filtres du catalogue"
-        >
-          <CatalogueFilters categories={categories} facets={result.facets} />
-        </aside>
-
-        <div>
-          <Suspense fallback={<ProductGridSkeleton count={8} />}>
-            <CatalogueResults
-              categories={categories}
-              result={result}
-              searchParams={resolvedParams}
+        {view === "produits" && catalogueHasProducts ? (
+          <Suspense
+            fallback={
+              <div
+                className="bg-muted h-16 animate-pulse rounded-[var(--radius-card)]"
+                aria-hidden
+              />
+            }
+          >
+            <CatalogueRayonTools
+              showSort={(result?.total ?? 0) > 0}
+              productCount={result?.total ?? 0}
             />
           </Suspense>
-          <RecentlyViewedSection
-            className="mt-10"
-            description="Reprenez vos dernières consultations sur cet appareil."
-          />
-        </div>
-      </div>
+        ) : null}
+      </header>
+
+      {view === "produits" ? (
+        !catalogueHasProducts ? (
+          <CatalogueLaunchState />
+        ) : (
+          <div className="grid gap-5 lg:grid-cols-[15rem_1fr] lg:gap-6">
+            <aside
+              className="hidden lg:sticky lg:top-24 lg:block lg:self-start"
+              aria-label="Filtres du catalogue"
+            >
+              <CatalogueFilters categories={categories} facets={result!.facets} />
+            </aside>
+
+            <div>
+              <Suspense fallback={<ProductGridSkeleton count={8} />}>
+                <CatalogueResults
+                  categories={categories}
+                  result={result!}
+                  searchParams={resolvedParams}
+                />
+              </Suspense>
+              <RecentlyViewedSection
+                className="mt-10"
+                description="Reprenez vos dernières consultations sur cet appareil."
+              />
+            </div>
+          </div>
+        )
+      ) : null}
+
+      {view === "capsules" ? (
+        <CatalogueCapsulesView
+          products={capsuleProducts}
+          query={query}
+          categories={categories}
+        />
+      ) : null}
+
+      {view === "rayons" ? (
+        <CatalogueRayonsView
+          categories={categories}
+          productCounts={settings.navigation.categoryProductCounts}
+        />
+      ) : null}
     </div>
   );
 }

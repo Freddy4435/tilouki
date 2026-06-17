@@ -80,7 +80,8 @@ export const CATEGORY_TILOUKI_IMAGE: Record<string, TiloukiImageKey> =
   CATEGORY_IMAGE_REGISTRY;
 
 /** @deprecated Utiliser RITUAL_IMAGE_REGISTRY. */
-export const RITUAL_TILOUKI_IMAGE: Record<string, TiloukiImageKey> = RITUAL_IMAGE_REGISTRY;
+export const RITUAL_TILOUKI_IMAGE: Record<string, TiloukiImageKey> =
+  RITUAL_IMAGE_REGISTRY;
 
 /** @deprecated Utiliser BLOG_HERO_IMAGE_REGISTRY. */
 export const BLOG_HERO_TILOUKI_IMAGE: Record<string, TiloukiImageKey> =

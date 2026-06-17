@@ -8,6 +8,7 @@ describe("catalog-sell-readiness", () => {
       activeDevSeedProductCount: 0,
       activeRealProductCount: 3,
       activeProductsWithReadinessIssues: 0,
+      activeProductsWithLegacyDemoImages: 0,
       draftProductsReadyToPublish: 2,
     });
     expect(summary.isReadyToSell).toBe(true);
@@ -18,6 +19,7 @@ describe("catalog-sell-readiness", () => {
       activeDevSeedProductCount: 2,
       activeRealProductCount: 5,
       activeProductsWithReadinessIssues: 0,
+      activeProductsWithLegacyDemoImages: 0,
       draftProductsReadyToPublish: 0,
     });
     expect(summary.isReadyToSell).toBe(false);
@@ -31,11 +33,26 @@ describe("catalog-sell-readiness", () => {
       activeDevSeedProductCount: 0,
       activeRealProductCount: 1,
       activeProductsWithReadinessIssues: 1,
+      activeProductsWithLegacyDemoImages: 0,
       draftProductsReadyToPublish: 0,
     });
     expect(summary.isReadyToSell).toBe(false);
     expect(summary.missingRequired.some((item) => item.id === "active-complete")).toBe(
       true,
     );
+  });
+
+  it("bloque si des produits actifs utilisent encore des SVG démo", () => {
+    const summary = getCatalogSellReadinessSummary({
+      activeDevSeedProductCount: 0,
+      activeRealProductCount: 2,
+      activeProductsWithReadinessIssues: 0,
+      activeProductsWithLegacyDemoImages: 3,
+      draftProductsReadyToPublish: 0,
+    });
+    expect(summary.isReadyToSell).toBe(false);
+    expect(
+      summary.missingRequired.some((item) => item.id === "no-legacy-demo-images"),
+    ).toBe(true);
   });
 });

@@ -7,9 +7,12 @@ import { useRef, useState, useTransition } from "react";
 
 import {
   classifyProductImage,
+  findLegacyDemoProductImageIssues,
   getNonCommercialMainImageMessage,
   getProductImageKindLabel,
   getStorefrontListingBlockersFromImages,
+  getStorefrontPhotoStatus,
+  STOREFRONT_PHOTO_STATUS_LABELS,
 } from "@/lib/admin/product-image-readiness";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -189,15 +192,58 @@ export function ProductImagesManager({
         })),
       )
     : [];
+  const photoStatus = getStorefrontPhotoStatus(
+    images.map((img) => ({ url: img.url, alt: img.alt })),
+  );
+  const legacyDemoIssues = findLegacyDemoProductImageIssues(
+    images.map((img) => ({ url: img.url, alt: img.alt })),
+  );
+  const statusLabel = STOREFRONT_PHOTO_STATUS_LABELS[photoStatus.status];
 
   return (
     <div className="space-y-4">
+      <div
+        className={cn(
+          "rounded-lg border px-3 py-2.5 text-sm",
+          photoStatus.status === "ready-to-sell" &&
+            "border-emerald-200/80 bg-emerald-50/80 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-100",
+          photoStatus.status === "listed" &&
+            "border-sky-200/80 bg-sky-50/80 text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-100",
+          photoStatus.status === "hidden" &&
+            "border-amber-200/80 bg-amber-50/80 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100",
+        )}
+        role="status"
+      >
+        <p className="font-medium">Statut photo boutique : {statusLabel}</p>
+        <p className="mt-1 text-xs leading-relaxed">
+          {photoStatus.commercialCount} photo(s) commerciale(s) — objectif{" "}
+          {photoStatus.targetCount} pour « Prêt à vendre ».
+        </p>
+      </div>
+
+      {legacyDemoIssues.length > 0 ? (
+        <div
+          className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100"
+          role="alert"
+        >
+          <p className="font-medium">SVG démo détecté — non vendable en boutique</p>
+          <ul className="mt-1.5 list-inside list-disc space-y-1 text-xs leading-relaxed">
+            {legacyDemoIssues.map((issue) => (
+              <li key={issue.url}>
+                <code>{issue.pathname}</code>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {storefrontBlockers.length > 0 ? (
         <div
           className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100"
           role="alert"
         >
-          <p className="font-medium">Pourquoi ce produit n&apos;apparaît pas en boutique</p>
+          <p className="font-medium">
+            Pourquoi ce produit n&apos;apparaît pas en boutique
+          </p>
           <ul className="mt-1.5 list-inside list-disc space-y-1 text-xs leading-relaxed">
             {storefrontBlockers.map((blocker) => (
               <li key={blocker.id}>{blocker.message}</li>
@@ -263,6 +309,9 @@ export function ProductImagesManager({
           {images.map((image, index) => {
             const kind = classifyProductImage(image.url, image.alt);
             const kindLabel = getProductImageKindLabel(kind, image.url);
+            const isLegacyDemo = legacyDemoIssues.some(
+              (issue) => issue.url === image.url,
+            );
             const nonCommercialHint =
               kind !== "commercial"
                 ? getNonCommercialMainImageMessage(kind, image.url)
@@ -329,6 +378,16 @@ export function ProductImagesManager({
                   {nonCommercialHint ? (
                     <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
                       {nonCommercialHint}
+                    </p>
+                  ) : null}
+                  {isLegacyDemo ? (
+                    <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                      Remplacez ce fichier par une photo JPEG, PNG ou WebP uploadée —
+                      voir{" "}
+                      <code className="text-[11px]">
+                        docs/protocole-photos-produits-tilouki.md
+                      </code>
+                      .
                     </p>
                   ) : null}
                 </div>

@@ -1,6 +1,7 @@
 import {
   classifyProductImage,
   countCommercialStorefrontImages,
+  findLegacyDemoProductImageIssues,
   getMainProductImage,
   getNonCommercialMainImageMessage,
   isCommercialProductImage,
@@ -17,6 +18,7 @@ export type ProductReadinessIssueId =
   | "no-category"
   | "no-photos"
   | "demo-main-image"
+  | "legacy-demo-image"
   | "technical-main-image"
   | "placeholder-main-image"
   | "dev-marked-main-image"
@@ -141,6 +143,19 @@ export function getProductReadinessIssues(
 
   if (images.length > 0) {
     appendMainImageIssues(issues, images);
+
+    const main = getMainProductImage(images);
+    for (const legacy of findLegacyDemoProductImageIssues(images)) {
+      const isMainLegacy =
+        main?.url?.trim() === legacy.url &&
+        issues.some((issue) => issue.id === "demo-main-image");
+      if (isMainLegacy) continue;
+
+      issues.push({
+        id: "legacy-demo-image",
+        message: legacy.message,
+      });
+    }
   } else if ((params.imagesCount ?? 0) === 0) {
     issues.push({
       id: "no-photos",

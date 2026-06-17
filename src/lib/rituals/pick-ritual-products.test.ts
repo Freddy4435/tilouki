@@ -104,7 +104,11 @@ describe("pickProductsForRitual", () => {
     const picked = pickProductsForRitual(
       [
         product({ slug: "jogger", categorySlug: "garcon", name: "Jogger garçon" }),
-        product({ slug: "pyjama-nuit-doux", categorySlug: "pyjamas", name: "Pyjama étoiles" }),
+        product({
+          slug: "pyjama-nuit-doux",
+          categorySlug: "pyjamas",
+          name: "Pyjama étoiles",
+        }),
       ],
       ritual,
     );

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { CatalogueProductList } from "@/components/catalogue/catalogue-product-list";
 import { RecentlyViewedSection } from "@/components/recently-viewed/recently-viewed-section";
 import { RecentlyViewedTracker } from "@/components/recently-viewed/recently-viewed-tracker";
 import { ProductAccordions } from "@/components/product/product-accordions";
@@ -9,6 +8,7 @@ import { ProductCuratorPick } from "@/components/product/product-curator-pick";
 import { ProductFacts } from "@/components/product/product-facts";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductGalleryMainImage } from "@/components/product/product-gallery-main-image";
+import { ProductOutfitSuggestions } from "@/components/product/product-outfit-suggestions";
 import { ProductPurchasePanel } from "@/components/product/product-purchase-panel";
 import { ProductReviewsSection } from "@/components/product/product-reviews-section";
 import { SizeGuide } from "@/components/product/size-guide";
@@ -17,6 +17,8 @@ import { JsonLdScript } from "@/components/seo/json-ld-script";
 import { resolveProductCuratorContent } from "@/lib/catalog/product-page-content";
 import {
   isLikelySecondHandProduct,
+  countCommercialStorefrontImages,
+  extractDocumentedDefects,
   filterCommercialProductImages,
   isProductStorefrontSellable,
 } from "@/lib/catalog/product-sellability";
@@ -68,9 +70,11 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
     : reviewPageRaw;
   const reviewPage = Math.max(1, Number(reviewPageValue ?? "1") || 1);
 
-  const related = await getRelatedProducts(product.id, product.categoryId);
+  const related = await getRelatedProducts(product.id, product.categoryId, 4);
   const commercialImages = filterCommercialProductImages(product.images);
+  const commercialPhotoCount = countCommercialStorefrontImages(product.images);
   const sellable = isProductStorefrontSellable(product.images);
+  const defects = extractDocumentedDefects(product.images);
   const curatorContent = resolveProductCuratorContent(
     product.description,
     product.shortDescription,
@@ -102,12 +106,17 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <ProductGalleryMainImage
             src={commercialImages[0]!.url}
             alt={commercialImages[0]!.alt ?? product.name}
+            commercialCount={commercialPhotoCount}
+            secondHand={secondHand}
+            defects={defects}
           />
         ) : (
           <ProductGallery
             images={product.images}
             productName={product.name}
             sellable={sellable}
+            secondHand={secondHand}
+            defects={defects}
             showLowStockBadge={product.variants.some(
               (v) => v.stockQuantity > 0 && v.stockQuantity <= 2,
             )}
@@ -118,6 +127,12 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
 
       <div className="mt-8 space-y-6 lg:mt-10">
         <ProductFacts product={product} showTitle />
+
+        <ProductOutfitSuggestions
+          products={related}
+          categorySlug={product.categorySlug}
+          categoryName={product.categoryName}
+        />
 
         {curatorContent ? <ProductCuratorPick note={curatorContent.note} /> : null}
 
@@ -135,37 +150,6 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           />
         </div>
       </div>
-
-      {related.length > 0 ? (
-        <section
-          className="mt-12 border-t pt-10"
-          aria-labelledby="complete-the-look-heading"
-        >
-          <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <header>
-              <h2 id="complete-the-look-heading" className="text-section-title text-lg">
-                Compléter le look
-              </h2>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Pièces assorties pour composer une tenue complète.
-              </p>
-            </header>
-            {product.categorySlug ? (
-              <a
-                href={`/categorie/${product.categorySlug}`}
-                className="text-tilouki-teal-dark text-sm font-semibold hover:underline"
-              >
-                Tout le rayon
-              </a>
-            ) : null}
-          </div>
-          <CatalogueProductList
-            products={related}
-            layout="scroll-mobile"
-            priorityLimit={0}
-          />
-        </section>
-      ) : null}
 
       <ProductReviewsSection
         productId={product.id}

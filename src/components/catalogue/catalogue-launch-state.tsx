@@ -1,89 +1,71 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Mail, Ruler } from "lucide-react";
+import { ArrowRight, CalendarHeart, Ruler } from "lucide-react";
 
 import { RitualCard } from "@/components/rituals/ritual-card";
-import { EditorialImage } from "@/components/media/editorial-image";
+import { ArrivageNewsletterCta } from "@/components/newsletter/arrivage-newsletter-cta";
 import { ButtonLink } from "@/components/ui/button-link";
-import { buyingGuidesNav } from "@/lib/constants/site";
 import { getRitualsForCatalogueLaunch } from "@/lib/rituals/rituals";
+import { resolveCategoryTiloukiImage } from "@/lib/tilouki-images";
+import Image from "next/image";
 
 export function CatalogueLaunchState() {
   const rituals = getRitualsForCatalogueLaunch();
+  const storefrontImage = resolveCategoryTiloukiImage("nouveautes");
 
   return (
-    <div className="space-y-10 md:space-y-12" data-testid="catalogue-launch">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
-        <EditorialImage
-          imageId="nursery-wardrobe"
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className="aspect-[5/3] max-h-72 rounded-[var(--radius-card)] shadow-[var(--shadow-card)] ring-1 ring-black/[0.04] lg:aspect-[16/10] lg:max-h-none"
-        />
-        <div className="space-y-4">
-          <p className="text-retail-label text-tilouki-teal-dark">Chaque mercredi</p>
-          <h2 className="text-section-title text-balance">
-            Le catalogue Tilouki arrive
-          </h2>
+    <div className="space-y-8 md:space-y-10" data-testid="catalogue-launch">
+      <div className="border-tilouki-argile/25 bg-tilouki-argile-soft/25 grid gap-6 rounded-[var(--radius-card)] border p-5 sm:grid-cols-[minmax(0,11rem)_1fr] sm:items-center sm:p-6 lg:grid-cols-[minmax(0,14rem)_1fr]">
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-[14rem] overflow-hidden rounded-[var(--radius-card)] sm:mx-0">
+          <Image
+            src={storefrontImage.src}
+            alt={storefrontImage.alt}
+            fill
+            sizes="224px"
+            className="object-cover"
+            priority
+          />
+        </div>
+        <div className="space-y-4 text-center sm:text-left">
+          <p className="text-retail-label text-tilouki-pistache inline-flex items-center justify-center gap-1.5 sm:justify-start">
+            <CalendarHeart className="size-3.5" aria-hidden />
+            Arrivage du mercredi
+          </p>
+          <h2 className="text-section-title text-balance">Le catalogue s&apos;ouvre</h2>
           <p className="text-muted-foreground text-sm leading-relaxed sm:text-base">
-            La boutique se prépare avec soin : pièces choisies, tailles affichées
-            honnêtement, photos réelles. En attendant les premières arrivées, explorez
-            nos conseils et inscrivez-vous pour être informé.
+            Premières pièces en ligne très bientôt — tailles et stock affichés sur
+            chaque fiche. En attendant, parcourez les capsules déjà prêtes.
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <ButtonLink href="/guide-tailles" className="min-h-11">
-              <Ruler className="size-4" aria-hidden />
-              L&apos;atelier des tailles
+            <ButtonLink href="/catalogue?vue=capsules" className="min-h-11">
+              Voir les capsules proches
             </ButtonLink>
-            <ButtonLink href="/blog" variant="outline" className="min-h-11">
-              <BookOpen className="size-4" aria-hidden />
-              {buyingGuidesNav.label}
+            <ButtonLink href="/guide-tailles" variant="outline" className="min-h-11">
+              <Ruler className="size-4" aria-hidden />
+              Guide des tailles
             </ButtonLink>
           </div>
         </div>
       </div>
 
-      <div className="bg-card grid gap-5 rounded-[var(--radius-card)] border p-5 shadow-[var(--shadow-soft)] sm:grid-cols-[auto_1fr] sm:items-center sm:p-6">
-        <EditorialImage
-          imageId="newsletter"
-          fill
-          sizes="120px"
-          className="relative mx-auto h-20 w-[7.5rem] shrink-0 rounded-[var(--radius-button)] sm:mx-0"
-        />
-        <div className="space-y-3 text-center sm:text-left">
-          <h3 className="font-display text-lg font-semibold">
-            Une fois par mois, sans spam
-          </h3>
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            Nouveautés du mercredi, conseils tailles et petits prix — inscrivez-vous en
-            bas de page pour être informé en premier.
-          </p>
-          <ButtonLink href="/#newsletter" variant="outline" className="min-h-11">
-            <Mail className="size-4" aria-hidden />
-            S&apos;inscrire à la newsletter
-          </ButtonLink>
-        </div>
-      </div>
+      <ArrivageNewsletterCta source="catalogue-lancement" notifyHeading="Me prévenir" />
 
       <section aria-labelledby="catalogue-launch-rituals-title">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-retail-label text-tilouki-teal-dark mb-1">
-              En attendant
-            </p>
+            <p className="text-retail-label text-tilouki-pistache mb-1">Déjà en ligne</p>
             <h3 id="catalogue-launch-rituals-title" className="text-section-title">
-              Trois rituels doux
+              Capsules shopping
             </h3>
             <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
-              Trois sélections shopping — pyjamas, matin pressé, petits prix — même sans
-              stock en ligne pour l&apos;instant.
+              Pyjamas, pluie, matin école — composez une tenue même avant le grand
+              arrivage.
             </p>
           </div>
           <Link
             href="/"
-            className="text-tilouki-teal-dark text-sm font-semibold underline-offset-4 hover:underline"
+            className="text-tilouki-pistache text-sm font-semibold underline-offset-4 hover:underline"
           >
-            Retour à Tilouki
+            Retour à l&apos;accueil
             <ArrowRight className="ml-1 inline size-3.5" aria-hidden />
           </Link>
         </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Baby,
   BookOpen,
+  CloudRain,
   Flower2,
   Heart,
   Mail,
@@ -49,6 +50,7 @@ const MOBILE_LINK_ICONS = {
   heart: Heart,
   mail: Mail,
   "book-open": BookOpen,
+  "cloud-rain": CloudRain,
 } as const;
 
 function resolveMobileHref(href: string, contactEmail: string): string {
@@ -62,10 +64,12 @@ function MobileNavLink({
   link,
   contactEmail,
   onNavigate,
+  prominent = false,
 }: {
   link: NavMobileLink;
   contactEmail: string;
   onNavigate: () => void;
+  prominent?: boolean;
 }) {
   const Icon = link.icon ? MOBILE_LINK_ICONS[link.icon] : null;
   const href = resolveMobileHref(link.href, contactEmail);
@@ -74,12 +78,18 @@ function MobileNavLink({
     <Link
       href={href}
       onClick={onNavigate}
-      className="text-foreground hover:bg-tilouki-jade-soft/50 flex min-h-11 items-center gap-3 rounded-[var(--radius-button)] px-3 text-sm font-medium transition-colors"
+      className={
+        prominent
+          ? "bg-tilouki-milk text-tilouki-navy border-tilouki-border hover:bg-tilouki-pistache-soft/60 flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-button)] border px-3 text-base font-semibold transition-colors"
+          : "text-foreground hover:bg-tilouki-pistache-soft/50 flex min-h-12 items-center gap-3 rounded-[var(--radius-button)] px-3 text-base font-medium transition-colors"
+      }
     >
-      {Icon ? (
-        <span className="bg-tilouki-jade-soft text-tilouki-teal-dark flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-button)]">
-          <Icon className="size-4" aria-hidden />
+      {Icon && !prominent ? (
+        <span className="bg-tilouki-pistache-soft text-tilouki-navy flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-button)]">
+          <Icon className="size-4.5" aria-hidden />
         </span>
+      ) : Icon && prominent ? (
+        <Icon className="size-4.5 shrink-0" aria-hidden />
       ) : null}
       <span>{link.label}</span>
     </Link>
@@ -91,6 +101,7 @@ export function MobileNav() {
   const { navigation, contactEmail } = useShop();
 
   const close = () => setOpen(false);
+  const momentsSection = navigation.mobileSections.find((section) => section.id === "moments");
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -121,28 +132,50 @@ export function MobileNav() {
         <div className="flex-1 space-y-5 overflow-y-auto p-4">
           <SearchBar placeholder="Rechercher un vêtement…" />
 
-          <ButtonLink href="/catalogue" size="lg" className="w-full" onClick={close}>
+          <ButtonLink href="/catalogue" size="lg" className="w-full min-h-12" onClick={close}>
             Voir tout le catalogue
           </ButtonLink>
 
-          {navigation.mobileSections.map((section) => (
-            <nav key={section.id} aria-label={section.title}>
+          {momentsSection ? (
+            <nav aria-label={momentsSection.title}>
               <p className="text-retail-label text-tilouki-ink-muted mb-2">
-                {section.title}
+                {momentsSection.title}
               </p>
-              <ul className="space-y-0.5">
-                {section.links.map((link) => (
-                  <li key={`${section.id}-${link.href}-${link.label}`}>
+              <ul className="grid grid-cols-2 gap-2">
+                {momentsSection.links.map((link) => (
+                  <li key={`moments-${link.href}`}>
                     <MobileNavLink
                       link={link}
                       contactEmail={contactEmail}
                       onNavigate={close}
+                      prominent
                     />
                   </li>
                 ))}
               </ul>
             </nav>
-          ))}
+          ) : null}
+
+          {navigation.mobileSections
+            .filter((section) => section.id !== "moments")
+            .map((section) => (
+              <nav key={section.id} aria-label={section.title}>
+                <p className="text-retail-label text-tilouki-ink-muted mb-2">
+                  {section.title}
+                </p>
+                <ul className="space-y-0.5">
+                  {section.links.map((link) => (
+                    <li key={`${section.id}-${link.href}-${link.label}`}>
+                      <MobileNavLink
+                        link={link}
+                        contactEmail={contactEmail}
+                        onNavigate={close}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
 
           <Separator />
 

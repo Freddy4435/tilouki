@@ -58,6 +58,64 @@ export function isEditorialPackImageUrl(url: string): boolean {
 const DEMO_CATALOG_SVG_PATTERN = /^\/products\/[a-z0-9-]+\.svg$/i;
 const DEMO_PRODUCTS_PATH_PATTERN = /^\/demo-products\//i;
 
+export type LegacyDemoProductImageSource = "catalog-svg" | "demo-products";
+
+export interface LegacyDemoProductImageIssue {
+  url: string;
+  pathname: string;
+  source: LegacyDemoProductImageSource;
+  message: string;
+}
+
+/** Visuels marchands interdits : SVG catalogue seed ou dossier demo-products. */
+export function isLegacyDemoProductImageUrl(url: string): boolean {
+  const pathname = normalizePathname(url);
+  return (
+    DEMO_CATALOG_SVG_PATTERN.test(pathname) || DEMO_PRODUCTS_PATH_PATTERN.test(pathname)
+  );
+}
+
+function legacyDemoSource(pathname: string): LegacyDemoProductImageSource {
+  return DEMO_PRODUCTS_PATH_PATTERN.test(pathname) ? "demo-products" : "catalog-svg";
+}
+
+function legacyDemoMessage(
+  source: LegacyDemoProductImageSource,
+  pathname: string,
+): string {
+  if (source === "demo-products") {
+    return `Visuel démo DEV (${pathname}) — remplacez par une photo commerciale uploadée (JPEG, PNG ou WebP).`;
+  }
+  return `SVG catalogue démo (${pathname}) — remplacez par une photo commerciale uploadée (JPEG, PNG ou WebP).`;
+}
+
+/** Signale chaque fichier encore pointé vers /products/*.svg ou /demo-products/*. */
+export function findLegacyDemoProductImageIssues(
+  images: StorefrontImageLike[],
+): LegacyDemoProductImageIssue[] {
+  const issues: LegacyDemoProductImageIssue[] = [];
+
+  for (const image of images) {
+    const url = image.url?.trim() ?? "";
+    if (!url || !isLegacyDemoProductImageUrl(url)) continue;
+
+    const pathname = normalizePathname(url);
+    const source = legacyDemoSource(pathname);
+    issues.push({
+      url,
+      pathname,
+      source,
+      message: legacyDemoMessage(source, pathname),
+    });
+  }
+
+  return issues;
+}
+
+export function hasLegacyDemoProductImages(images: StorefrontImageLike[]): boolean {
+  return findLegacyDemoProductImageIssues(images).length > 0;
+}
+
 /** Longueur minimale pour un alt descriptif (hors nom produit seul). */
 export const COMMERCIAL_ALT_MIN_LENGTH = 8;
 
@@ -329,17 +387,14 @@ function pickStorefrontPrimaryFromImages(
   images: StorefrontImageLike[],
 ): StorefrontImageLike | null {
   return (
-    images.find((image) =>
-      isCommercialProductImage(image.url, image.alt ?? null),
-    ) ?? null
+    images.find((image) => isCommercialProductImage(image.url, image.alt ?? null)) ??
+    null
   );
 }
 
 export type StorefrontPhotoStatus = "hidden" | "listed" | "ready-to-sell";
 
-export function getStorefrontPhotoStatus(
-  images: StorefrontImageLike[],
-): {
+export function getStorefrontPhotoStatus(images: StorefrontImageLike[]): {
   status: StorefrontPhotoStatus;
   commercialCount: number;
   targetCount: number;
@@ -354,4 +409,69 @@ export function getStorefrontPhotoStatus(
     return { status: "listed", commercialCount, targetCount };
   }
   return { status: "hidden", commercialCount, targetCount };
+}
+
+export interface SellabilityClientNotice {
+  title: string;
+  body: string;
+  /** Indication technique pour l'équipe boutique (admin). */
+  adminHint: string;
+}
+
+/** Message clair client + rappel admin quand l'achat est bloqué par les photos. */
+export function resolveSellabilityClientNotice(
+  slug: string,
+  images: StorefrontImageLike[],
+): SellabilityClientNotice {
+  const blockers = getStorefrontListingBlockersFromImages(slug, images);
+  const primary = blockers[0];
+  const adminHint =
+    primary?.message ??
+    "Ajoutez au moins une photo commerciale (JPEG/PNG/WebP) avec une description d'au moins 8 caractères.";
+
+  switch (primary?.id) {
+    case "no-primary-image":
+      return {
+        title: "Bientôt disponible en ligne",
+        body: "Les photos de cet article sont en préparation. Dès qu'elles seront publiées, vous pourrez choisir la taille et commander.",
+        adminHint,
+      };
+    case "editorial-pack-image":
+      return {
+        title: "Article en cours de mise en ligne",
+        body: "Ce vêtement sera activé à l'achat dès que nous aurons publié ses vraies photos — pas de visuel d'ambiance à la place.",
+        adminHint,
+      };
+    case "demo-generated-image":
+    case "technical-image":
+      return {
+        title: "Photos en cours de remplacement",
+        body: "Les visuels actuels ne reflètent pas encore l'article réel. L'achat s'ouvrira avec des photos commerciales.",
+        adminHint,
+      };
+    case "placeholder-image":
+      return {
+        title: "Bientôt disponible",
+        body: "La photo « à venir » sera remplacée par des images réelles de l'article avant l'ouverture des ventes.",
+        adminHint,
+      };
+    case "dev-marked-image":
+      return {
+        title: "Article en finalisation",
+        body: "Cette fiche est encore en préparation côté boutique. Revenez bientôt pour commander.",
+        adminHint,
+      };
+    case "missing-descriptive-alt":
+      return {
+        title: "Presque prêt",
+        body: "Il nous manque une description photo complète pour activer l'achat en ligne en toute transparence.",
+        adminHint,
+      };
+    default:
+      return {
+        title: "Bientôt disponible en ligne",
+        body: "Les photos commerciales de cet article sont en cours de finalisation. L'achat en ligne sera activé dès qu'elles seront publiées.",
+        adminHint,
+      };
+  }
 }

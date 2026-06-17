@@ -4,6 +4,7 @@ import { expectNoSeriousAxeViolations } from "./helpers/accessibility";
 import { ensureSeededCartOnPage } from "./helpers/cart";
 import {
   expectCataloguePageReady,
+  expectCategoryPageReady,
   openCategoryFromCatalogue,
   openSellableProductFromCatalogue,
 } from "./helpers/catalog";
@@ -34,7 +35,9 @@ async function openProductForVisualQa(page: import("@playwright/test").Page) {
   if (href) return href;
 
   await page.goto("/");
-  const homeCard = page.locator("article.tilouki-product-card a[href^='/produit/']").first();
+  const homeCard = page
+    .locator("article.tilouki-product-card a[href^='/produit/']")
+    .first();
   if ((await homeCard.count()) > 0) {
     await homeCard.click();
     await page.waitForURL(/\/produit\//);
@@ -52,7 +55,9 @@ async function openProductForVisualQa(page: import("@playwright/test").Page) {
   const categoryCard = page
     .locator("article.tilouki-product-card a[href^='/produit/']")
     .first();
-  const hasCategoryCard = await categoryCard.isVisible({ timeout: 20_000 }).catch(() => false);
+  const hasCategoryCard = await categoryCard
+    .isVisible({ timeout: 20_000 })
+    .catch(() => false);
   if (!hasCategoryCard) return null;
 
   await categoryCard.click();
@@ -68,39 +73,63 @@ test.describe("QA visuelle retail — production", () => {
   });
 
   test("accueil desktop 1440 — produits avant guides", async ({ page }) => {
-    await captureFullPage(page, "/", qaPath("home-desktop-1440.png"), DESKTOP);
-    await expectHomeProductsBeforeBuyingGuides(page);
+    await captureFullPage(page, "/", qaPath("home-desktop-1440.png"), DESKTOP, {
+      readySelector: "#home-vestiaire",
+    });
+    await expectHomeProductsBeforeBuyingGuides(page, { skipGoto: true });
     await expectNoSeriousAxeViolations(page);
   });
 
   test("accueil mobile 390", async ({ page }) => {
-    await captureFullPage(page, "/", qaPath("home-mobile-390.png"), MOBILE);
-    await expectHomeProductsBeforeBuyingGuides(page);
+    await captureFullPage(page, "/", qaPath("home-mobile-390.png"), MOBILE, {
+      readySelector: "#home-vestiaire",
+    });
+    await expectHomeProductsBeforeBuyingGuides(page, { skipGoto: true });
     await expectNoBottomNavOverlap(page);
     await expectNoSeriousAxeViolations(page);
   });
 
   test("catalogue desktop 1440", async ({ page }) => {
-    await captureFullPage(page, "/catalogue", qaPath("catalogue-desktop-1440.png"), DESKTOP);
+    await captureFullPage(
+      page,
+      "/catalogue",
+      qaPath("catalogue-desktop-1440.png"),
+      DESKTOP,
+    );
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     await expectNoSeriousAxeViolations(page);
   });
 
   test("catalogue mobile 390", async ({ page }) => {
-    await captureFullPage(page, "/catalogue", qaPath("catalogue-mobile-390.png"), MOBILE);
+    await captureFullPage(
+      page,
+      "/catalogue",
+      qaPath("catalogue-mobile-390.png"),
+      MOBILE,
+    );
     await expectNoBottomNavOverlap(page);
     await expectNoSeriousAxeViolations(page);
   });
 
-  test("catégorie — visuel Tilouki éditorial autorisé", async ({ page }) => {
+  test("catégorie desktop — raccourci catalogue, main et h1", async ({ page }) => {
     await page.setViewportSize(DESKTOP);
     await page.goto("/catalogue");
     const ready = await expectCataloguePageReady(page);
     test.skip(!ready, "Catalogue en mode lancement");
 
-    const href = await openCategoryFromCatalogue(page, /bébé/i);
-    test.skip(!href, "Catégorie bébé inaccessible");
+    const href = await openCategoryFromCatalogue(page, /^bébé$/i);
+    test.skip(!href, "Catégorie bébé inaccessible via raccourcis catalogue");
 
+    await expectCategoryPageReady(page, { slug: "bebe", title: /^bébé$/i });
+    await expectEditorialTiloukiImage(page);
+    await expectNoSeriousAxeViolations(page);
+  });
+
+  test("catégorie bébé — bandeau, h1 et produits ou vide", async ({ page }) => {
+    await page.setViewportSize(DESKTOP);
+    await page.goto("/categorie/bebe");
+
+    await expectCategoryPageReady(page, { slug: "bebe", title: /^bébé$/i });
     await expectEditorialTiloukiImage(page);
     await expectNoSeriousAxeViolations(page);
   });

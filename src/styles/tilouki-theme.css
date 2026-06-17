@@ -1,77 +1,99 @@
 /**
  * Tilouki — Cocon marchand 2026
- * Palette premium enfant : blanc chaud, marine profond, menthe / pêche / bleu grisé.
- * Persimmon réservé promo & urgence. --shop-primary surchargeable (admin).
+ * Crème chaude, navy encre, pistache grisée, rose linge, denim lavé, argile, vanille.
+ * --shop-primary surchargeable (admin).
  */
 :root {
-  /* Surfaces — blanc chaud, tactiles */
-  --tilouki-milk: #fffcf9;
+  /* Surfaces — crème chaude, jamais blanc pur */
+  --tilouki-milk: #fdf8f2;
   --tilouki-white: var(--tilouki-milk);
-  --tilouki-cloud: #f4f1ec;
-  --tilouki-cream: #faf6f1;
-  --tilouki-beige: #ebe6de;
-  --tilouki-sand: #d9d4cb;
+  --tilouki-cloud: #f3ece3;
+  --tilouki-cream: #faf3ea;
+  --tilouki-beige: #e6ddd2;
+  --tilouki-sand: #cfc4b6;
 
-  /* Marine & texte */
-  --tilouki-navy: #2a3a52;
-  --tilouki-navy-dark: #1e2a3d;
-  --tilouki-ink: #1e2a3d;
+  /* Navy encre — texte & CTA */
+  --tilouki-navy: #243147;
+  --tilouki-navy-dark: #1a2435;
+  --tilouki-ink: #1a2435;
   --tilouki-ink-muted: #4a5568;
   --tilouki-ink-subtle: #6b7280;
 
-  /* Accents marque */
-  --tilouki-brand-blue: #6b849f;
-  --tilouki-brand-blue-soft: #e4eaf2;
-  --tilouki-mint: #7fbda8;
-  --tilouki-mint-soft: #e2f3ed;
-  --tilouki-peach: #e89578;
-  --tilouki-peach-soft: #fbe9e2;
+  /* Pistache grisée — confiance / réassurance */
+  --tilouki-pistache: #8fa896;
+  --tilouki-pistache-soft: #e6ede8;
 
-  /* Alias historiques → palette 2026 */
+  /* Rose linge & vieux rose — douceur */
+  --tilouki-rose-linge: #d4a5a0;
+  --tilouki-vieux-rose: #c4928c;
+  --tilouki-rose-linge-soft: #f5e8e6;
+
+  /* Bleu denim lavé — garçon / pluie / info */
+  --tilouki-denim: #5c7394;
+  --tilouki-denim-soft: #e4eaf0;
+
+  /* Argile / terracotta — arrivages & promos */
+  --tilouki-argile: #c4846a;
+  --tilouki-terracotta: #b87359;
+  --tilouki-argile-soft: #f3e4dc;
+
+  /* Jaune vanille — micro-accent */
+  --tilouki-vanille: #e8c97a;
+  --tilouki-vanille-soft: #faf3e0;
+
+  /* Accents marque — alias vers palette 2026 */
+  --tilouki-brand-blue: var(--tilouki-denim);
+  --tilouki-brand-blue-soft: var(--tilouki-denim-soft);
+  --tilouki-mint: var(--tilouki-pistache);
+  --tilouki-mint-soft: var(--tilouki-pistache-soft);
+  --tilouki-peach: var(--tilouki-rose-linge);
+  --tilouki-peach-soft: var(--tilouki-rose-linge-soft);
+
+  /* Alias historiques */
   --tilouki-teal: var(--tilouki-navy);
   --tilouki-teal-dark: var(--tilouki-navy-dark);
-  --tilouki-jade: var(--tilouki-mint);
-  --tilouki-jade-soft: var(--tilouki-mint-soft);
+  --tilouki-jade: var(--tilouki-pistache);
+  --tilouki-jade-soft: var(--tilouki-pistache-soft);
 
   /* Éditorial léger */
-  --tilouki-powder: var(--tilouki-peach-soft);
-  --tilouki-powder-soft: #fff6f2;
-  --tilouki-butter: #e8b85c;
-  --tilouki-butter-soft: var(--tilouki-peach-soft);
+  --tilouki-powder: var(--tilouki-rose-linge-soft);
+  --tilouki-powder-soft: #faf0ee;
+  --tilouki-butter: var(--tilouki-vanille);
+  --tilouki-butter-soft: var(--tilouki-vanille-soft);
   --tilouki-butter-ink: var(--tilouki-navy-dark);
-  --tilouki-icy: var(--tilouki-brand-blue-soft);
+  --tilouki-icy: var(--tilouki-denim-soft);
   --tilouki-plum: var(--tilouki-navy);
-  --tilouki-plum-soft: var(--tilouki-brand-blue-soft);
+  --tilouki-plum-soft: var(--tilouki-denim-soft);
 
-  /* Promo & urgence commerciale uniquement */
-  --tilouki-persimmon: #e56f4f;
+  /* Promo & urgence commerciale */
+  --tilouki-persimmon: #c45f42;
   --tilouki-persimmon-dark: #9e3d24;
-  --tilouki-persimmon-soft: #fbe8e3;
+  --tilouki-persimmon-soft: var(--tilouki-argile-soft);
 
   /* Alias legacy */
-  --tilouki-rose: var(--tilouki-peach);
-  --tilouki-rose-soft: var(--tilouki-peach-soft);
-  --tilouki-blue: var(--tilouki-brand-blue);
-  --tilouki-blue-soft: var(--tilouki-brand-blue-soft);
-  --tilouki-sage: var(--tilouki-mint);
-  --tilouki-sage-light: var(--tilouki-mint-soft);
+  --tilouki-rose: var(--tilouki-vieux-rose);
+  --tilouki-rose-soft: var(--tilouki-rose-linge-soft);
+  --tilouki-blue: var(--tilouki-denim);
+  --tilouki-blue-soft: var(--tilouki-denim-soft);
+  --tilouki-sage: var(--tilouki-pistache);
+  --tilouki-sage-light: var(--tilouki-pistache-soft);
   --tilouki-sage-dark: var(--tilouki-navy-dark);
-  --tilouki-navy-soft: var(--tilouki-brand-blue-soft);
-  --tilouki-sky: var(--tilouki-brand-blue);
-  --tilouki-sky-soft: var(--tilouki-brand-blue-soft);
-  --tilouki-coral: var(--tilouki-peach);
+  --tilouki-navy-soft: var(--tilouki-denim-soft);
+  --tilouki-sky: var(--tilouki-denim);
+  --tilouki-sky-soft: var(--tilouki-denim-soft);
+  --tilouki-coral: var(--tilouki-argile);
 
   /* Liens & info */
-  --tilouki-info: var(--tilouki-brand-blue);
-  --tilouki-info-soft: var(--tilouki-brand-blue-soft);
+  --tilouki-info: var(--tilouki-denim);
+  --tilouki-info-soft: var(--tilouki-denim-soft);
 
   /* Séparations */
-  --tilouki-border: #e0dcd4;
-  --tilouki-border-subtle: #ebe7e0;
+  --tilouki-border: #ddd5c9;
+  --tilouki-border-subtle: #ebe4da;
 
-  /* CTA principal — marine (surchargeable admin) */
+  /* CTA principal — marine encre */
   --shop-primary: var(--tilouki-navy);
-  --shop-primary-light: var(--tilouki-brand-blue);
+  --shop-primary-light: var(--tilouki-denim);
   --shop-primary-dark: var(--tilouki-navy-dark);
   --shop-primary-foreground: var(--tilouki-milk);
 
@@ -93,18 +115,18 @@
   --radius-button: 0.5rem;
   --radius-card: 0.75rem;
 
-  /* Ombres — profondeur maîtrisée, marine doux */
-  --shadow-soft: 0 1px 2px rgb(30 42 61 / 0.04), 0 2px 8px rgb(30 42 61 / 0.05);
+  /* Ombres — profondeur douce, navy chaud */
+  --shadow-soft: 0 1px 2px rgb(26 36 53 / 0.04), 0 2px 8px rgb(26 36 53 / 0.05);
   --shadow-card:
-    0 1px 2px rgb(30 42 61 / 0.05), 0 4px 16px rgb(30 42 61 / 0.07),
-    0 0 0 1px rgb(30 42 61 / 0.04);
+    0 1px 2px rgb(26 36 53 / 0.05), 0 4px 16px rgb(26 36 53 / 0.07),
+    0 0 0 1px rgb(26 36 53 / 0.04);
   --shadow-card-hover:
-    0 4px 10px rgb(30 42 61 / 0.08), 0 14px 32px rgb(30 42 61 / 0.1),
-    0 0 0 1px rgb(30 42 61 / 0.05);
+    0 4px 10px rgb(26 36 53 / 0.08), 0 14px 32px rgb(26 36 53 / 0.1),
+    0 0 0 1px rgb(26 36 53 / 0.05);
   --shadow-cta:
-    0 1px 2px rgb(30 42 61 / 0.1),
+    0 1px 2px rgb(26 36 53 / 0.1),
     0 4px 14px color-mix(in srgb, var(--shop-primary), transparent 72%);
-  --shadow-inset-surface: inset 0 1px 0 rgb(255 255 255 / 0.65);
+  --shadow-inset-surface: inset 0 1px 0 rgb(255 252 247 / 0.75);
 
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);

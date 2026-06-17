@@ -12,12 +12,15 @@ import {
   getStorefrontListingBlockers,
   getStorefrontPhotoStatus,
   hasCommercialStorefrontImages,
+  findLegacyDemoProductImageIssues,
+  isLegacyDemoProductImageUrl,
   isCommercialProductImage,
   isDescriptiveCommercialAlt,
   isProductReadyToSell,
   isProductStorefrontListed,
   isProductStorefrontSellable,
   isStorefrontBlockedSlug,
+  resolveSellabilityClientNotice,
   STOREFRONT_BLOCKED_TECHNICAL_SLUGS,
   STOREFRONT_COMMERCIAL_PHOTOS_MIN,
   STOREFRONT_READY_TO_SELL_PHOTOS_MIN,
@@ -219,6 +222,33 @@ describe("classifyProductImage", () => {
   });
 });
 
+describe("isLegacyDemoProductImageUrl", () => {
+  it("détecte les chemins SVG catalogue et demo-products", () => {
+    expect(isLegacyDemoProductImageUrl("/products/body-bebe-coton-bio.svg")).toBe(true);
+    expect(isLegacyDemoProductImageUrl("/demo-products/pyjama-etoiles.svg")).toBe(true);
+    expect(
+      isLegacyDemoProductImageUrl(
+        "https://example.supabase.co/storage/v1/object/public/product-images/a.jpg",
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("findLegacyDemoProductImageIssues", () => {
+  it("signale chaque visuel démo encore attaché à la fiche", () => {
+    const issues = findLegacyDemoProductImageIssues([
+      { url: "/products/robe.svg", alt: "Robe" },
+      { url: commercialUrl, alt: descriptiveAlt },
+      { url: "/demo-products/body.svg", alt: "Body" },
+    ]);
+    expect(issues).toHaveLength(2);
+    expect(issues.map((issue) => issue.source)).toEqual([
+      "catalog-svg",
+      "demo-products",
+    ]);
+  });
+});
+
 describe("filterStorefrontListedProducts", () => {
   it("retire démo et fiches sans photo commerciale", () => {
     const filtered = filterStorefrontListedProducts([
@@ -291,6 +321,20 @@ describe("getStorefrontPhotoStatus", () => {
   });
 });
 
+describe("catalog-products fixture", () => {
+  it("signale les SVG seed du catalogue import comme visuels démo", async () => {
+    const catalog = (await import("../../../data/catalog-products.json")).default as {
+      products: Array<{ imageSlug: string }>;
+    };
+
+    for (const product of catalog.products) {
+      expect(isLegacyDemoProductImageUrl(`/products/${product.imageSlug}.svg`)).toBe(
+        true,
+      );
+    }
+  });
+});
+
 describe("sortStorefrontListedFirst", () => {
   it("place les fiches listées avant les autres", () => {
     const sorted = sortStorefrontListedFirst([
@@ -302,5 +346,14 @@ describe("sortStorefrontListedFirst", () => {
       listItem({ createdAt: "2026-06-01T00:00:00.000Z" }),
     ]);
     expect(sorted[0]?.slug).toBe("robe-ete");
+  });
+});
+
+describe("resolveSellabilityClientNotice", () => {
+  it("explique clairement le blocage photo pour le client et l'admin", () => {
+    const notice = resolveSellabilityClientNotice("robe-test", []);
+    expect(notice.title).toMatch(/bientôt|préparation/i);
+    expect(notice.body.length).toBeGreaterThan(24);
+    expect(notice.adminHint).toMatch(/photo/i);
   });
 });

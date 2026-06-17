@@ -16,7 +16,8 @@ export function ProductShippingRecap({
   className,
 }: ProductShippingRecapProps) {
   const shop = useOptionalShop();
-  const minShippingCents = shop?.minShippingCents ?? defaultShopSettings.minShippingCents;
+  const minShippingCents =
+    shop?.minShippingCents ?? defaultShopSettings.minShippingCents;
   const hasReturnPolicy = Boolean(shop?.returnPolicy?.trim());
   const compact = variant === "cta";
 
@@ -26,7 +27,7 @@ export function ProductShippingRecap({
         "rounded-[var(--radius-card)] border",
         compact
           ? "border-border/70 bg-muted/25 px-3 py-2.5"
-          : "border-tilouki-jade/25 bg-tilouki-jade-soft/35 px-3.5 py-3",
+          : "border-tilouki-pistache/25 bg-tilouki-pistache-soft/35 px-3.5 py-3",
         className,
       )}
     >
@@ -42,7 +43,10 @@ export function ProductShippingRecap({
         </li>
         {hasReturnPolicy ? (
           <li className="inline-flex items-center gap-1.5 font-medium">
-            <RotateCcw className="text-tilouki-teal-dark size-3.5 shrink-0" aria-hidden />
+            <RotateCcw
+              className="text-tilouki-teal-dark size-3.5 shrink-0"
+              aria-hidden
+            />
             Retours — voir conditions
           </li>
         ) : null}

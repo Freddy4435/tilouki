@@ -33,10 +33,14 @@ describe("tilouki-image-registry", () => {
   it("couvre tous les modules connus sans trou dans la registry", () => {
     const ritualSlugs = getAllRitualSlugs();
     for (const slug of ritualSlugs) {
-      expect(RITUAL_IMAGE_REGISTRY[slug as keyof typeof RITUAL_IMAGE_REGISTRY]).toBeDefined();
+      expect(
+        RITUAL_IMAGE_REGISTRY[slug as keyof typeof RITUAL_IMAGE_REGISTRY],
+      ).toBeDefined();
     }
 
-    const blogHeroIds = [...new Set(blogArticles.map((article) => article.heroImageId))];
+    const blogHeroIds = [
+      ...new Set(blogArticles.map((article) => article.heroImageId)),
+    ];
     for (const heroImageId of blogHeroIds) {
       expect(
         BLOG_HERO_IMAGE_REGISTRY[heroImageId as keyof typeof BLOG_HERO_IMAGE_REGISTRY],
@@ -82,8 +86,12 @@ describe("tilouki-image-registry", () => {
   });
 
   it("résout les modules connus via leur entrée dédiée (pas un fallback générique)", () => {
-    expect(resolveCategoryTiloukiImage("garcon").key).toBe(CATEGORY_IMAGE_REGISTRY.garcon);
-    expect(resolveCategoryTiloukiImage("fille").key).toBe(CATEGORY_IMAGE_REGISTRY.fille);
+    expect(resolveCategoryTiloukiImage("garcon").key).toBe(
+      CATEGORY_IMAGE_REGISTRY.garcon,
+    );
+    expect(resolveCategoryTiloukiImage("fille").key).toBe(
+      CATEGORY_IMAGE_REGISTRY.fille,
+    );
     expect(resolveCategoryTiloukiImage("bebe").key).toBe(CATEGORY_IMAGE_REGISTRY.bebe);
     expect(resolveRitualTiloukiImage("nuit-calme").key).toBe(
       RITUAL_IMAGE_REGISTRY["nuit-calme"],

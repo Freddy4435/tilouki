@@ -31,4 +31,20 @@ describe("catalogue-quick-chips", () => {
     expect(chips.some((chip) => chip.href.includes("/categorie/bebe"))).toBe(true);
     expect(chips.some((chip) => chip.id === "bebe")).toBe(false);
   });
+
+  it("cible des pages catégorie sans lien header/footer ambigu", () => {
+    const categoryChips = CATALOGUE_QUICK_CHIPS.filter((chip) =>
+      ["bebe", "pyjamas"].includes(chip.id),
+    );
+
+    for (const chip of categoryChips) {
+      expect(chip.href).toMatch(/^\/categorie\/[a-z-]+(\?|$)/);
+      expect(chip.href).not.toMatch(/rituels|blog|guide-tailles|#/);
+    }
+
+    const bebe = CATALOGUE_QUICK_CHIPS.find((chip) => chip.id === "bebe")!;
+    const pyjamas = CATALOGUE_QUICK_CHIPS.find((chip) => chip.id === "pyjamas")!;
+    expect(bebe.label).toBe("Bébé");
+    expect(pyjamas.label).toBe("Pyjamas");
+  });
 });

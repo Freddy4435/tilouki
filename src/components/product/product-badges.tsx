@@ -120,7 +120,9 @@ export function ProductBadgeList({
   return (
     <div
       className={cn(
-        layout === "stack" ? "flex max-w-full flex-col items-start gap-1" : "flex flex-wrap gap-1",
+        layout === "stack"
+          ? "flex max-w-full flex-col items-start gap-1"
+          : "flex flex-wrap gap-1",
         className,
       )}
     >

@@ -35,4 +35,16 @@ describe("palette Cocon marchand 2026 — contrastes AA", () => {
   it("navy-dark sur milk ≥ 4.5:1 (CTA)", () => {
     expect(contrastRatio("#1e2a3d", "#fffcf9")).toBeGreaterThanOrEqual(4.5);
   });
+
+  it("navy sur pistache-soft ≥ 4.5:1 (nav active, chips catalogue)", () => {
+    expect(contrastRatio("#243147", "#e6ede8")).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("navy sur milk ≥ 4.5:1 (titres sections)", () => {
+    expect(contrastRatio("#243147", "#fdf8f2")).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("blanc sur navy-dark ≥ 4.5:1 (hero overlay)", () => {
+    expect(contrastRatio("#ffffff", "#1a2435")).toBeGreaterThanOrEqual(4.5);
+  });
 });

@@ -35,7 +35,7 @@ export function TermsCheckbox({ form }: TermsCheckboxProps) {
           J&apos;ai lu et j&apos;accepte les{" "}
           <Link
             href="/cgv"
-            className="font-medium text-foreground underline underline-offset-4"
+            className="text-foreground font-medium underline underline-offset-4"
             target="_blank"
           >
             conditions générales de vente
@@ -43,7 +43,7 @@ export function TermsCheckbox({ form }: TermsCheckboxProps) {
           , les informations de{" "}
           <Link
             href="/livraison-retours"
-            className="font-medium text-foreground underline underline-offset-4"
+            className="text-foreground font-medium underline underline-offset-4"
             target="_blank"
           >
             livraison et retours
@@ -51,7 +51,7 @@ export function TermsCheckbox({ form }: TermsCheckboxProps) {
           et la{" "}
           <Link
             href="/confidentialite"
-            className="font-medium text-foreground underline underline-offset-4"
+            className="text-foreground font-medium underline underline-offset-4"
             target="_blank"
           >
             politique de confidentialité

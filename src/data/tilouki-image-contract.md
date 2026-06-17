@@ -6,15 +6,15 @@ Source de vérité code : `src/lib/tilouki-image-registry.ts` + résolveurs dans
 
 ## Quelle image pour quel module ?
 
-| Surface | Module / id | Résolveur | Image pack (clé) |
-|--------|-------------|-----------|------------------|
-| **Home hero** | `hero-home` | `resolveEditorialModuleTiloukiImage` | `home-hero-dressing-couleurs` |
-| **Accès rapides** | `bebe`, `fille`, `garcon`, `pyjamas`, `petits-prix` | `resolveQuickAccessTiloukiImage` | voir `QUICK_ACCESS_IMAGE_REGISTRY` |
-| **Catégories** | slug catalogue (`bebe`, `fille`, `garcon`, `pyjamas`, `pluie`…) | `resolveCategoryTiloukiImage` | voir `CATEGORY_IMAGE_REGISTRY` |
-| **Rituels** | `nuit-calme`, `jour-de-pluie`, `bebe-cocon`, `matin-presse`, `petit-budget` | `resolveRitualTiloukiImage` | voir `RITUAL_IMAGE_REGISTRY` |
-| **Catalogue** | bandeau index / catégorie | `resolveCatalogueSurfaceTiloukiImage` | `categorie-boutique-enfants-mannequins` |
-| **Blog / guides** | `heroImageId` article | `resolveBlogHeroTiloukiImage` | voir `BLOG_HERO_IMAGE_REGISTRY` |
-| **Réassurance** | guide tailles, linge, newsletter, livraison | `resolveReassuranceTiloukiImage` | voir `REASSURANCE_SURFACE_IMAGE_REGISTRY` |
+| Surface           | Module / id                                                                 | Résolveur                             | Image pack (clé)                          |
+| ----------------- | --------------------------------------------------------------------------- | ------------------------------------- | ----------------------------------------- |
+| **Home hero**     | `hero-home`                                                                 | `resolveEditorialModuleTiloukiImage`  | `home-hero-dressing-couleurs`             |
+| **Accès rapides** | `bebe`, `fille`, `garcon`, `pyjamas`, `petits-prix`                         | `resolveQuickAccessTiloukiImage`      | voir `QUICK_ACCESS_IMAGE_REGISTRY`        |
+| **Catégories**    | slug catalogue (`bebe`, `fille`, `garcon`, `pyjamas`, `pluie`…)             | `resolveCategoryTiloukiImage`         | voir `CATEGORY_IMAGE_REGISTRY`            |
+| **Rituels**       | `nuit-calme`, `jour-de-pluie`, `bebe-cocon`, `matin-presse`, `petit-budget` | `resolveRitualTiloukiImage`           | voir `RITUAL_IMAGE_REGISTRY`              |
+| **Catalogue**     | bandeau index / catégorie                                                   | `resolveCatalogueSurfaceTiloukiImage` | `categorie-boutique-enfants-mannequins`   |
+| **Blog / guides** | `heroImageId` article                                                       | `resolveBlogHeroTiloukiImage`         | voir `BLOG_HERO_IMAGE_REGISTRY`           |
+| **Réassurance**   | guide tailles, linge, newsletter, livraison                                 | `resolveReassuranceTiloukiImage`      | voir `REASSURANCE_SURFACE_IMAGE_REGISTRY` |
 
 ## Règles sémantiques
 

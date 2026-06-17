@@ -4,11 +4,11 @@ Ce guide décrit **concrètement** comment photographier et publier les vêtemen
 
 ## En résumé
 
-| État admin | Ce qu’il faut | Ce que voit le parent |
-| ---------- | ------------- | --------------------- |
+| État admin                | Ce qu’il faut                                                       | Ce que voit le parent                   |
+| ------------------------- | ------------------------------------------------------------------- | --------------------------------------- |
 | **Invisible en boutique** | Pas de vraie photo, SVG démo, pack Tilouki ou description manquante | Rien dans le catalogue ni sur l’accueil |
-| **Visible catalogue** | **1** photo réelle + description (≥ 8 caractères) | Carte produit + fiche achetable |
-| **Prêt à vendre** | **3** photos commerciales | Fiche complète qui rassure avant achat |
+| **Visible catalogue**     | **1** photo réelle + description (≥ 8 caractères)                   | Carte produit + fiche achetable         |
+| **Prêt à vendre**         | **3** photos commerciales                                           | Fiche complète qui rassure avant achat  |
 
 ## Workflow admin (étape par étape)
 
@@ -82,13 +82,13 @@ La checklist admin marque alors **Défaut documenté** comme obligatoire.
 
 ## Ce qui bloque la boutique (messages admin)
 
-| Situation | Message typique | Action |
-| --------- | --------------- | ------ |
-| SVG catalogue `/products/*.svg` | Visuel démo — pas vendable | Uploader un JPEG/PNG/WebP réel |
-| Pack Tilouki `/images/tilouki/...` | Réservé éditorial | Uploader votre propre photo |
-| Placeholder / « Photo à venir » | Pas une vraie photo | Remplacer + décrire la vue |
-| Alt trop court (< 8 car.) | Description manquante | Compléter la description photo |
-| Produit test (`produit-test-csp`, etc.) | Réservé démo | Utiliser un autre slug en prod |
+| Situation                               | Message typique            | Action                         |
+| --------------------------------------- | -------------------------- | ------------------------------ |
+| SVG catalogue `/products/*.svg`         | Visuel démo — pas vendable | Uploader un JPEG/PNG/WebP réel |
+| Pack Tilouki `/images/tilouki/...`      | Réservé éditorial          | Uploader votre propre photo    |
+| Placeholder / « Photo à venir »         | Pas une vraie photo        | Remplacer + décrire la vue     |
+| Alt trop court (< 8 car.)               | Description manquante      | Compléter la description photo |
+| Produit test (`produit-test-csp`, etc.) | Réservé démo               | Utiliser un autre slug en prod |
 
 ## Ce que le parent voit
 

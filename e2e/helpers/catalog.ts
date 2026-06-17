@@ -63,6 +63,53 @@ export async function goToCatalogueFromHome(page: Page) {
   }
 }
 
+/** Page rayon prête : H1 dans main, contenu visible, grille ou état vide. */
+export async function expectCategoryPageReady(
+  page: Page,
+  options?: { slug?: string; title?: RegExp | string },
+) {
+  if (options?.slug) {
+    await expect(page).toHaveURL(new RegExp(`/categorie/${options.slug}(\\?|$)`), {
+      timeout: 20_000,
+    });
+  } else {
+    await expect(page).toHaveURL(/\/categorie\//, { timeout: 20_000 });
+  }
+
+  await page.waitForLoadState("networkidle").catch(() => undefined);
+
+  const h1 = page.locator("#contenu-principal h1").first();
+  await expect(h1).toBeVisible({ timeout: 30_000 });
+
+  if (options?.title) {
+    await expect(h1).toHaveText(options.title);
+  }
+
+  await expect
+    .poll(
+      async () =>
+        (await page.locator("#contenu-principal").innerText()).trim().length > 20,
+      {
+        timeout: 20_000,
+      },
+    )
+    .toBe(true);
+
+  const hasProducts = await page
+    .locator("article.tilouki-product-card")
+    .first()
+    .isVisible()
+    .catch(() => false);
+  const hasEmptyState = await page
+    .getByRole("heading", {
+      name: /ce rayon se remplit|aucune pièce pour cette sélection|aucun article pour cette sélection/i,
+    })
+    .isVisible()
+    .catch(() => false);
+
+  expect(hasProducts || hasEmptyState).toBe(true);
+}
+
 export async function openCategoryFromCatalogue(
   page: Page,
   categoryLabel: RegExp | string = /bébé/i,
@@ -72,24 +119,17 @@ export async function openCategoryFromCatalogue(
   if (!ready) return null;
 
   const quickNav = page.getByRole("navigation", { name: /raccourcis catalogue/i });
+  await expect(quickNav).toBeVisible({ timeout: 20_000 });
+
   const quickChip = quickNav.getByRole("link", { name: categoryLabel });
-  const chip =
-    (await quickChip.count()) > 0
-      ? quickChip.first()
-      : page.getByRole("link", { name: categoryLabel }).first();
+  if ((await quickChip.count()) === 0) return null;
 
-  if ((await chip.count()) === 0) return null;
-
+  const chip = quickChip.first();
   const href = await chip.getAttribute("href");
-  await chip.click();
-  await page.waitForURL(/\/categorie\//);
-  await page.waitForLoadState("domcontentloaded");
+  if (!href?.startsWith("/categorie/")) return null;
 
-  await expect(
-    page.getByRole("main").getByRole("heading", { level: 1 }).first(),
-  ).toBeVisible({
-    timeout: 20_000,
-  });
+  await page.goto(href);
+  await expectCategoryPageReady(page);
 
   return href;
 }

@@ -67,7 +67,9 @@ export function ProductCardMedia({
   );
 
   const isPremiumRail = variant === "premium-rail";
-  const imageSizes = isPremiumRail ? IMAGE_SIZES.productCardRail : IMAGE_SIZES.productCard;
+  const imageSizes = isPremiumRail
+    ? IMAGE_SIZES.productCardRail
+    : IMAGE_SIZES.productCard;
 
   if (!hasCommercialMedia) {
     return (

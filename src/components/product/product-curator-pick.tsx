@@ -11,7 +11,7 @@ export function ProductCuratorPick({ note, className }: ProductCuratorPickProps)
   return (
     <aside
       className={cn(
-        "border-tilouki-jade/30 bg-tilouki-jade-soft/35 rounded-[var(--radius-card)] border px-4 py-3.5",
+        "border-tilouki-pistache/25 bg-tilouki-pistache-soft/40 rounded-[var(--radius-card)] border px-4 py-3.5",
         className,
       )}
       aria-label="Pourquoi on l'a choisi"

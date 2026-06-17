@@ -1,5 +1,7 @@
+import { CATALOGUE_AGE_BANDS } from "@/lib/catalog/catalogue-age-bands";
 import { buyingGuidesNav } from "@/lib/constants/site";
 import { buildCatalogueHref, buildCategoryHref } from "@/lib/navigation/catalog-href";
+import { getRitualBySlug } from "@/lib/rituals/rituals";
 import type {
   NavDropdownLink,
   NavDropdownPanel,
@@ -20,7 +22,11 @@ export const MAIN_NAV_LABELS: Record<string, string> = {
 };
 
 export const NAV_HREF = {
-  nouveautes: "/#home-vestiaire",
+  nouveautes: buildCatalogueHref({ sort: "newest" }),
+  arrivageMercredi: "/#home-arrivage-mercredi",
+  capsules: "/catalogue?vue=capsules",
+  rayons: "/catalogue?vue=rayons",
+  dernieresTailles: "/#home-dernieres-tailles",
   petitsPrix: "/catalogue?promo=petit-prix",
   guideTailles: "/guide-tailles",
   pyjamas: "/categorie/pyjamas",
@@ -30,117 +36,75 @@ export const NAV_HREF = {
   blog: "/blog",
 } as const;
 
-/** Tranches d'âge parent-friendly (filtres catalogue). */
-export const NAV_AGE_BANDS = [
-  { label: "0-3 mois", value: "0-3 mois" },
-  { label: "3-12 mois", value: "3-12 mois" },
-  { label: "1-3 ans", value: "1-3 ans" },
-  { label: "4-8 ans", value: "4-8 ans" },
+/** Capsules shopping — liens explicites vers pages rituel. */
+export const NAV_CAPSULE_MOMENTS = [
+  { label: "Nuit douce", ritualSlug: "nuit-calme" },
+  { label: "Matin école", ritualSlug: "matin-presse" },
+  { label: "Jour de pluie", ritualSlug: "jour-de-pluie" },
+  { label: "Bébé cocon", ritualSlug: "bebe-cocon" },
 ] as const;
 
-type RayonLinkDef = {
-  label: string;
-  href: (slug: string) => string;
-};
-
-const UNIVERSE_RAYON_LINKS: Record<string, RayonLinkDef[]> = {
+const UNIVERSE_RAYON_LINKS: Record<string, NavDropdownLink[]> = {
   bebe: [
-    { label: "Bodies", href: (slug) => buildCategoryHref(slug, { query: "body" }) },
-    {
-      label: "Pyjamas bébé",
-      href: (slug) => buildCategoryHref(slug, { query: "pyjama" }),
-    },
-    {
-      label: "Gigoteuses",
-      href: (slug) => buildCategoryHref(slug, { query: "gigoteuse" }),
-    },
-    {
-      label: "Ensembles",
-      href: (slug) => buildCategoryHref(slug, { query: "ensemble" }),
-    },
+    { label: "Bodies", href: buildCategoryHref("bodies") },
+    { label: "Pyjamas bébé", href: buildCategoryHref("pyjamas") },
+    { label: "Ensembles", href: buildCategoryHref("ensembles") },
+    { label: "Tout le rayon bébé", href: buildCategoryHref("bebe") },
   ],
   fille: [
-    { label: "Robes", href: (slug) => buildCategoryHref(slug, { query: "robe" }) },
-    {
-      label: "Tee-shirts",
-      href: (slug) => buildCategoryHref(slug, { query: "tee" }),
-    },
-    {
-      label: "Leggings",
-      href: (slug) => buildCategoryHref(slug, { query: "legging" }),
-    },
-    {
-      label: "Pulls & sweats",
-      href: (slug) => buildCategoryHref(slug, { query: "pull" }),
-    },
+    { label: "Robes", href: buildCategoryHref("robes") },
+    { label: "Pyjamas", href: buildCategoryHref("pyjamas") },
+    { label: "Pluie", href: buildCategoryHref("pluie") },
+    { label: "Tout le rayon fille", href: buildCategoryHref("fille") },
   ],
   garcon: [
-    {
-      label: "Tee-shirts",
-      href: (slug) => buildCategoryHref(slug, { query: "tee" }),
-    },
-    {
-      label: "Joggers",
-      href: (slug) => buildCategoryHref(slug, { query: "jogger" }),
-    },
-    {
-      label: "Sweats",
-      href: (slug) => buildCategoryHref(slug, { query: "sweat" }),
-    },
-    {
-      label: "Pantalons",
-      href: (slug) => buildCategoryHref(slug, { query: "pantalon" }),
-    },
+    { label: "Pluie", href: buildCategoryHref("pluie") },
+    { label: "Pyjamas", href: buildCategoryHref("pyjamas") },
+    { label: "Ensembles", href: buildCategoryHref("ensembles") },
+    { label: "Tout le rayon garçon", href: buildCategoryHref("garcon") },
   ],
 };
 
 const PYJAMAS_RAYON_LINKS: NavDropdownLink[] = [
-  { label: "Pyjamas fille", href: buildCategoryHref("pyjamas", { query: "fille" }) },
-  { label: "Pyjamas garçon", href: buildCategoryHref("pyjamas", { query: "garçon" }) },
-  { label: "Pyjamas bébé", href: buildCategoryHref("pyjamas", { query: "bébé" }) },
-  {
-    label: "Ensembles nuit",
-    href: buildCategoryHref("pyjamas", { query: "ensemble" }),
-  },
+  { label: "Pyjamas fille", href: buildCategoryHref("pyjamas") },
+  { label: "Rayon bébé", href: buildCategoryHref("bebe") },
+  { label: "Capsules nuit", href: NAV_HREF.capsules },
+  { label: "Tout pyjamas", href: buildCategoryHref("pyjamas") },
 ];
 
 const ACCESSOIRES_RAYON_LINKS: NavDropdownLink[] = [
-  {
-    label: "Chaussettes",
-    href: buildCategoryHref("accessoires", { query: "chaussette" }),
-  },
-  { label: "Bonnet", href: buildCategoryHref("accessoires", { query: "bonnet" }) },
-  { label: "Bavoirs", href: buildCategoryHref("accessoires", { query: "bavoir" }) },
+  { label: "Accessoires bébé", href: buildCategoryHref("accessoires") },
+  { label: "Rayon bébé", href: buildCategoryHref("bebe") },
+  { label: "Tous les rayons", href: NAV_HREF.rayons },
+  { label: "Tout accessoires", href: buildCategoryHref("accessoires") },
 ];
 
-const UNIVERSE_SELECTION_LINKS: Record<
-  string,
-  readonly { label: string; ritualSlug: string }[]
-> = {
-  bebe: [
-    { label: "Bébé cocon", ritualSlug: "bebe-cocon" },
-    { label: "Nuit douce", ritualSlug: "nuit-calme" },
-  ],
-  fille: [
-    { label: "Matin école", ritualSlug: "matin-presse" },
-    { label: "Jour de pluie", ritualSlug: "jour-de-pluie" },
-    { label: "Petits prix", ritualSlug: "petit-budget" },
-  ],
-  garcon: [
-    { label: "Matin école", ritualSlug: "matin-presse" },
-    { label: "Jour de pluie", ritualSlug: "jour-de-pluie" },
-    { label: "Petits prix", ritualSlug: "petit-budget" },
-  ],
-};
-
 const LOW_STOCK_THRESHOLD = 3;
+
+export interface NavDealsAvailability {
+  hasLowPrice: boolean;
+  hasLastPiece: boolean;
+}
+
+export function filterNavLinksByCategories(
+  links: NavDropdownLink[],
+  availableSlugs: ReadonlySet<string>,
+): NavDropdownLink[] {
+  const filtered = links.filter((link) => {
+    const match = link.href.match(/^\/categorie\/([a-z0-9-]+)/);
+    if (!match?.[1]) return true;
+    return availableSlugs.has(match[1]);
+  });
+
+  return filtered.length > 0 ? filtered : links.slice(0, 1);
+}
 
 export function buildAgePanel(categorySlug: string): NavDropdownPanel {
   return {
     title: "Par âge",
-    links: NAV_AGE_BANDS.map(({ label, value }) => ({
-      label,
-      href: buildCategoryHref(categorySlug, { ages: [value] }),
+    links: CATALOGUE_AGE_BANDS.map((band) => ({
+      label: `${band.label} · ${band.hint}`,
+      href: buildCategoryHref(categorySlug, { ageBand: band.value }),
     })),
   };
 }
@@ -153,36 +117,45 @@ export function buildNowPanel(categorySlug: string): NavDropdownPanel {
         label: "Nouveautés",
         href: buildCatalogueHref({ categorySlug, sort: "newest" }),
       },
-      { label: "Arrivage du mercredi", href: NAV_HREF.nouveautes },
+      { label: "Arrivage du mercredi", href: NAV_HREF.arrivageMercredi },
+      { label: "Capsules du catalogue", href: NAV_HREF.capsules },
     ],
   };
 }
 
-export function buildRayonsPanel(categorySlug: string): NavDropdownPanel {
-  const defs = UNIVERSE_RAYON_LINKS[categorySlug] ?? [];
+export function buildRayonsPanel(
+  categorySlug: string,
+  availableSlugs: ReadonlySet<string>,
+): NavDropdownPanel {
+  const defs = UNIVERSE_RAYON_LINKS[categorySlug] ?? [
+    { label: "Voir le rayon", href: buildCategoryHref(categorySlug) },
+  ];
+
   return {
     title: "Rayons",
-    links: defs.map(({ label, href }) => ({
-      label,
-      href: href(categorySlug),
-    })),
+    links: filterNavLinksByCategories(defs, availableSlugs),
   };
 }
 
-export function buildSelectionsPanel(categorySlug: string): NavDropdownPanel {
-  const selections = UNIVERSE_SELECTION_LINKS[categorySlug] ?? [];
+export function buildMomentsPanel(categorySlug: string): NavDropdownPanel {
+  const relevant = NAV_CAPSULE_MOMENTS.filter(({ ritualSlug }) => {
+    const ritual = getRitualBySlug(ritualSlug);
+    if (!ritual) return false;
+    return (
+      ritual.categorySlugs.includes(categorySlug) ||
+      ritual.primaryCategorySlug === categorySlug
+    );
+  });
+
+  const moments = relevant.length > 0 ? relevant : NAV_CAPSULE_MOMENTS;
+
   return {
-    title: "Sélections",
-    links: selections.map(({ label, ritualSlug }) => ({
+    title: "Par moment",
+    links: moments.map(({ label, ritualSlug }) => ({
       label,
       href: `/rituels/${ritualSlug}`,
     })),
   };
-}
-
-export interface NavDealsAvailability {
-  hasLowPrice: boolean;
-  hasLastPiece: boolean;
 }
 
 export function buildDealsPanel(
@@ -201,7 +174,7 @@ export function buildDealsPanel(
   if (availability.hasLastPiece) {
     links.push({
       label: "Dernières pièces",
-      href: buildCatalogueHref({ categorySlug, sort: "newest" }),
+      href: buildCategoryHref(categorySlug),
     });
   }
 
@@ -216,12 +189,13 @@ export function buildDealsPanel(
 export function buildUniverseMegaPanels(
   categorySlug: string,
   availability: NavDealsAvailability,
+  availableSlugs: ReadonlySet<string>,
 ): NavDropdownPanel[] {
   const panels = [
     buildNowPanel(categorySlug),
-    buildRayonsPanel(categorySlug),
     buildAgePanel(categorySlug),
-    buildSelectionsPanel(categorySlug),
+    buildMomentsPanel(categorySlug),
+    buildRayonsPanel(categorySlug, availableSlugs),
     buildDealsPanel(categorySlug, availability),
   ];
 
@@ -235,21 +209,22 @@ export function buildPyjamasMegaPanels(
     {
       title: "En ce moment",
       links: [
-        {
-          label: "Nouveautés",
-          href: buildCategoryHref("pyjamas", { sort: "newest" }),
-        },
-        { label: "Arrivage du mercredi", href: NAV_HREF.nouveautes },
+        { label: "Nouveautés", href: buildCategoryHref("pyjamas", { sort: "newest" }) },
+        { label: "Arrivage du mercredi", href: NAV_HREF.arrivageMercredi },
+        { label: "Capsules du catalogue", href: NAV_HREF.capsules },
+      ],
+    },
+    buildAgePanel("pyjamas"),
+    {
+      title: "Par moment",
+      links: [
+        { label: "Nuit douce", href: "/rituels/nuit-calme" },
+        { label: "Bébé cocon", href: "/rituels/bebe-cocon" },
       ],
     },
     {
       title: "Rayons",
       links: PYJAMAS_RAYON_LINKS,
-    },
-    buildAgePanel("pyjamas"),
-    {
-      title: "Sélections",
-      links: [{ label: "Nuit douce", href: "/rituels/nuit-calme" }],
     },
   ];
 
@@ -270,13 +245,18 @@ export function buildAccessoiresMegaPanels(
           label: "Nouveautés",
           href: buildCategoryHref("accessoires", { sort: "newest" }),
         },
+        { label: "Tous les rayons", href: NAV_HREF.rayons },
       ],
+    },
+    buildAgePanel("accessoires"),
+    {
+      title: "Par moment",
+      links: [{ label: "Bébé cocon", href: "/rituels/bebe-cocon" }],
     },
     {
       title: "Rayons",
       links: ACCESSOIRES_RAYON_LINKS,
     },
-    buildAgePanel("accessoires"),
   ];
 
   const deals = buildDealsPanel("accessoires", availability);
@@ -295,6 +275,16 @@ export function buildMegaMenuFeatured(
     href: buildCatalogueHref({ categorySlug, sort: "newest" }),
     imageSlug: categorySlug,
     imageKind: "category",
+  };
+}
+
+export function buildPyjamasMegaFeatured(): NavMegaMenuFeatured {
+  return {
+    title: "Nuit douce",
+    description: "Pyjamas et ensembles nuit — composer la capsule.",
+    href: "/rituels/nuit-calme",
+    imageSlug: "nuit-calme",
+    imageKind: "ritual",
   };
 }
 
@@ -335,6 +325,14 @@ export function categoryHasLastPieceProducts(
       product.categorySlug === categorySlug &&
       product.totalStock > 0 &&
       product.totalStock <= LOW_STOCK_THRESHOLD,
+  );
+}
+
+export function catalogHasLastPieceProducts(
+  products: { totalStock: number }[],
+): boolean {
+  return products.some(
+    (product) => product.totalStock > 0 && product.totalStock <= LOW_STOCK_THRESHOLD,
   );
 }
 

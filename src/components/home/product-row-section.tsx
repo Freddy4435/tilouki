@@ -19,6 +19,8 @@ interface ProductRowSectionProps {
   priorityLimit?: number;
   /** Rendu différé navigateur (sections sous la ligne de flottaison). */
   deferRender?: boolean;
+  /** Label retail au-dessus du titre */
+  eyebrow?: string;
 }
 
 export function ProductRowSection({
@@ -31,6 +33,7 @@ export function ProductRowSection({
   minProducts = MIN_HOME_SECTION_PRODUCTS,
   priorityLimit,
   deferRender = false,
+  eyebrow,
 }: ProductRowSectionProps) {
   if (products.length < minProducts) {
     return null;
@@ -54,6 +57,9 @@ export function ProductRowSection({
         <div className="mb-6 flex items-end justify-between gap-4">
           <header className="retail-section__header">
             <div className="brand-accent-bar" aria-hidden />
+            {eyebrow ? (
+              <p className="text-retail-label text-tilouki-argile">{eyebrow}</p>
+            ) : null}
             <h2 className="text-section-title retail-section__title">{title}</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {description}

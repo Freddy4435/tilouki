@@ -3,6 +3,7 @@ import { test, expect } from "./fixtures";
 import {
   addCurrentProductToCart,
   expectCataloguePageReady,
+  expectCategoryPageReady,
   goToCatalogueFromHome,
   openCategoryFromCatalogue,
   openSellableProductFromCatalogue,
@@ -44,10 +45,16 @@ test.describe("Pages vitrine — parcours e-commerce", () => {
   });
 
   test("catalogue → catégorie — bandeau éditorial Tilouki", async ({ page }) => {
-    const href = await openCategoryFromCatalogue(page, /pyjamas/i);
+    const href = await openCategoryFromCatalogue(page, /^pyjamas$/i);
     test.skip(!href, "Catégorie pyjamas inaccessible");
 
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectCategoryPageReady(page, { slug: "pyjamas", title: /^pyjamas$/i });
+    await expectEditorialTiloukiImage(page);
+  });
+
+  test("catégorie bébé — bandeau, h1 et produits ou vide", async ({ page }) => {
+    await page.goto("/categorie/bebe");
+    await expectCategoryPageReady(page, { slug: "bebe", title: /^bébé$/i });
     await expectEditorialTiloukiImage(page);
   });
 

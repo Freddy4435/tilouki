@@ -52,9 +52,13 @@ export async function captureFullPage(
   path: string,
   screenshotPath: string,
   viewport: { width: number; height: number },
+  options?: { readySelector?: string },
 ) {
   await page.setViewportSize(viewport);
   await page.goto(path, { waitUntil: "networkidle" });
+  if (options?.readySelector) {
+    await expect(page.locator(options.readySelector)).toBeVisible({ timeout: 45_000 });
+  }
   await page.waitForTimeout(400);
   await expectNoNextDevOverlay(page);
   await page.screenshot({ path: screenshotPath, fullPage: true });

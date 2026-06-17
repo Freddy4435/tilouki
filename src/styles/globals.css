@@ -88,6 +88,18 @@
   --color-tilouki-coral: var(--tilouki-coral);
   --color-tilouki-info: var(--tilouki-info);
   --color-tilouki-info-soft: var(--tilouki-info-soft);
+  --color-tilouki-pistache: var(--tilouki-pistache);
+  --color-tilouki-pistache-soft: var(--tilouki-pistache-soft);
+  --color-tilouki-rose-linge: var(--tilouki-rose-linge);
+  --color-tilouki-vieux-rose: var(--tilouki-vieux-rose);
+  --color-tilouki-rose-linge-soft: var(--tilouki-rose-linge-soft);
+  --color-tilouki-denim: var(--tilouki-denim);
+  --color-tilouki-denim-soft: var(--tilouki-denim-soft);
+  --color-tilouki-argile: var(--tilouki-argile);
+  --color-tilouki-terracotta: var(--tilouki-terracotta);
+  --color-tilouki-argile-soft: var(--tilouki-argile-soft);
+  --color-tilouki-vanille: var(--tilouki-vanille);
+  --color-tilouki-vanille-soft: var(--tilouki-vanille-soft);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -106,11 +118,11 @@
   --popover-foreground: var(--tilouki-ink);
   --primary: var(--shop-primary);
   --primary-foreground: var(--shop-primary-foreground);
-  --secondary: var(--tilouki-mint-soft);
+  --secondary: var(--tilouki-rose-linge-soft);
   --secondary-foreground: var(--tilouki-navy-dark);
   --muted: var(--tilouki-cloud);
   --muted-foreground: var(--tilouki-ink-muted);
-  --accent: var(--tilouki-peach-soft);
+  --accent: var(--tilouki-vanille-soft);
   --accent-foreground: var(--tilouki-navy-dark);
   --destructive: var(--tilouki-persimmon-dark);
   --border: var(--tilouki-border);
@@ -131,10 +143,10 @@
   --sidebar-border: var(--tilouki-border-subtle);
   --sidebar-ring: var(--shop-primary-light);
 
-  /* Échelle typographique — retail lisible, titres marque contenus */
-  --type-editorial: clamp(1.875rem, 1.4rem + 1.35vw, 2.625rem);
-  --type-section: clamp(1.25rem, 1.12rem + 0.45vw, 1.5rem);
-  --type-product: clamp(1.25rem, 1.15rem + 0.35vw, 1.5rem);
+  /* Échelle typographique — retail lisible, titres chaleureux contenus */
+  --type-editorial: clamp(1.75rem, 1.35rem + 1.1vw, 2.5rem);
+  --type-section: clamp(1.2rem, 1.1rem + 0.4vw, 1.4375rem);
+  --type-product: clamp(1.2rem, 1.12rem + 0.3vw, 1.4375rem);
   --type-retail-label: 0.6875rem;
 }
 
@@ -262,13 +274,15 @@
     font-optical-sizing: auto;
   }
 
-  /** Titres de section retail — DM Sans, compact */
+  /** Titres de section retail — DM Sans, compact e-commerce */
   .text-section-title {
     font-family: var(--font-body), system-ui, sans-serif;
     font-size: var(--type-section);
     font-weight: 700;
-    line-height: 1.25;
+    line-height: 1.28;
+    letter-spacing: -0.01em;
     text-wrap: balance;
+    color: var(--tilouki-navy);
   }
 
   /** Titres marque (rituels, blog hero) — Fraunces modéré */

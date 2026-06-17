@@ -170,7 +170,7 @@ export function CatalogueActiveFilters({
       className={cn(
         "mb-4 flex list-none flex-wrap items-center gap-2 p-0",
         compact &&
-          "max-w-full flex-nowrap overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+          "max-w-full [scrollbar-width:none] flex-nowrap overflow-x-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
         className,
       )}
       aria-label="Filtres actifs"

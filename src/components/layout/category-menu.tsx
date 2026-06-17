@@ -82,8 +82,8 @@ export function CategoryMenu({ className }: CategoryMenuProps) {
                   className={cn(
                     "inline-flex h-9 shrink-0 items-center rounded-[var(--radius-button)] px-3 text-sm font-medium whitespace-nowrap transition-colors",
                     isActive
-                      ? "bg-tilouki-mint-soft text-tilouki-navy font-semibold"
-                      : "text-foreground hover:bg-tilouki-peach-soft/60 hover:text-tilouki-navy",
+                      ? "bg-tilouki-pistache-soft text-tilouki-navy font-semibold"
+                      : "text-foreground hover:bg-tilouki-pistache-soft/50 hover:text-tilouki-navy",
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >

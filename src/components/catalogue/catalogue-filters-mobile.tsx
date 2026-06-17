@@ -71,7 +71,9 @@ export function CatalogueFiltersMobile({
             className="flex max-h-[min(88vh,720px)] flex-col gap-0 rounded-t-[var(--radius-card)] p-0 pb-[env(safe-area-inset-bottom)]"
           >
             <SheetHeader className="border-border/60 shrink-0 border-b px-4 py-4 text-left">
-              <SheetTitle className="text-lg font-semibold">Filtres &amp; tri</SheetTitle>
+              <SheetTitle className="text-lg font-semibold">
+                Filtres &amp; tri
+              </SheetTitle>
               <p className="text-muted-foreground text-sm">
                 Âge, taille, prix et genre — ajustez puis fermez pour voir la grille.
               </p>

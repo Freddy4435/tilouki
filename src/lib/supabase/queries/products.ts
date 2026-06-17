@@ -230,6 +230,38 @@ export async function getActiveProductsPaginated(
   )();
 }
 
+/** Liste filtrée complète — capsules catalogue et sélections thématiques. */
+export async function getFilteredCatalogueProducts(
+  query: CatalogueQuery = {},
+): Promise<ProductListItem[]> {
+  const cacheKey = JSON.stringify(query);
+
+  return unstable_cache(
+    async () => {
+      const rows = filterStorefrontProductRows(
+        await fetchAllActiveProductRows({
+          gender: query.gender,
+          season: query.season,
+          query: query.query,
+        }),
+      );
+      const prepared = buildCataloguePreparedRows(rows, mapProductListItem);
+      const filtered = filterCataloguePreparedRows(prepared, query).map(
+        (entry) => entry.item,
+      );
+      const summaries = await getProductRatingSummaries(
+        filtered.map((item) => item.id),
+      );
+      return attachRatingSummariesToProducts(filtered, summaries);
+    },
+    ["filtered-catalogue-products", cacheKey],
+    {
+      tags: [CACHE_TAGS.products],
+      revalidate: REVALIDATE.catalog,
+    },
+  )();
+}
+
 async function fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
   if (!isSupabaseConfigured()) return null;
 

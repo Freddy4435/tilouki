@@ -114,10 +114,7 @@ export function countActiveCatalogueFilters(
   let count = 0;
 
   if (searchParams.get(CATALOGUE_PARAM_KEYS.query)?.trim()) count += 1;
-  if (
-    searchParams.get(CATALOGUE_PARAM_KEYS.category) &&
-    !options?.lockedCategorySlug
-  ) {
+  if (searchParams.get(CATALOGUE_PARAM_KEYS.category) && !options?.lockedCategorySlug) {
     count += 1;
   }
   if (searchParams.get(CATALOGUE_PARAM_KEYS.gender)) count += 1;

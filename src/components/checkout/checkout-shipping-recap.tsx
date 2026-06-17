@@ -111,7 +111,7 @@ export function CheckoutShippingRecap({
               {CHECKOUT_RETURN_SUMMARY}{" "}
               <Link
                 href="/livraison-retours"
-                className="font-medium text-foreground underline underline-offset-4"
+                className="text-foreground font-medium underline underline-offset-4"
                 target="_blank"
               >
                 Livraison et retours

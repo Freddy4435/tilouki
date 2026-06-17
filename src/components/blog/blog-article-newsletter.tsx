@@ -1,4 +1,4 @@
-import { NewsletterSignupForm } from "@/components/layout/newsletter-signup-form";
+import { NewsletterSignupForm } from "@/components/newsletter/newsletter-signup-form";
 
 interface BlogArticleNewsletterProps {
   articleSlug: string;

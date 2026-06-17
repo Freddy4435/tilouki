@@ -17,7 +17,8 @@ export type TiloukiImageSurface = (typeof TILOUKI_IMAGE_SURFACES)[number];
 export type TiloukiImageKey = (typeof manifest)[number]["file"];
 
 /** Hero accueil — dressing enfant coloré. */
-export const HOME_HERO_IMAGE_KEY = "home-hero-dressing-couleurs" as const satisfies TiloukiImageKey;
+export const HOME_HERO_IMAGE_KEY =
+  "home-hero-dressing-couleurs" as const satisfies TiloukiImageKey;
 
 /** Modules home / éditoriaux (id logique → clé pack). */
 export const HOME_EDITORIAL_MODULE_REGISTRY = {
@@ -189,7 +190,11 @@ export function isRegisteredTiloukiImageKey(key: string): key is TiloukiImageKey
 export function resolveCategoryFallbackKey(categorySlug: string): TiloukiImageKey {
   const normalized = categorySlug.toLowerCase();
 
-  if (normalized.includes("bebe") || normalized.includes("body") || normalized.includes("naissance")) {
+  if (
+    normalized.includes("bebe") ||
+    normalized.includes("body") ||
+    normalized.includes("naissance")
+  ) {
     return CATEGORY_IMAGE_REGISTRY.bebe;
   }
   if (normalized.includes("fille") || normalized.includes("robe")) {
@@ -215,16 +220,28 @@ export function resolveCategoryFallbackKey(categorySlug: string): TiloukiImageKe
 export function resolveRitualFallbackKey(ritualSlug: string): TiloukiImageKey {
   const normalized = ritualSlug.toLowerCase();
 
-  if (normalized.includes("nuit") || normalized.includes("pyjama") || normalized.includes("dodo")) {
+  if (
+    normalized.includes("nuit") ||
+    normalized.includes("pyjama") ||
+    normalized.includes("dodo")
+  ) {
     return RITUAL_IMAGE_REGISTRY["nuit-calme"];
   }
   if (normalized.includes("pluie")) {
     return RITUAL_IMAGE_REGISTRY["jour-de-pluie"];
   }
-  if (normalized.includes("bebe") || normalized.includes("bébé") || normalized.includes("cocon")) {
+  if (
+    normalized.includes("bebe") ||
+    normalized.includes("bébé") ||
+    normalized.includes("cocon")
+  ) {
     return RITUAL_IMAGE_REGISTRY["bebe-cocon"];
   }
-  if (normalized.includes("matin") || normalized.includes("ecole") || normalized.includes("école")) {
+  if (
+    normalized.includes("matin") ||
+    normalized.includes("ecole") ||
+    normalized.includes("école")
+  ) {
     return RITUAL_IMAGE_REGISTRY["matin-presse"];
   }
   if (normalized.includes("budget") || normalized.includes("prix")) {

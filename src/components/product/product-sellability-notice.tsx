@@ -1,11 +1,30 @@
 import { AlertTriangle, CameraOff, Recycle, Sparkles } from "lucide-react";
 
+import { resolveSellabilityClientNotice } from "@/lib/catalog/product-sellability";
+import type { ProductImage } from "@/types/catalog";
+
 interface ProductSellabilityNoticeProps {
   sellable: boolean;
+  slug?: string;
+  images?: ProductImage[];
 }
 
-export function ProductSellabilityNotice({ sellable }: ProductSellabilityNoticeProps) {
+export function ProductSellabilityNotice({
+  sellable,
+  slug,
+  images = [],
+}: ProductSellabilityNoticeProps) {
   if (sellable) return null;
+
+  const notice =
+    slug && images.length >= 0
+      ? resolveSellabilityClientNotice(slug, images)
+      : {
+          title: "Bientôt disponible en ligne",
+          body: "Les photos commerciales de cet article sont en cours de finalisation. L'achat en ligne sera activé dès qu'elles seront publiées.",
+          adminHint:
+            "Ajoutez une photo commerciale avec une description d'au moins 8 caractères.",
+        };
 
   return (
     <div
@@ -13,11 +32,14 @@ export function ProductSellabilityNotice({ sellable }: ProductSellabilityNoticeP
       role="status"
     >
       <CameraOff className="size-5 shrink-0" aria-hidden />
-      <div>
-        <p className="font-semibold">Bientôt disponible en ligne</p>
-        <p className="mt-1 leading-relaxed opacity-90">
-          Les photos commerciales de cet article sont en cours de finalisation.
-          L&apos;achat en ligne sera activé dès qu&apos;elles seront publiées.
+      <div className="min-w-0">
+        <p className="font-semibold">{notice.title}</p>
+        <p className="mt-1 leading-relaxed opacity-90">{notice.body}</p>
+        <p
+          className="text-muted-foreground mt-2 text-xs leading-relaxed"
+          data-admin-hint="product-sellability"
+        >
+          <span className="font-semibold">Boutique :</span> {notice.adminHint}
         </p>
       </div>
     </div>

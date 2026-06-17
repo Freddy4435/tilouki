@@ -55,12 +55,12 @@ export function HeroSection({ shopName, heroImageUrl }: HeroSectionProps) {
           className="object-cover object-[center_42%]"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--tilouki-navy)_88%,transparent)] via-[color-mix(in_srgb,var(--tilouki-navy)_42%,transparent)] to-[color-mix(in_srgb,var(--tilouki-brand-blue)_18%,transparent)]"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--tilouki-navy-dark)_90%,transparent)] via-[color-mix(in_srgb,var(--tilouki-navy)_45%,transparent)] to-transparent"
           aria-hidden
         />
         <div className="container-tilouki relative z-10 flex max-h-[min(82vh,680px)] min-h-[var(--home-hero-min-height)] flex-col justify-end pt-20 pb-6 sm:pt-24 sm:pb-8 lg:pb-10">
           <div className="max-w-xl space-y-3 sm:space-y-4">
-            <p className="text-retail-label text-tilouki-mint">
+            <p className="text-retail-label text-tilouki-vanille">
               {usePackImage ? "Boutique vêtements enfants" : shopName}
             </p>
             <h1 id="hero-heading" className="text-editorial-title text-white">
@@ -75,7 +75,7 @@ export function HeroSection({ shopName, heroImageUrl }: HeroSectionProps) {
                 size="lg"
                 className="min-h-11 flex-1 shadow-[var(--shadow-cta)] sm:flex-none"
               >
-                Voir les nouveautés
+                Composer une tenue
                 <ArrowRight className="size-4" />
               </ButtonLink>
               <ButtonLink
@@ -95,7 +95,10 @@ export function HeroSection({ shopName, heroImageUrl }: HeroSectionProps) {
         <ul className="container-tilouki text-muted-foreground flex flex-wrap justify-center gap-x-4 gap-y-2 py-3 text-[11px] sm:justify-start sm:gap-x-5 sm:py-3.5 sm:text-xs">
           {REASSURANCE_ITEMS.map((item) => (
             <li key={item.label} className="inline-flex items-center gap-1.5">
-              <item.icon className="text-tilouki-mint size-3.5 shrink-0" aria-hidden />
+              <item.icon
+                className="text-tilouki-pistache size-3.5 shrink-0"
+                aria-hidden
+              />
               {item.label}
             </li>
           ))}

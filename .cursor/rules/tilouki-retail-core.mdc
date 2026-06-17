@@ -1,0 +1,56 @@
+---
+description: Direction design & produit Tilouki — boutique enfants, Dressing Intelligent, images, palette, interdits
+alwaysApply: true
+---
+
+# Tilouki — direction design & règles non négociables
+
+Tu travailles sur **Tilouki**, boutique e-commerce de **vêtements enfants** — pas un blog parental, pas une landing marketing vide.
+
+**Signature produit :** « Le Dressing Intelligent Tilouki ».
+
+## Positionnement & parcours
+
+- Le site **vend des vêtements** : catalogue, rayons, fiches produit, panier, checkout.
+- **Home** : la première action visible est du **shopping** — assistant **moment + âge + budget** (`HomeVestiaireAssistant`), puis produits / rayons / capsules. Les **guides et le blog viennent après** les blocs marchands.
+- **Guides / blog** : secondaires ; chaque lien ou CTA renvoie vers un **rayon**, une **capsule** ou un **produit**.
+- **États vides** (catalogue, rayon, rituel, favoris) : messages **marchands** — alerte arrivage, tailles proches, capsules voisines, « Me prévenir » — jamais un mur éditorial sans sortie d’achat.
+
+## Images
+
+- **Aucune photo aléatoire** : chaque module visuel (hero, rayon, rituel, capsule, catégorie) a une image qui correspond **exactement** au sujet.
+- **Pack Tilouki** (`images/tilouki/`, `resolve*TiloukiImage`) : éditorial uniquement (home, rayons, rituels, guides) — **jamais** en photo principale d’un article vendable.
+- **Produits vendables** : photos **réelles raster** de l’article (JPEG/PNG/WebP) + `alt` descriptif. **Interdit** : SVG, placeholder, illustration ou visuel pack Tilouki en fiche / carte produit checkout.
+
+## Palette Cocon marchand 2026
+
+Tokens dans `src/styles/tilouki-theme.css` — ne pas régresser vers un site tout beige/mint générique.
+
+| Rôle | Token / intention |
+|------|-------------------|
+| Surfaces crème chaud | `--tilouki-milk`, `--tilouki-cloud`, `--tilouki-cream` |
+| Navy encre (texte, CTA) | `--tilouki-navy`, `--tilouki-navy-dark`, `--tilouki-ink` |
+| Pistache grisée (confiance) | `--tilouki-pistache`, `--tilouki-pistache-soft` |
+| Rose linge | `--tilouki-rose-linge`, `--tilouki-rose-linge-soft` |
+| Bleu denim lavé | `--tilouki-denim`, `--tilouki-denim-soft` |
+| Argile douce (promo / arrivage) | `--tilouki-argile`, `--tilouki-argile-soft`, `--tilouki-terracotta` |
+| Jaune vanille (micro-accent) | `--tilouki-vanille`, `--tilouki-vanille-soft` |
+
+Contraste WCAG AA : tests dans `src/styles/palette-contrast.test.ts`.
+
+## Interdits UI / contenu
+
+- Photos **aléatoires** ou non liées au module.
+- **SVG** (ou visuel fictif) comme photo produit en vente.
+- Site **tout beige / mint** sans hiérarchie navy + accents palette.
+- **Hero marketing vide** sans action catalogue (CTA shopping, rayons, vestiaire).
+- **Cartes imbriquées** inutiles (card dans card sans raison layout).
+- **Texte qui chevauche** image, bouton ou bottom nav mobile (vérifier 390px).
+- **Blog / guides avant les produits** sur l’accueil.
+
+## Stack et qualité
+
+- Conserver **Next.js App Router**, **TypeScript**, **Tailwind v4**, **shadcn/base-ui** et les patterns du dépôt.
+- Après chaque lot : `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`.
+- Si le lot touche le style global : `npm run format:check`.
+- QA visuelle / a11y : `npm run e2e:visual-qa` quand home, catalogue ou refonte UI.

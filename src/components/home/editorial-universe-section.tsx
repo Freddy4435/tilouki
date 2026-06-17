@@ -20,7 +20,7 @@ export function EditorialUniverseSection({ blocks }: EditorialUniverseSectionPro
     <section className="py-8 md:py-10" aria-labelledby="editorial-universe-title">
       <div className="container-tilouki">
         <div className="mb-6 text-center md:mb-8">
-          <p className="text-retail-label text-tilouki-teal-dark">
+          <p className="text-retail-label text-tilouki-rose-linge">
             L&apos;univers Tilouki
           </p>
           <h2 id="editorial-universe-title" className="text-section-title mt-1">
@@ -61,7 +61,7 @@ export function EditorialUniverseSection({ blocks }: EditorialUniverseSectionPro
                 )}
               </div>
               <div className="flex flex-1 flex-col gap-2 p-5">
-                <h3 className="font-display text-lg leading-snug font-semibold">
+                <h3 className="text-base leading-snug font-semibold sm:text-lg">
                   {block.title}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">

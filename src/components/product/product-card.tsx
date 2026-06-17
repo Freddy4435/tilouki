@@ -111,7 +111,9 @@ export function ProductCard({
   ).length;
   const needsSizeChoice = sizes.length > 1 || inStockVariantCount > 1;
 
-  const ctaLabel = getProductCardCtaLabel(sizes, quickAddVariants, inStock);
+  const ctaLabel = !isStorefrontSellable
+    ? "Photos bientôt"
+    : getProductCardCtaLabel(sizes, quickAddVariants, inStock);
   const hasRating = Boolean(ratingAverage && (ratingCount ?? 0) > 0);
   const showMaterial = Boolean(material?.trim());
   const showColorSwatches = colorOptions.length >= 2;
@@ -213,7 +215,7 @@ export function ProductCard({
                 "shrink-0 rounded-full px-2 py-0.5 text-[10px] leading-tight font-semibold tracking-wide",
                 isLastPiece
                   ? "bg-tilouki-persimmon-dark/10 text-tilouki-persimmon-dark"
-                  : "bg-amber-100/90 text-amber-950",
+                  : "bg-tilouki-vanille-soft text-tilouki-navy",
               )}
             >
               {stockHint}
@@ -286,11 +288,19 @@ export function ProductCard({
               href={href}
               className={cn(
                 CARD_ACTION_CLASS,
-                compact ? "min-h-10 text-xs" : premiumRail ? "min-h-11 text-sm" : "min-h-10 text-sm",
+                compact
+                  ? "min-h-10 text-xs"
+                  : premiumRail
+                    ? "min-h-11 text-sm"
+                    : "min-h-10 text-sm",
                 needsSizeChoice &&
                   inStock &&
+                  isStorefrontSellable &&
                   "border-primary/25 bg-primary/5 text-primary",
+                !isStorefrontSellable &&
+                  "border-muted-foreground/25 bg-muted/30 text-muted-foreground pointer-events-none",
               )}
+              aria-disabled={!isStorefrontSellable}
             >
               {ctaLabel}
               <ArrowRight className="size-3.5 shrink-0 opacity-80" aria-hidden />

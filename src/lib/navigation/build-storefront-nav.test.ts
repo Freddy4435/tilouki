@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildStorefrontNavigation } from "@/lib/navigation/build-storefront-nav";
-import { NAV_HREF } from "@/lib/navigation/nav-config";
+import { NAV_CAPSULE_MOMENTS, NAV_HREF } from "@/lib/navigation/nav-config";
 import { buyingGuidesNav } from "@/lib/constants/site";
 import type { ShopCategory } from "@/lib/shop/types";
 import type { ProductListItem } from "@/types/catalog";
@@ -12,6 +12,10 @@ const categories: ShopCategory[] = [
   { slug: "garcon", label: "Garçon", href: "/categorie/garcon" },
   { slug: "pyjamas", label: "Pyjamas", href: "/categorie/pyjamas" },
   { slug: "accessoires", label: "Accessoires", href: "/categorie/accessoires" },
+  { slug: "bodies", label: "Bodies", href: "/categorie/bodies" },
+  { slug: "robes", label: "Robes", href: "/categorie/robes" },
+  { slug: "pluie", label: "Pluie", href: "/categorie/pluie" },
+  { slug: "ensembles", label: "Ensembles", href: "/categorie/ensembles" },
 ];
 
 function product(
@@ -93,27 +97,27 @@ describe("buildStorefrontNavigation", () => {
 
     expect(bebe.panels.map((panel) => panel.title)).toEqual([
       "En ce moment",
-      "Rayons",
       "Par âge",
-      "Sélections",
+      "Par moment",
+      "Rayons",
       "Bonnes affaires",
     ]);
 
     const agePanel = bebe.panels.find((panel) => panel.title === "Par âge");
-    expect(agePanel?.links.some((link) => link.label === "0-3 mois")).toBe(true);
-    expect(agePanel?.links[0]?.href).toContain("ages=0-3+mois");
+    expect(agePanel?.links.some((link) => link.label.startsWith("Bébé"))).toBe(true);
+    expect(agePanel?.links[0]?.href).toContain("tranche_age=bebe");
 
     const rayonsPanel = bebe.panels.find((panel) => panel.title === "Rayons");
     expect(rayonsPanel?.links.map((link) => link.label)).toEqual([
       "Bodies",
       "Pyjamas bébé",
-      "Gigoteuses",
       "Ensembles",
+      "Tout le rayon bébé",
     ]);
 
-    const selectionsPanel = bebe.panels.find((panel) => panel.title === "Sélections");
+    const momentsPanel = bebe.panels.find((panel) => panel.title === "Par moment");
     expect(
-      selectionsPanel?.links.some((link) => link.href === "/rituels/bebe-cocon"),
+      momentsPanel?.links.some((link) => link.href === "/rituels/bebe-cocon"),
     ).toBe(true);
 
     const dealsPanel = bebe.panels.find((panel) => panel.title === "Bonnes affaires");
@@ -122,30 +126,34 @@ describe("buildStorefrontNavigation", () => {
       "Dernières pièces",
     ]);
     expect(dealsPanel?.links[0]?.href).toContain("promo=petit-prix");
+    expect(dealsPanel?.links[1]?.href).toContain("/categorie/bebe");
 
     expect(bebe.featured?.href).toContain("categorie=bebe");
     expect(bebe.featured?.imageKind).toBe("category");
   });
 
-  it("ajoute un mega-menu Pyjamas et Accessoires", () => {
+  it("ajoute un mega-menu Pyjamas avec visuel rituel Nuit douce", () => {
     const navigation = buildStorefrontNavigation(categories, []);
 
     const pyjamas = navigation.topItems.find((item) => item.id === "pyjamas");
     expect(pyjamas?.kind).toBe("category");
     if (pyjamas?.kind !== "category") return;
 
-    expect(pyjamas.panels.some((panel) => panel.title === "Sélections")).toBe(true);
+    expect(pyjamas.panels.some((panel) => panel.title === "Par moment")).toBe(true);
     expect(
       pyjamas.panels
-        .find((panel) => panel.title === "Sélections")
+        .find((panel) => panel.title === "Par moment")
         ?.links.some((link) => link.href === "/rituels/nuit-calme"),
     ).toBe(true);
+
+    expect(pyjamas.featured?.imageKind).toBe("ritual");
+    expect(pyjamas.featured?.href).toBe("/rituels/nuit-calme");
 
     const accessoires = navigation.topItems.find((item) => item.id === "accessoires");
     expect(accessoires?.kind).toBe("category");
   });
 
-  it("structure le menu mobile sans sous-menus profonds", () => {
+  it("structure le menu mobile simple avec capsules et affaires conditionnelles", () => {
     const navigation = buildStorefrontNavigation(categories, [
       product({
         slug: "promo",
@@ -154,22 +162,34 @@ describe("buildStorefrontNavigation", () => {
         compareAtPriceCents: 2500,
         minPriceCents: 1200,
       }),
+      product({
+        slug: "derniere-taille",
+        categorySlug: "garcon",
+        totalStock: 2,
+      }),
     ]);
 
     expect(navigation.mobileSections.map((section) => section.id)).toEqual([
       "parcourir",
-      "selections",
+      "moments",
       "reassurance",
     ]);
+    expect(navigation.hasLastPieceProducts).toBe(true);
 
     const parcourir = navigation.mobileSections[0]?.links ?? [];
     expect(parcourir.some((link) => link.href === NAV_HREF.nouveautes)).toBe(true);
     expect(parcourir.some((link) => link.label === "Pyjamas")).toBe(true);
     expect(parcourir.some((link) => link.label === "Accessoires")).toBe(true);
+    expect(parcourir.some((link) => link.label === "Petits prix")).toBe(true);
+    expect(parcourir.some((link) => link.href === NAV_HREF.dernieresTailles)).toBe(
+      true,
+    );
     expect(parcourir.some((link) => link.label === "Guide tailles")).toBe(true);
 
-    const selections = navigation.mobileSections[1]?.links ?? [];
-    expect(selections.some((link) => link.href === "/rituels/nuit-calme")).toBe(true);
+    const moments = navigation.mobileSections[1]?.links ?? [];
+    expect(moments).toHaveLength(NAV_CAPSULE_MOMENTS.length);
+    expect(moments.some((link) => link.href === "/rituels/jour-de-pluie")).toBe(true);
+    expect(moments.some((link) => link.href === "/rituels/nuit-calme")).toBe(true);
 
     const reassurance = navigation.mobileSections[2]?.links ?? [];
     expect(reassurance.some((link) => link.href === NAV_HREF.favoris)).toBe(true);

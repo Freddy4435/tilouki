@@ -2,6 +2,8 @@
 
 Guide pour transmettre le projet Tilouki **sans secrets** ni artefacts de build.
 
+> **Livrable transmissible :** seul le fichier `archives/tilouki-AAAA-MM-JJ.zip` produit par **`npm run delivery:release`** peut être envoyé (e-mail, cloud, support). Aucun autre format (.rar, zip manuel du dossier, copie brute du dépôt) n'est acceptable.
+
 ---
 
 ## ⛔ INTERDIT — ne jamais envoyer un zip / .rar manuel

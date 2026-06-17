@@ -1,95 +1,81 @@
 import { CategoryGrid } from "@/components/home/category-grid";
-import { EditorialUniverseSection } from "@/components/home/editorial-universe-section";
-import { FaqSection } from "@/components/home/faq-section";
+import { HomeCarnetSection } from "@/components/home/home-carnet-section";
 import { HomeComeBackSection } from "@/components/home/home-come-back-section";
 import { HomeReadyLooksSection } from "@/components/home/home-ready-looks-section";
-import { HomeReviewsSection } from "@/components/home/home-reviews-section";
+import { HomeReassuranceSection } from "@/components/home/home-reassurance-section";
+import { HomeRitualsSection } from "@/components/home/home-rituals-section";
 import { HomeSizeGuideSection } from "@/components/home/home-size-guide-section";
-import { HomeValueProps } from "@/components/home/home-value-props";
+import { HomeVestiaireAssistant } from "@/components/home/home-vestiaire-assistant";
+import { HomeVestiaireSection } from "@/components/home/home-vestiaire-section";
+import { HomeYourSelectionSection } from "@/components/home/home-your-selection-section";
 import { ProductRowSection } from "@/components/home/product-row-section";
 import type { ReadyLook } from "@/lib/catalog/home-sections";
-import type { EditorialBlock } from "@/lib/editorial/types";
+import { buildCatalogueHref } from "@/lib/navigation/catalog-href";
+import type { Ritual } from "@/lib/rituals/rituals";
 import type { ProductListItem } from "@/types/catalog";
 
-interface HomeBelowFoldProps {
-  lowPriceProducts: ProductListItem[];
-  lastPieceProducts: ProductListItem[];
-  babyProducts: ProductListItem[];
-  pyjamaProducts: ProductListItem[];
-  readyLooks: ReadyLook[];
-  editorialBlocks: EditorialBlock[];
-  hasPublishedReviews: boolean;
+export interface HomeRitualModule {
+  ritual: Ritual;
+  products: ProductListItem[];
 }
 
-/** Sections accueil sous la ligne de flottaison — chargées en chunk séparé. */
+interface HomeBelowFoldProps {
+  shopName: string;
+  allProducts: ProductListItem[];
+  newProducts: ProductListItem[];
+  ritualModules: HomeRitualModule[];
+  lastPieceProducts: ProductListItem[];
+  readyLooks: ReadyLook[];
+}
+
+/**
+ * Corps marchand accueil (sans hero) — miroir de `page.tsx` pour chargement différé.
+ */
 export function HomeBelowFold({
-  lowPriceProducts,
+  shopName,
+  allProducts,
+  newProducts,
+  ritualModules,
   lastPieceProducts,
-  babyProducts,
-  pyjamaProducts,
   readyLooks,
-  editorialBlocks,
-  hasPublishedReviews,
 }: HomeBelowFoldProps) {
   return (
     <>
-      <HomeReadyLooksSection looks={readyLooks} />
+      <HomeVestiaireAssistant products={allProducts} />
 
-      <ProductRowSection
-        id="home-petits-prix"
-        title="Petits prix, grand confort"
-        description="Les essentiels du quotidien à prix doux — pour compléter sans culpabiliser."
-        products={lowPriceProducts}
-        viewAllHref="/catalogue?promo=petit-prix"
-        variant="tinted"
-        priorityLimit={0}
-        deferRender
+      <HomeVestiaireSection
+        products={newProducts}
+        viewAllHref={buildCatalogueHref({ sort: "newest" })}
       />
 
-      <ProductRowSection
-        id="home-dernieres-pieces"
-        title="Dernières pièces"
-        description="Stock très limité sur ces articles — si la taille est la bonne, c'est le moment."
-        products={lastPieceProducts}
-        viewAllHref="/catalogue"
-        priorityLimit={0}
-        deferRender
-      />
+      <HomeRitualsSection modules={ritualModules} />
 
       <CategoryGrid />
 
       <ProductRowSection
-        id="home-selection-bebe"
-        title="Tout doux pour bébé"
-        description="Bodies, gigoteuses et pièces cocon — sélectionnées pour les premiers mois."
-        products={babyProducts}
-        viewAllHref="/categorie/bebe"
-        priorityLimit={0}
-        deferRender
-      />
-
-      <ProductRowSection
-        id="home-selection-pyjamas"
-        title="Nuits paisibles"
-        description="Pyjamas moelleux et faciles à enfiler — pour des soirées un peu plus sereines."
-        products={pyjamaProducts}
-        viewAllHref="/categorie/pyjamas"
+        id="home-dernieres-tailles"
+        title="Dernières tailles — stock court"
+        description="Il ne reste que quelques pièces sur ces articles. Si la taille convient, c'est le moment."
+        products={lastPieceProducts}
+        viewAllHref={buildCatalogueHref()}
         variant="tinted"
+        eyebrow="Stock limité"
+        minProducts={1}
         priorityLimit={0}
         deferRender
       />
 
-      <EditorialUniverseSection blocks={editorialBlocks} />
+      <HomeYourSelectionSection />
+
+      <HomeReadyLooksSection looks={readyLooks} />
+
+      <HomeSizeGuideSection compact />
+
+      <HomeReassuranceSection shopName={shopName} />
 
       <HomeComeBackSection />
 
-      <HomeSizeGuideSection />
-
-      <HomeValueProps />
-
-      <HomeReviewsSection hasPublishedReviews={hasPublishedReviews} />
-
-      <FaqSection />
+      <HomeCarnetSection />
     </>
   );
 }

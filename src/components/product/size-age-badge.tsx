@@ -30,7 +30,7 @@ export function SizeAgeBadge({
           "border-primary bg-primary text-primary-foreground border",
         variant === "age" &&
           !selected &&
-          "bg-tilouki-jade-soft/80 text-tilouki-ink border-tilouki-jade/40 border",
+          "bg-tilouki-pistache-soft/85 text-tilouki-ink border-tilouki-pistache/35 border",
         variant === "age" &&
           selected &&
           "bg-tilouki-teal-dark border-tilouki-teal-dark border text-white",

@@ -1,5 +1,7 @@
 import { HOME_RAYONS } from "@/lib/catalog/home-sections";
 import { buildCatalogueHref, buildCategoryHref } from "@/lib/navigation/catalog-href";
+import { getCatalogueCapsuleRituals } from "@/lib/rituals/catalogue-capsules";
+import { getRitualCapsuleHref } from "@/lib/rituals/ritual-capsule";
 import type { Category } from "@/types/catalog";
 
 export interface CatalogueEmptySuggestion {
@@ -9,6 +11,11 @@ export interface CatalogueEmptySuggestion {
   description?: string;
 }
 
+export interface CatalogueEmptyCopy {
+  title: string;
+  body: string;
+}
+
 function categorySlugFromHref(href: string): string | null {
   const path = href.split("?")[0] ?? href;
   const match = path.match(/^\/categorie\/([^/]+)$/);
@@ -16,12 +23,7 @@ function categorySlugFromHref(href: string): string | null {
 }
 
 /** Tailles les plus recherchées — raccourcis filtres catalogue. */
-export const POPULAR_CATALOGUE_SIZES = [
-  "12 mois",
-  "2 ans",
-  "4 ans",
-  "6 ans",
-] as const;
+export const POPULAR_CATALOGUE_SIZES = ["12 mois", "2 ans", "4 ans", "6 ans"] as const;
 
 function relatedRayonSuggestions(
   currentCategorySlug?: string,
@@ -36,6 +38,70 @@ function relatedRayonSuggestions(
       href: rayon.href,
       description: rayon.description,
     }));
+}
+
+function relatedCategorySuggestions(
+  currentCategorySlug: string | undefined,
+  categories: Category[],
+): CatalogueEmptySuggestion[] {
+  if (categories.length === 0) return relatedRayonSuggestions(currentCategorySlug);
+
+  return categories
+    .filter((category) => category.slug !== currentCategorySlug)
+    .slice(0, 4)
+    .map((category) => ({
+      id: `cat-${category.slug}`,
+      label: category.name,
+      href: `/categorie/${category.slug}`,
+    }));
+}
+
+/** Capsules shopping réelles — jamais de lien blog. */
+export function getNearbyCapsuleSuggestions(
+  categorySlug?: string,
+): CatalogueEmptySuggestion[] {
+  return getCatalogueCapsuleRituals(categorySlug)
+    .slice(0, 4)
+    .map((ritual) => ({
+      id: `capsule-${ritual.slug}`,
+      label: ritual.title,
+      href: getRitualCapsuleHref(ritual.slug),
+      description: ritual.promise,
+    }));
+}
+
+export function getAvailableSizesHref(categorySlug?: string): string {
+  return categorySlug ? buildCategoryHref(categorySlug) : buildCatalogueHref();
+}
+
+export function getAvailableSizesSuggestion(
+  categorySlug?: string,
+): CatalogueEmptySuggestion {
+  return {
+    id: "available-sizes",
+    label: "Voir les tailles disponibles",
+    href: getAvailableSizesHref(categorySlug),
+    description: "Toutes les tailles encore en stock dans le rayon",
+  };
+}
+
+export function buildCatalogueEmptyCopy(options: {
+  hasActiveFilters: boolean;
+  categoryName?: string;
+}): CatalogueEmptyCopy {
+  const { hasActiveFilters, categoryName } = options;
+
+  if (!hasActiveFilters) {
+    return {
+      title: categoryName ? `${categoryName} arrive mercredi` : "Ce rayon arrive mercredi",
+      body: "Nouvelles pièces chaque semaine. En attendant, parcourez les capsules et rayons déjà en ligne.",
+    };
+  }
+
+  return {
+    title: "Aucune pièce pour cette sélection",
+    body: "Élargissez la taille ou revenez aux pièces encore disponibles dans le rayon.",
+  };
 }
 
 export function getCatalogueEmptySuggestions(options?: {
@@ -55,6 +121,7 @@ export function getCatalogueEmptySuggestions(options?: {
       href: basePath,
       description: "Revenir à tout le rayon",
     });
+    suggestions.push(getAvailableSizesSuggestion(categorySlug));
   }
 
   suggestions.push(
@@ -76,7 +143,11 @@ export function getCatalogueEmptySuggestions(options?: {
     },
   );
 
-  for (const rayon of relatedRayonSuggestions(categorySlug)) {
+  const rayons = categorySlug
+    ? relatedCategorySuggestions(categorySlug, categories)
+    : relatedRayonSuggestions(categorySlug);
+
+  for (const rayon of rayons) {
     if (!suggestions.some((item) => item.id === rayon.id)) {
       suggestions.push(rayon);
     }

@@ -109,7 +109,11 @@ export function ProductCardQuickAdd({
       type="button"
       className={cn(
         "w-full gap-1.5 font-semibold shadow-[var(--shadow-soft)]",
-        compact ? "min-h-10 text-xs" : premium ? "min-h-11 text-sm" : "min-h-10 text-sm",
+        compact
+          ? "min-h-10 text-xs"
+          : premium
+            ? "min-h-11 text-sm"
+            : "min-h-10 text-sm",
         added && "bg-tilouki-sage hover:bg-tilouki-sage text-white",
         className,
       )}

@@ -23,6 +23,7 @@ const ICONS: Record<ProductReadinessIssueId, typeof Camera> = {
   "no-category": FolderTree,
   "no-photos": Camera,
   "demo-main-image": Camera,
+  "legacy-demo-image": Camera,
   "technical-main-image": Camera,
   "placeholder-main-image": Camera,
   "dev-marked-main-image": Camera,

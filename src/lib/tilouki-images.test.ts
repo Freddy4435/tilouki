@@ -26,7 +26,9 @@ describe("tilouki-images", () => {
     expect(resolveCategoryTiloukiImage("garcon").key).toBe(
       CATEGORY_IMAGE_REGISTRY.garcon,
     );
-    expect(resolveCategoryTiloukiImage("fille").key).toBe(CATEGORY_IMAGE_REGISTRY.fille);
+    expect(resolveCategoryTiloukiImage("fille").key).toBe(
+      CATEGORY_IMAGE_REGISTRY.fille,
+    );
     expect(resolveCategoryTiloukiImage("bebe").key).toBe(CATEGORY_IMAGE_REGISTRY.bebe);
     expect(resolveCategoryTiloukiImage("pyjamas").key).toBe(
       CATEGORY_IMAGE_REGISTRY.pyjamas,

@@ -37,28 +37,38 @@ async function productMainHasTiloukiPackImage(page: Page): Promise<boolean> {
 }
 
 /** Les guides d'achat / blog ne doivent pas précéder les produits sur l'accueil. */
-export async function expectHomeProductsBeforeBuyingGuides(page: Page) {
-  await page.goto("/");
+export async function expectHomeProductsBeforeBuyingGuides(
+  page: Page,
+  options?: { skipGoto?: boolean },
+) {
+  if (!options?.skipGoto) {
+    await page.goto("/");
+  }
 
   const vestiaire = page.locator("#home-vestiaire");
-  const guidesTitle = page.locator("#home-buying-help-title");
-
   await expect(vestiaire).toBeVisible();
 
-  const guidesFollowProducts = await page.evaluate(() => {
-    const products = document.getElementById("home-vestiaire");
-    const guides = document.getElementById("home-buying-help-title");
-    if (!products || !guides) return guides == null;
-    return Boolean(
-      products.compareDocumentPosition(guides) & Node.DOCUMENT_POSITION_FOLLOWING,
-    );
-  });
+  await expect
+    .poll(
+      async () =>
+        page.evaluate(() => {
+          const products = document.getElementById("home-vestiaire");
+          const guides = document.getElementById("home-buying-help-title");
+          if (!products || !guides) return guides == null;
+          return Boolean(
+            products.compareDocumentPosition(guides) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
+          );
+        }),
+      { timeout: 15_000 },
+    )
+    .toBe(true);
 
-  expect(guidesFollowProducts).toBe(true);
-
-  if (await guidesTitle.isVisible()) {
-    const vestiaireBox = await vestiaire.boundingBox();
-    const guidesBox = await guidesTitle.boundingBox();
+  const guidesTitle = page.locator("#home-buying-help-title");
+  if (await guidesTitle.isVisible().catch(() => false)) {
+    await guidesTitle.scrollIntoViewIfNeeded();
+    const vestiaireBox = await vestiaire.boundingBox({ timeout: 5_000 });
+    const guidesBox = await guidesTitle.boundingBox({ timeout: 5_000 });
     if (vestiaireBox && guidesBox) {
       expect(vestiaireBox.y).toBeLessThan(guidesBox.y);
     }

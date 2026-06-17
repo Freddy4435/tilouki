@@ -1,33 +1,34 @@
 import Link from "next/link";
 import { ArrowRight, CalendarHeart, Heart, Mail } from "lucide-react";
 
+import { ARRIVAGE_NEWSLETTER_PROMISE } from "@/lib/newsletter/copy";
+
 const RETURN_CARDS = [
   {
     id: "mercredi",
     icon: CalendarHeart,
-    title: "Chaque mercredi",
+    title: "Arrivage du mercredi",
     description:
-      "De nouvelles pièces peuvent arriver en boutique — passez voir les nouveautés du mercredi.",
-    href: "#home-vestiaire",
-    cta: "Voir les nouveautés",
+      "Nouvelles pièces en stock chaque semaine — tailles affichées sur chaque fiche.",
+    href: "#home-arrivage-mercredi",
+    cta: "Voir l'arrivage",
   },
   {
     id: "favoris",
     icon: Heart,
-    title: "Vos coups de cœur",
+    title: "Vos favoris",
     description:
-      "Enregistrez les tailles repérées et retrouvez-les quand vous êtes prêts à commander.",
+      "Gardez les tailles repérées sous la main — stock et prix à jour sur cet appareil.",
     href: "/favoris",
     cta: "Ouvrir mes favoris",
   },
   {
     id: "newsletter",
     icon: Mail,
-    title: "Le mot de Tilouki",
-    description:
-      "Les nouveautés du mercredi, les petits prix et les conseils tailles — une fois par mois.",
+    title: "Alerte arrivage",
+    description: ARRIVAGE_NEWSLETTER_PROMISE,
     href: "#newsletter",
-    cta: "S'inscrire à la newsletter",
+    cta: "Recevoir l'arrivage",
   },
 ] as const;
 
@@ -39,9 +40,9 @@ export function HomeComeBackSection() {
     >
       <div className="container-tilouki">
         <div className="mb-6 text-center md:mb-8">
-          <p className="text-retail-label text-tilouki-teal-dark">On reste en lien</p>
+          <p className="text-retail-label text-tilouki-pistache">On reste en lien</p>
           <h2 id="home-come-back-title" className="text-section-title mt-1">
-            Trois bonnes raisons de revenir
+            Trois raisons de revenir
           </h2>
         </div>
 
@@ -52,7 +53,7 @@ export function HomeComeBackSection() {
               href={card.href}
               className="bg-card group flex flex-col gap-3 rounded-[var(--radius-card)] border p-5 shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-card)]"
             >
-              <span className="bg-tilouki-jade-soft text-tilouki-teal-dark inline-flex size-11 items-center justify-center rounded-[var(--radius-button)]">
+              <span className="bg-tilouki-pistache-soft text-tilouki-navy inline-flex size-11 items-center justify-center rounded-[var(--radius-button)]">
                 <card.icon className="size-5" aria-hidden />
               </span>
               <div className="flex-1 space-y-1.5">
@@ -63,7 +64,7 @@ export function HomeComeBackSection() {
                   {card.description}
                 </p>
               </div>
-              <span className="text-primary inline-flex items-center gap-1 text-sm font-semibold">
+              <span className="text-tilouki-pistache inline-flex items-center gap-1 text-sm font-semibold">
                 {card.cta}
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </span>

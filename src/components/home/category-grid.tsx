@@ -34,7 +34,7 @@ export function CategoryGrid() {
       <div className="container-tilouki">
         <header className="retail-section__header mb-5 max-w-2xl">
           <div className="brand-accent-bar" aria-hidden />
-          <p className="text-retail-label text-tilouki-brand-blue">Rayons</p>
+          <p className="text-retail-label text-tilouki-denim">Rayons</p>
           <h2
             id="home-rayons-title"
             className="text-section-title retail-section__title"
@@ -59,7 +59,7 @@ export function CategoryGrid() {
                 className={cn(
                   "group relative flex flex-col justify-end overflow-hidden rounded-[var(--radius-product)] shadow-[var(--shadow-soft)] ring-1 ring-black/[0.04] transition-shadow hover:shadow-[var(--shadow-card)]",
                   RAYON_LAYOUT_CLASS[rayon.layout],
-                  isPromo && "bg-tilouki-persimmon-soft/40",
+                  isPromo && "bg-tilouki-argile-soft/50",
                 )}
               >
                 <Image
@@ -81,18 +81,13 @@ export function CategoryGrid() {
                   className={cn(
                     "absolute inset-0 bg-gradient-to-t to-transparent",
                     isPromo
-                      ? "from-tilouki-persimmon-dark/85 via-tilouki-persimmon-dark/35"
-                      : "from-tilouki-ink/75 via-tilouki-ink/25",
+                      ? "from-tilouki-terracotta/85 via-tilouki-argile/40"
+                      : "from-tilouki-ink/78 via-tilouki-ink/28",
                   )}
                   aria-hidden
                 />
                 <div className="relative p-3 sm:p-4">
-                  <p
-                    className={cn(
-                      "text-base font-bold text-white sm:text-lg",
-                      isPromo && "text-tilouki-milk",
-                    )}
-                  >
+                  <p className="text-sm font-bold text-white sm:text-base">
                     {rayon.label}
                   </p>
                   <p className="mt-0.5 line-clamp-1 text-xs text-white/88">

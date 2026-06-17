@@ -1,5 +1,5 @@
 /**
- * Cocon marchand 2026 — surfaces retail tactiles, signature Tilouki sans blobs.
+ * Cocon marchand 2026 — surfaces tactiles, aplats chauds, sans orbes ni gros dégradés.
  */
 
 @layer utilities {
@@ -37,16 +37,17 @@
     box-shadow: var(--shadow-soft), var(--shadow-inset-surface);
   }
 
-  /** Bandeau accent logo — menthe → pêche → bleu */
+  /** Bandeau accent — pistache · rose · denim (aplats, pas de dégradé violet) */
   .brand-accent-bar {
     height: 3px;
     width: 2.75rem;
     border-radius: 999px;
     background: linear-gradient(
       90deg,
-      var(--tilouki-mint) 0%,
-      var(--tilouki-peach) 55%,
-      var(--tilouki-brand-blue) 100%
+      var(--tilouki-pistache) 0%,
+      var(--tilouki-pistache) 32%,
+      var(--tilouki-rose-linge) 50%,
+      var(--tilouki-denim) 100%
     );
   }
 
@@ -56,50 +57,65 @@
 
   .maison-surface-milk-texture {
     background-color: var(--tilouki-milk);
+    box-shadow: inset 0 1px 0 rgb(255 252 247 / 0.6);
   }
 
-  /* Nouveautés — chaleur pêche, fond neutre */
+  /* Arrivages — argile douce + crème */
   .maison-surface-butter {
-    background: linear-gradient(
-      168deg,
-      color-mix(in srgb, var(--tilouki-peach-soft) 88%, var(--tilouki-milk)) 0%,
-      var(--tilouki-milk) 48%,
-      color-mix(in srgb, var(--tilouki-mint-soft) 55%, var(--tilouki-cloud)) 100%
+    background-color: color-mix(
+      in srgb,
+      var(--tilouki-argile-soft) 42%,
+      var(--tilouki-milk)
     );
+    box-shadow: inset 0 1px 0 rgb(255 252 247 / 0.55);
   }
 
-  /* Sections produit — menthe légère */
-  .maison-surface-jade {
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--tilouki-mint-soft) 70%, var(--tilouki-milk)) 0%,
-      var(--tilouki-milk) 72%
+  /* Sections douceur — rose linge */
+  .maison-surface-jade,
+  .maison-surface-rose {
+    background-color: color-mix(
+      in srgb,
+      var(--tilouki-rose-linge-soft) 38%,
+      var(--tilouki-milk)
     );
+    box-shadow: inset 0 1px 0 rgb(255 252 247 / 0.5);
   }
 
   .maison-surface-cloud-texture {
     background-color: var(--tilouki-cloud);
+    box-shadow: inset 0 1px 0 rgb(255 252 247 / 0.45);
   }
 
-  /* Guides — bleu grisé discret */
+  /* Guides / catalogue — denim discret */
   .maison-surface-plum {
-    background: linear-gradient(
-      152deg,
-      color-mix(in srgb, var(--tilouki-brand-blue-soft) 85%, var(--tilouki-milk)) 0%,
-      var(--tilouki-milk) 100%
+    background-color: color-mix(
+      in srgb,
+      var(--tilouki-denim-soft) 55%,
+      var(--tilouki-milk)
     );
   }
 
   .maison-surface-icy {
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--tilouki-brand-blue-soft) 75%, var(--tilouki-milk)) 0%,
-      var(--tilouki-cloud) 100%
+    background-color: color-mix(
+      in srgb,
+      var(--tilouki-denim-soft) 48%,
+      var(--tilouki-cloud)
     );
+    box-shadow: inset 0 1px 0 rgb(255 252 247 / 0.5);
   }
 
   .maison-surface-beige {
-    background-color: var(--tilouki-cloud);
+    background-color: var(--tilouki-cream);
+    box-shadow: inset 0 1px 0 rgb(255 252 247 / 0.55);
+  }
+
+  /* Confiance — pistache grisée */
+  .maison-surface-pistache {
+    background-color: color-mix(
+      in srgb,
+      var(--tilouki-pistache-soft) 45%,
+      var(--tilouki-milk)
+    );
   }
 
   .text-wednesday-label {
@@ -109,7 +125,7 @@
     line-height: 1.35;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--tilouki-brand-blue);
+    color: var(--tilouki-argile);
   }
 
   .text-carnet-label {
@@ -132,21 +148,32 @@
     border-radius: 999px;
     background: linear-gradient(
       90deg,
-      var(--tilouki-mint) 0%,
-      var(--tilouki-peach) 55%,
-      var(--tilouki-brand-blue) 100%
+      var(--tilouki-argile) 0%,
+      var(--tilouki-vanille) 55%,
+      var(--tilouki-rose-linge) 100%
     );
   }
 
-  /** Bandeau header — rappel des couleurs logo */
+  /** Bandeau header — rappel logo */
   .brand-header-stripe {
     height: 3px;
     background: linear-gradient(
       90deg,
-      var(--tilouki-mint) 0%,
-      var(--tilouki-mint) 36%,
-      var(--tilouki-peach) 58%,
-      var(--tilouki-brand-blue) 100%
+      var(--tilouki-pistache) 0%,
+      var(--tilouki-pistache) 30%,
+      var(--tilouki-rose-linge) 52%,
+      var(--tilouki-denim) 100%
     );
+  }
+
+  /** Grille retail sans cartes imbriquées */
+  .retail-flat-grid {
+    background-color: var(--tilouki-milk);
+    border: 1px solid var(--tilouki-border-subtle);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .retail-flat-grid__cell {
+    border-color: var(--tilouki-border-subtle);
   }
 }

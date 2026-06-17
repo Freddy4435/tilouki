@@ -10,6 +10,7 @@ import {
   mapImagesToReadiness,
   mapVariantsToReadiness,
 } from "@/lib/admin/product-readiness";
+import { hasLegacyDemoProductImages } from "@/lib/catalog/product-sellability";
 import { isDevSeedProductSlug } from "@/lib/catalog/dev-seed";
 import { countActiveDevSeedProducts } from "@/lib/catalog/dev-seed-guard";
 import { getAdminSupabase } from "@/lib/supabase/queries/admin/client";
@@ -68,6 +69,7 @@ export async function loadCatalogSellReadinessInput(): Promise<CatalogSellReadin
       activeDevSeedProductCount: 0,
       activeRealProductCount: 0,
       activeProductsWithReadinessIssues: 0,
+      activeProductsWithLegacyDemoImages: 0,
       draftProductsReadyToPublish: 0,
     };
   }
@@ -88,12 +90,20 @@ export async function loadCatalogSellReadinessInput(): Promise<CatalogSellReadin
 
   let activeRealProductCount = 0;
   let activeProductsWithReadinessIssues = 0;
+  let activeProductsWithLegacyDemoImages = 0;
   let draftProductsReadyToPublish = 0;
 
   for (const product of products) {
     const issueCount = countReadinessIssuesForProduct(product);
     const isActive = product.status === "active";
     const isDraft = product.status === "draft";
+    const readinessImages = mapImagesToReadiness(
+      (product.images ?? []).map((image) => ({
+        url: image.url,
+        alt: image.alt,
+        sortOrder: image.sort_order,
+      })),
+    );
 
     if (isActive && !isDevSeedProductSlug(product.slug)) {
       activeRealProductCount += 1;
@@ -101,6 +111,14 @@ export async function loadCatalogSellReadinessInput(): Promise<CatalogSellReadin
 
     if (isActive && issueCount > 0) {
       activeProductsWithReadinessIssues += 1;
+    }
+
+    if (
+      isActive &&
+      !isDevSeedProductSlug(product.slug) &&
+      hasLegacyDemoProductImages(readinessImages)
+    ) {
+      activeProductsWithLegacyDemoImages += 1;
     }
 
     if (isDraft && issueCount === 0 && !isDevSeedProductSlug(product.slug)) {
@@ -112,6 +130,7 @@ export async function loadCatalogSellReadinessInput(): Promise<CatalogSellReadin
     activeDevSeedProductCount,
     activeRealProductCount,
     activeProductsWithReadinessIssues,
+    activeProductsWithLegacyDemoImages,
     draftProductsReadyToPublish,
   };
 }
