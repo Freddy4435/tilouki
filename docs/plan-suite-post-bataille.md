@@ -31,7 +31,7 @@ Le [plan bataille 15 étapes](./plan-bataille-15-etapes.md) est livré en produc
 | C.1 | UI remboursement admin (Stripe) | ✅ |
 | C.2 | Ajustement stock admin | ✅ |
 | C.3 | E2E suivi commande + tests refund/stock | ✅ |
-| C.4 | Chronopost étiquette auto | 🔲 |
+| C.4 | Chronopost étiquette auto | ✅ |
 | C.5 | Lighthouse ≥ 90 | 🔲 |
 
 ## Commandes QA

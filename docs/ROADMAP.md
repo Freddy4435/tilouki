@@ -17,7 +17,7 @@ Document maître : ordre d'exécution sans validation intermédiaire. Les statut
 2. **Lot C.1** — UI remboursement admin (Stripe → webhook) ✅
 3. **Lot C.2** — Ajustement stock admin (inventory_movements) ✅
 4. **Lot C.3** — E2E suivi commande + tests unitaires admin ✅
-5. **Lot C.4** — Chronopost étiquette auto (API shippingV6) 🔲
+5. **Lot C.4** — Chronopost étiquette auto (API shippingV6) ✅
 6. **Lot C.5** — Lighthouse ≥ 90 (perf budget) 🔲
 
 ## Ordre exploitant (hors repo)

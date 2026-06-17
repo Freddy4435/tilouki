@@ -137,7 +137,7 @@ Générer un secret :
 
 Si Chronopost n'est pas configuré, seul Mondial Relay est proposé au checkout.
 
-> Chronopost : pas de génération d'étiquette automatique — saisie manuelle du suivi dans l'admin après expédition.
+> Chronopost : génération d'étiquette Chrono Relais via **ShippingServiceWS / shippingV6** (productCode `86`, `recipientRef` = identifiant point relais). Le PDF est stocké en base sous forme de data URL ; l'admin peut aussi enregistrer un suivi manuel.
 
 ### Smoke test Pickup (obligatoire avant activation du barème)
 

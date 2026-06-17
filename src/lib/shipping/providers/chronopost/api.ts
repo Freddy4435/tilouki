@@ -14,6 +14,13 @@ import {
   sanitizeChronopostErrorMessage,
 } from "@/lib/shipping/providers/chronopost/soap";
 import {
+  buildShippingV6Envelope,
+  callShippingV6,
+  parseShippingV6Response,
+  pdfBase64ToDataUrl,
+  validateChronopostLabelInput,
+} from "@/lib/shipping/providers/chronopost/shipping-v6";
+import {
   CHRONOPOST_ERROR_BAD_CREDENTIALS,
   CHRONOPOST_ERROR_NO_RESULT,
   describeChronopostError,
@@ -219,14 +226,108 @@ export class ChronopostApiProvider implements ShippingProvider {
   }
 
   /**
-   * Génération automatique non implémentée (ShippingServiceWS shippingV6).
-   * Utilisez l'enregistrement manuel depuis l'admin après création sur chronopost.fr.
+   * Génération d'étiquette Chrono Relais via ShippingServiceWS / shippingV6.
+   * productCode 86 — recipientRef = identifiant point relais Pickup.
    */
   async createShipmentLabel(input: CreateShipmentLabelInput): Promise<ShipmentLabel> {
-    void input;
-    throw new ShipmentLabelError(
-      "La génération automatique d'étiquette Chronopost n'est pas encore disponible. Créez l'étiquette sur votre espace Chronopost, puis enregistrez le numéro de suivi dans l'admin.",
-      "configuration",
-    );
+    if (!isChronopostConfigured()) {
+      throw new ShipmentLabelError(
+        "API Chronopost non configurée (CHRONOPOST_ACCOUNT_NUMBER / CHRONOPOST_PASSWORD).",
+        "configuration",
+      );
+    }
+
+    const parsed = validateChronopostLabelInput(input);
+    if (!parsed.success) {
+      throw new ShipmentLabelError(
+        parsed.error.issues[0]?.message ?? "Données d'expédition invalides.",
+        "validation",
+      );
+    }
+
+    const data = parsed.data;
+    const accountNumber = getChronopostAccountNumber()!;
+    const password = getChronopostPassword()!;
+    const credentials = { accountNumber, password };
+
+    const envelope = buildShippingV6Envelope({
+      ...data,
+      accountNumber,
+      password,
+    });
+
+    let xml: string;
+    try {
+      xml = await callShippingV6(envelope, credentials);
+    } catch (error) {
+      logSecure("error", "chronopost: création étiquette injoignable", {
+        operation: "shippingV6",
+        orderId: data.orderId,
+        error:
+          error instanceof Error
+            ? sanitizeChronopostErrorMessage(error.message, credentials)
+            : "erreur réseau",
+      });
+      throw new ShipmentLabelError(
+        "Service Chronopost momentanément indisponible. Réessayez.",
+        "unavailable",
+      );
+    }
+
+    const result = parseShippingV6Response(xml);
+
+    if (result.errorCode !== "0") {
+      const detail = result.errorMessage?.trim() || describeChronopostError(result.errorCode);
+      logSecure("warn", "chronopost: échec création étiquette", {
+        operation: "shippingV6",
+        orderId: data.orderId,
+        errorCode: result.errorCode,
+        errorMessage: detail,
+      });
+
+      if (result.errorCode === CHRONOPOST_ERROR_BAD_CREDENTIALS || result.errorCode === "29" || result.errorCode === "33") {
+        throw new ShipmentLabelError(
+          "Configuration Chronopost invalide. Vérifiez le numéro de contrat et le mot de passe API.",
+          "configuration",
+        );
+      }
+
+      throw new ShipmentLabelError(
+        `Chronopost a refusé l'expédition : ${detail}.`,
+        "validation",
+      );
+    }
+
+    const shipmentNumber = result.skybillNumber?.trim() ?? "";
+    if (!shipmentNumber) {
+      logSecure("error", "chronopost: réponse étiquette incomplète", {
+        operation: "shippingV6",
+        orderId: data.orderId,
+        hasPdf: Boolean(result.pdfBase64),
+      });
+      throw new ShipmentLabelError(
+        "Réponse Chronopost incomplète (numéro de suivi manquant). Réessayez.",
+        "unavailable",
+      );
+    }
+
+    const pdfBase64 = result.pdfBase64?.trim() ?? "";
+    if (!pdfBase64) {
+      throw new ShipmentLabelError(
+        "Réponse Chronopost incomplète (PDF étiquette manquant). Réessayez.",
+        "unavailable",
+      );
+    }
+
+    logSecure("info", "chronopost: étiquette créée", {
+      operation: "shippingV6",
+      orderId: data.orderId,
+      shipmentNumber,
+    });
+
+    return {
+      shipmentNumber,
+      labelUrl: pdfBase64ToDataUrl(pdfBase64),
+    };
   }
 }

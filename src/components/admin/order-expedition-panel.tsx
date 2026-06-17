@@ -159,23 +159,24 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {isChronopost ? (
-            <p className="text-muted-foreground text-xs leading-relaxed">
-              Créez l&apos;étiquette sur votre espace Chronopost, puis enregistrez le
-              numéro de suivi ci-dessous. La commande passera automatiquement en
-              expédiée.
-            </p>
-          ) : (
+          {canGenerate ? (
             <Button
               type="button"
               size="sm"
               onClick={onGenerateLabel}
-              disabled={!canGenerate || isPending}
+              disabled={isPending}
             >
               <Tag className="size-4" />
               {isPending ? "Génération…" : `Générer l'étiquette ${carrierLabel}`}
             </Button>
-          )}
+          ) : null}
+
+          {isChronopost && canGenerate ? (
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              L&apos;étiquette est générée via l&apos;API Chronopost (Chrono Relais).
+              Vous pouvez aussi enregistrer un suivi créé manuellement ci-dessous.
+            </p>
+          ) : null}
 
           {(isChronopost || showExternalForm) && canGenerate ? (
             <form
@@ -184,7 +185,7 @@ export function OrderExpeditionPanel({ order }: OrderExpeditionPanelProps) {
             >
               <p className="text-sm font-medium">
                 {isChronopost
-                  ? "Enregistrer l'étiquette Chronopost"
+                  ? "Enregistrer une étiquette Chronopost (manuel)"
                   : "Enregistrer une étiquette externe"}
               </p>
               <div className="space-y-2">

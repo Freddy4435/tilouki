@@ -18,6 +18,13 @@ export const CHRONOPOST_QUICKCOST_NAMESPACE =
 export const CHRONOPOST_QUICKCOST_ENDPOINT =
   "https://ws.chronopost.fr/quickcost-cxf/QuickcostServiceWS";
 
+/** Namespace WSDL ShippingServiceWS (génération d'étiquettes). */
+export const CHRONOPOST_SHIPPING_NAMESPACE =
+  "http://cxf.shipping.soap.chronopost.fr/";
+
+export const CHRONOPOST_SHIPPING_ENDPOINT =
+  "https://ws.chronopost.fr/shipping-cxf/ShippingServiceWS";
+
 export const CHRONOPOST_SOAP_TIMEOUT_MS = 8_000;
 
 export function escapeXml(value: string): string {
@@ -95,18 +102,13 @@ export interface ChronopostSoapRequestOptions {
  * Appel SOAP Chronopost — credentials dans le corps XML uniquement.
  * SOAPAction vide (WSDL CXF document/literal).
  */
-export async function postChronopostSoap(
-  options: ChronopostSoapRequestOptions,
+async function postSoapEnvelope(
+  endpoint: string,
+  operation: string,
+  envelope: string,
+  timeoutMs: number,
+  sensitiveFields?: Record<string, string>,
 ): Promise<string> {
-  const {
-    endpoint,
-    namespace,
-    operation,
-    fields,
-    timeoutMs = CHRONOPOST_SOAP_TIMEOUT_MS,
-  } = options;
-  const envelope = buildSoapEnvelope(namespace, operation, fields);
-
   const doFetch = async (): Promise<string> => {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -139,9 +141,38 @@ export async function postChronopostSoap(
         firstError instanceof ChronopostSoapError ? firstError.httpStatus : undefined,
       error:
         firstError instanceof Error
-          ? sanitizeChronopostErrorMessage(firstError.message, fields)
+          ? sanitizeChronopostErrorMessage(firstError.message, sensitiveFields)
           : "erreur réseau",
     });
     return doFetch();
   }
+}
+
+export async function postChronopostSoap(
+  options: ChronopostSoapRequestOptions,
+): Promise<string> {
+  const {
+    endpoint,
+    namespace,
+    operation,
+    fields,
+    timeoutMs = CHRONOPOST_SOAP_TIMEOUT_MS,
+  } = options;
+  const envelope = buildSoapEnvelope(namespace, operation, fields);
+  return postSoapEnvelope(endpoint, operation, envelope, timeoutMs, fields);
+}
+
+/** Enveloppe SOAP pré-construite (structures imbriquées, ex. shippingV6). */
+export async function postChronopostSoapEnvelope(
+  options: {
+    endpoint: string;
+    operation: string;
+    envelope: string;
+    timeoutMs?: number;
+    sensitiveFields?: Record<string, string>;
+  },
+): Promise<string> {
+  const { endpoint, operation, envelope, timeoutMs = CHRONOPOST_SOAP_TIMEOUT_MS, sensitiveFields } =
+    options;
+  return postSoapEnvelope(endpoint, operation, envelope, timeoutMs, sensitiveFields);
 }

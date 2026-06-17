@@ -15,6 +15,8 @@ import {
 import {
   CHRONOPOST_RELAY_ENDPOINT,
   CHRONOPOST_RELAY_NAMESPACE,
+  CHRONOPOST_SHIPPING_ENDPOINT,
+  CHRONOPOST_SHIPPING_NAMESPACE,
 } from "@/lib/shipping/providers/chronopost/soap";
 
 const labelInput = {
@@ -64,7 +66,13 @@ afterEach(() => {
 });
 
 describe("ChronopostApiProvider.createShipmentLabel", () => {
-  it("refuse avec un message clair (API non intégrée)", async () => {
+  const SAMPLE_LABEL_OK_XML = `<return>
+    <errorCode>0</errorCode>
+    <skybillNumber>XY123456789FR</skybillNumber>
+    <pdfEtiquette>JVBERi0x</pdfEtiquette>
+  </return>`;
+
+  it("refuse si Chronopost non configuré", async () => {
     const provider = new ChronopostApiProvider();
 
     await expect(provider.createShipmentLabel(labelInput)).rejects.toBeInstanceOf(
@@ -73,7 +81,48 @@ describe("ChronopostApiProvider.createShipmentLabel", () => {
 
     await expect(provider.createShipmentLabel(labelInput)).rejects.toMatchObject({
       category: "configuration",
-      message: expect.stringContaining("Chronopost"),
+    });
+  });
+
+  it("appelle shippingV6 et retourne numéro + PDF", async () => {
+    configureChronopost();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => SAMPLE_LABEL_OK_XML,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const provider = new ChronopostApiProvider();
+    const label = await provider.createShipmentLabel(labelInput);
+
+    expect(label.shipmentNumber).toBe("XY123456789FR");
+    expect(label.labelUrl).toBe("data:application/pdf;base64,JVBERi0x");
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(CHRONOPOST_SHIPPING_ENDPOINT);
+    const body = String(init.body);
+    expect(body).toContain(`xmlns:cxf="${CHRONOPOST_SHIPPING_NAMESPACE}"`);
+    expect(body).toContain("<cxf:shippingV6>");
+    expect(body).toContain("<recipientRef>1699P</recipientRef>");
+    expect(body).toContain("<productCode>86</productCode>");
+    expect(body).toContain("<password>secretpass</password>");
+  });
+
+  it("lève ShipmentLabelError sur errorCode Chronopost", async () => {
+    configureChronopost();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () =>
+          "<return><errorCode>33</errorCode><errorMessage>Invalid password</errorMessage></return>",
+      }),
+    );
+
+    const provider = new ChronopostApiProvider();
+
+    await expect(provider.createShipmentLabel(labelInput)).rejects.toMatchObject({
+      category: "configuration",
     });
   });
 });
